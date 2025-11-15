@@ -60,7 +60,6 @@
         .zoom-button:hover{background:#daa520;transform:scale(1.05)}
         .controls-info{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,26,26,.8);color:#daa520;padding:8px 16px;border-radius:20px;font-size:.9rem;opacity:0;transition:opacity .3s;z-index:2001}
         .controls-info.show{opacity:1}
-        /* ETHEREAL BACKGROUND SOUND */
         #muteToggle{position:fixed;bottom:20px;right:20px;z-index:10000;background:rgba(218,165,32,.8);color:#0a0a0a;border:none;border-radius:50%;width:50px;height:50px;cursor:pointer;font-size:1.1rem;line-height:1;font-family:Georgia,serif;transition:transform .2s}
         #muteToggle:hover{transform:scale(1.1)}
     </style>
@@ -121,6 +120,7 @@
 </audio>
 <button id="muteToggle" title="Toggle background music">Play</button>
 
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
 <script>
 const artworkData = [
     {file:'images/artwork1.webp',fallback:'images/artwork1.png',title:'Axis Mundi: Codex of Connectedness',medium:'Acrylic on Canvas',date:'2025',description:'A sweeping exploration of human interconnectedness, belief, and belonging, this monumental work unifies diverse spiritual and cultural iconographies within a cosmological framework. Elements of earth, wind, fire, and water serve as anchoring forces, binding the narrative across traditions. At its center stands your interpretation of the Shroud of Turin, framed by symbols that span Abrahamic faiths, ancient mythologies, and contemporary metaphysics. The figure on the far right—your "Goddess of the Information Age"—introduces a striking tension between the ancient and the digital, suggesting a future in which wisdom, technology, and spirituality converge. The result is a visual codex: a map of humanity\'s shared search for meaning.'},
