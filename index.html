@@ -67,8 +67,6 @@
         .zoom-controls{position:fixed;top:20px;right:20px;display:flex;gap:10px;z-index:2001}
         .zoom-button{padding:12px 20px;background:rgba(218,165,32,.9);color:#0a0a0a;border:none;border-radius:30px;cursor:pointer;font-size:1rem;letter-spacing:.1rem;transition:all .3s}
         .zoom-button:hover{background:#daa520;transform:scale(1.05)}
-        .controls-info{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,26,26,.8);color:#daa520;padding:8px 16px;border-radius:20px;font-size:.9rem;opacity:0;transition:opacity .3s;z-index:2001}
-        .controls-info.show{opacity:1}
         #muteToggle{position:fixed;bottom:20px;right:20px;z-index:10000;background:rgba(218,165,32,.8);color:#0a0a0a;border:none;border-radius:50%;width:50px;height:50px;cursor:pointer;font-size:1.1rem;line-height:1;font-family:Georgia,serif;transition:transform .2s}
         #muteToggle:hover{transform:scale(1.1)}
 
@@ -81,11 +79,14 @@
             .gallery-item img {height:320px;}
             .gallery-details h3 {font-size:1rem;}
             .gallery-details p {font-size:0.8rem;}
-            .lightbox-content {flex-direction:column; gap:20px;}
-            .lightbox img {max-width:100%; max-height:60vh;}
-            .lightbox-details {max-width:100%; padding:15px; background:rgba(26,26,26,.8); border-radius:8px;}
+            .lightbox-content {flex-direction:column; gap:20px; max-height:90vh; overflow-y:auto;}
+            .lightbox img {max-width:100%; max-height:50vh; flex-shrink:0;}
+            .lightbox-details {max-width:100%; padding:15px; background:rgba(26,26,26,.8); border-radius:8px; overflow-y:auto;}
             .lightbox-details h3 {font-size:1.6rem;}
             .lightbox-details p {font-size:1rem; color:#f5f5f5 !important;}
+            .vr-exit {padding:10px 20px; font-size:0.85rem;}
+            .zoom-controls {flex-direction:column; gap:8px;}
+            .zoom-button {padding:8px 16px; font-size:0.85rem;}
             .vr-button {padding:16px 40px; font-size:1rem;}
             .auto-scroll-left, .auto-scroll-right {width:50px; height:50px; font-size:1.5rem;}
             .lightbox-nav {width:40px; height:40px; font-size:1.4rem;}
@@ -146,7 +147,6 @@
         <button class="zoom-button" id="zoomOut">ZOOM −</button>
         <button class="zoom-button" id="resetZoom">RESET</button>
     </div>
-    <div class="controls-info" id="controlsInfo">WASD to move • Mouse to look • Click to view</div>
     <canvas id="vrCanvas"></canvas>
 </div>
 
@@ -272,7 +272,6 @@ const mouse = new THREE.Vector2();
 const ray = new THREE.Raycaster();
 const clickables = [];
 let fov = 75, minF = 30, maxF = 100;
-let controlsTimeout;
 
 vrBtn.onclick = initVR;
 exitBtn.onclick = () => { vrGallery.classList.remove('active'); document.body.style.overflow = ''; };
@@ -289,8 +288,14 @@ function initVR() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
 
-    const ambient = new THREE.AmbientLight(0x404040, 0.5);
+    // Bright ambient lighting to illuminate all paintings evenly
+    const ambient = new THREE.AmbientLight(0xffffff, 1.2);
     scene.add(ambient);
+
+    // Add some directional light for depth
+    const directional = new THREE.DirectionalLight(0xffffff, 0.8);
+    directional.position.set(0, 10, 0);
+    scene.add(directional);
 
     const floorTex = new THREE.CanvasTexture(createCheckerboard());
     floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
@@ -355,16 +360,6 @@ function initVR() {
                 new THREE.MeshStandardMaterial({color: 0x000000})
             );
             g.add(frame);
-
-            // SPOTLIGHT FROM ABOVE — FIXED
-            const light = new THREE.SpotLight(0xdaa520, 3, 12, Math.PI/3, 0.6);
-            light.position.set(x, 4.8, z);
-            light.target.position.set(x, 2.2, z);
-            light.castShadow = true;
-            light.shadow.mapSize.width = 1024;
-            light.shadow.mapSize.height = 1024;
-            scene.add(light);
-            scene.add(light.target);
         };
 
         g.position.set(x, 2.2, z);
@@ -420,7 +415,6 @@ function setupVREvents() {
         else if (['KeyS','ArrowDown'].includes(e.code)) moveB = true;
         else if (['KeyA','ArrowLeft'].includes(e.code)) moveL = true;
         else if (['KeyD','ArrowRight'].includes(e.code)) moveR = true;
-        showControls();
     });
     document.addEventListener('keyup', e => {
         if (['KeyW','ArrowUp'].includes(e.code)) moveF = false;
@@ -432,7 +426,6 @@ function setupVREvents() {
     canvas.addEventListener('pointerdown', e => {
         isDraggingVR = true;
         prevX = e.clientX; prevY = e.clientY;
-        showControls();
     });
     canvas.addEventListener('pointermove', e => {
         if (!isDraggingVR) return;
@@ -452,29 +445,55 @@ function setupVREvents() {
     });
 
     let touchDragging = false;
+    let touchStartDist = 0;
+    let touchZoomBase = fov;
+
     canvas.addEventListener('touchstart', e => {
         e.preventDefault();
-        const t = e.touches[0];
-        touchDragging = false;
-        prevX = t.clientX; prevY = t.clientY;
-        showControls();
+        if (e.touches.length === 1) {
+            const t = e.touches[0];
+            touchDragging = false;
+            prevX = t.clientX; prevY = t.clientY;
+        } else if (e.touches.length === 2) {
+            // Pinch zoom start
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            touchStartDist = Math.sqrt(dx * dx + dy * dy);
+            touchZoomBase = fov;
+        }
     });
+
     canvas.addEventListener('touchmove', e => {
         e.preventDefault();
-        const t = e.touches[0];
-        const dx = t.clientX - prevX, dy = t.clientY - prevY;
-        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) touchDragging = true;
-        camera.rotation.y -= dx * 0.003;
-        camera.rotation.x -= dy * 0.003;
-        camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
-        prevX = t.clientX; prevY = t.clientY;
+        if (e.touches.length === 1) {
+            const t = e.touches[0];
+            const dx = t.clientX - prevX, dy = t.clientY - prevY;
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) touchDragging = true;
+            camera.rotation.y -= dx * 0.003;
+            camera.rotation.x -= dy * 0.003;
+            camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
+            prevX = t.clientX; prevY = t.clientY;
+        } else if (e.touches.length === 2) {
+            // Pinch zoom
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const delta = touchStartDist - dist;
+            fov = Math.max(minF, Math.min(maxF, touchZoomBase + delta * 0.1));
+            camera.fov = fov;
+            camera.updateProjectionMatrix();
+        }
     });
+
     canvas.addEventListener('touchend', e => {
-        if (!touchDragging && e.changedTouches.length) {
+        if (!touchDragging && e.changedTouches.length === 1) {
             const t = e.changedTouches[0];
             mouse.x = (t.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(t.clientY / window.innerHeight) * 2 + 1;
             isPointerDown = true;
+        }
+        if (e.touches.length < 2) {
+            touchStartDist = 0;
         }
     });
 
@@ -483,15 +502,24 @@ function setupVREvents() {
         fov = Math.max(minF, Math.min(maxF, fov + e.deltaY * 0.05));
         camera.fov = fov;
         camera.updateProjectionMatrix();
-        showControls();
     });
-}
 
-function showControls() {
-    const info = document.getElementById('controlsInfo');
-    info.classList.add('show');
-    clearTimeout(controlsTimeout);
-    controlsTimeout = setTimeout(() => info.classList.remove('show'), 3000);
+    // Zoom button controls
+    document.getElementById('zoomIn').onclick = () => {
+        fov = Math.max(minF, fov - 5);
+        camera.fov = fov;
+        camera.updateProjectionMatrix();
+    };
+    document.getElementById('zoomOut').onclick = () => {
+        fov = Math.min(maxF, fov + 5);
+        camera.fov = fov;
+        camera.updateProjectionMatrix();
+    };
+    document.getElementById('resetZoom').onclick = () => {
+        fov = 75;
+        camera.fov = fov;
+        camera.updateProjectionMatrix();
+    };
 }
 
 /* ===== ETHEREAL BACKGROUND SOUND ===== */
