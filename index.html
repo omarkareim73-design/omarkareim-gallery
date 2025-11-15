@@ -268,6 +268,7 @@ let vel = new THREE.Vector3();
 let dir = new THREE.Vector3();
 let isDraggingVR = false, prevX, prevY;
 let isPointerDown = false;
+let hasMoved = false;
 const mouse = new THREE.Vector2();
 const ray = new THREE.Raycaster();
 const clickables = [];
@@ -425,11 +426,13 @@ function setupVREvents() {
 
     canvas.addEventListener('pointerdown', e => {
         isDraggingVR = true;
+        hasMoved = false;
         prevX = e.clientX; prevY = e.clientY;
     });
     canvas.addEventListener('pointermove', e => {
         if (!isDraggingVR) return;
         const dx = e.clientX - prevX, dy = e.clientY - prevY;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
         camera.rotation.y -= dx * 0.003;
         camera.rotation.x -= dy * 0.003;
         camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
@@ -439,9 +442,12 @@ function setupVREvents() {
     });
     canvas.addEventListener('pointerup', e => {
         isDraggingVR = false;
-        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        isPointerDown = true;
+        // Only register as click if there was minimal movement
+        if (!hasMoved) {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            isPointerDown = true;
+        }
     });
 
     let touchDragging = false;
@@ -486,6 +492,7 @@ function setupVREvents() {
     });
 
     canvas.addEventListener('touchend', e => {
+        // Only register as tap if there was minimal movement
         if (!touchDragging && e.changedTouches.length === 1) {
             const t = e.changedTouches[0];
             mouse.x = (t.clientX / window.innerWidth) * 2 - 1;
@@ -495,6 +502,7 @@ function setupVREvents() {
         if (e.touches.length < 2) {
             touchStartDist = 0;
         }
+        touchDragging = false;
     });
 
     canvas.addEventListener('wheel', e => {
