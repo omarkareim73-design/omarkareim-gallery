@@ -45,6 +45,15 @@
         .vr-button{display:inline-block;padding:20px 50px;font-size:1.2rem;letter-spacing:.2rem;color:#0a0a0a;background:linear-gradient(135deg,#daa520,#f4e4c1);border:none;border-radius:50px;cursor:pointer;transition:all .3s;font-family:'Georgia',serif;box-shadow:0 10px 30px rgba(218,165,32,.3)}
         .vr-button:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 15px 40px rgba(218,165,32,.5)}
 
+        /* ABOUT SECTION */
+        .about-section{padding:100px 5%;background:#0a0a0a;display:flex;flex-direction:column;align-items:center}
+        .about-container{max-width:900px;display:flex;gap:50px;align-items:flex-start}
+        .about-photo{flex-shrink:0}
+        .about-photo img{width:250px;height:250px;border-radius:50%;object-fit:cover;border:4px solid #daa520;box-shadow:0 10px 30px rgba(218,165,32,.3)}
+        .about-text{flex:1}
+        .about-text h2{font-size:2.5rem;color:#daa520;margin-bottom:30px;letter-spacing:.3rem;font-weight:300;text-align:left}
+        .about-text p{font-size:1.1rem;line-height:1.8;color:#f5f5f5;margin-bottom:20px;text-align:left}
+
         /* LIGHTBOX CAROUSEL */
         .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:3000;justify-content:center;align-items:center;overflow:hidden}
         .lightbox.active{display:flex}
@@ -87,6 +96,10 @@
             .vr-exit {padding:10px 20px; font-size:0.85rem;}
             .zoom-controls {flex-direction:column; gap:8px;}
             .zoom-button {padding:8px 16px; font-size:0.85rem;}
+            .about-container {flex-direction:column; align-items:center; gap:30px;}
+            .about-photo img {width:200px; height:200px;}
+            .about-text h2 {font-size:1.8rem; text-align:center;}
+            .about-text p {font-size:1rem; text-align:center;}
             .vr-button {padding:16px 40px; font-size:1rem;}
             .auto-scroll-left, .auto-scroll-right {width:50px; height:50px; font-size:1.5rem;}
             .lightbox-nav {width:40px; height:40px; font-size:1.4rem;}
@@ -115,6 +128,22 @@
         <div class="gallery-grid" id="galleryGrid"></div>
         <div class="auto-scroll-left"><</div>
         <div class="auto-scroll-right">></div>
+    </div>
+</section>
+
+<!-- ABOUT SECTION -->
+<section class="about-section">
+    <div class="about-container">
+        <div class="about-photo">
+            <img src="images/omar_kareim_profile.webp" alt="Omar Kareim">
+        </div>
+        <div class="about-text">
+            <h2>ABOUT</h2>
+            <p>Omar Kareim is a multidisciplinary artist whose work weaves the richness of cultural identity with the evolving language of the digital age. Raised in the American Midwest, his artistic sensibilities developed organically before being refined through formal study and later expanded by a professional journey in the technical world. This dual foundation - creative and analytical - deeply shapes his practice, where imagination and structure, emotion and precision, intersect seamlessly.</p>
+            <p>At the heart of Omar's work is the exploration of interconnectedness. His pieces are defined by a meticulous synthesis of symbolism, intricate detail, rich color, and striking contrast. Whether expressed through abstraction, portraiture, or mixed-media forms, these elements form a consistent visual vocabulary that invites viewers into layered discovery.</p>
+            <p>Omar's process is guided by an instinctive ability to find order within complexity. He is driven by a desire to reveal the patterns, harmonies, and hidden relationships that unite seemingly disparate ideas. His visions emerge from an internal landscape - concepts first experienced inwardly, then translated into tangible form.</p>
+            <p>Each piece is more than an artwork; it is an expression of connection, a vessel through which his insights into the human experience are shared.</p>
+        </div>
     </div>
 </section>
 
