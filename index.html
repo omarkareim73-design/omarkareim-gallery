@@ -22,9 +22,12 @@
         @keyframes bounce{0%,20%,50%,80%,100%{transform:translateY(0)}40%{transform:translateY(-10px)}60%{transform:translateY(-5px)}}
         .gallery-section{min-height:100vh;padding:100px 5%;background:#0a0a0a}
         .section-title{text-align:center;font-size:2.5rem;margin-bottom:60px;color:#daa520;letter-spacing:.3rem;font-weight:300}
-        .gallery-wrapper{overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;padding-bottom:20px;cursor:grab;position:relative}
+        .gallery-wrapper{overflow-x:auto;scroll-behavior:smooth;scrollbar-width:thin;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;padding-bottom:20px;cursor:grab;position:relative}
+        .gallery-wrapper:hover{scrollbar-width:auto}
         .gallery-wrapper:active{cursor:grabbing}
         .gallery-wrapper::-webkit-scrollbar{display:none}
+        .gallery-wrapper:hover::-webkit-scrollbar{display:block}
+        .gallery-wrapper::-webkit-scrollbar-thumb{background:rgba(218,165,32,.5);border-radius:10px}
         .gallery-grid{display:flex;gap:30px}
         .gallery-item{flex:0 0 350px;position:relative;overflow:hidden;border-radius:8px;cursor:pointer;transition:transform .3s,box-shadow .3s;background:#1a1a1a;opacity:0;animation:fadeInGallery 0.8s ease forwards}
         @keyframes fadeInGallery{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
@@ -34,8 +37,8 @@
         .gallery-details{padding:15px;text-align:left}
         .gallery-details h3{font-size:1.2rem;color:#daa520;margin-bottom:5px;font-weight:500;line-height:1.3}
         .gallery-details p{font-size:.9rem;color:#ccc;margin-bottom:3px}
-        .auto-scroll-left,.auto-scroll-right{position:absolute;top:50%;transform:translateY(-50%);width:60px;height:60px;background:rgba(218,165,32,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#daa520;font-size:1.8rem;cursor:pointer;z-index:10;opacity:0;transition:opacity .3s;pointer-events:none}
-        .auto-scroll-left.show,.auto-scroll-right.show{opacity:1;pointer-events:auto}
+        .auto-scroll-left,.auto-scroll-right{position:absolute;top:50%;transform:translateY(-50%);width:60px;height:60px;background:rgba(218,165,32,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#daa520;font-size:1.8rem;cursor:pointer;z-index:10;opacity:0.7;transition:opacity .3s}
+        .auto-scroll-left:hover,.auto-scroll-right:hover{opacity:1;background:rgba(218,165,32,.5)}
         .auto-scroll-left{left:20px}.auto-scroll-right{right:20px}
         .auto-scroll-left::before{content:'<'} .auto-scroll-right::before{content:'>'}
         .vr-section{padding:100px 5%;text-align:center;background:linear-gradient(180deg,#0a0a0a 0%,#1a1a1a 100%)}
@@ -45,11 +48,11 @@
         /* LIGHTBOX CAROUSEL */
         .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:3000;justify-content:center;align-items:center;overflow:hidden}
         .lightbox.active{display:flex}
-        .lightbox-content{display:flex;max-width:90%;max-height:90vh;gap:40px;align-items:flex-start;flex-wrap:wrap;position:relative}
+        .lightbox-content{display:flex;max-width:90%;max-height:90vh;gap:40px;align-items:flex-start;flex-wrap:nowrap;position:relative}
         .lightbox img{max-width:70%;max-height:90vh;object-fit:contain;border-radius:8px}
-        .lightbox-details{max-width:30%;color:#f5f5f5;padding-top:20px}
+        .lightbox-details{max-width:30%;color:#f5f5f5;padding-top:20px;word-wrap:break-word;overflow-wrap:break-word;hyphens:auto}
         .lightbox-details h3{font-size:2rem;color:#daa520;margin-bottom:15px;font-weight:500}
-        .lightbox-details p{font-size:1.1rem;line-height:1.6;margin-bottom:10px}
+        .lightbox-details p{font-size:1.1rem;line-height:1.6;margin-bottom:10px;color:#f5f5f5}
         .lightbox-close{position:absolute;top:20px;right:20px;font-size:2rem;color:#daa520;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(26,26,26,.7);border-radius:50%;transition:transform .3s,background .3s;z-index:3001}
         .lightbox-close:hover{background:#daa520;color:#0a0a0a;transform:scale(1.1)}
         .lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:50px;height:50px;background:rgba(218,165,32,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#daa520;font-size:1.8rem;cursor:pointer;z-index:3001;opacity:0.7}
@@ -80,9 +83,9 @@
             .gallery-details p {font-size:0.8rem;}
             .lightbox-content {flex-direction:column; gap:20px;}
             .lightbox img {max-width:100%; max-height:60vh;}
-            .lightbox-details {max-width:100%; padding:10px;}
-            .lightbox-details h3 {font-size:1.5rem;}
-            .lightbox-details p {font-size:0.9rem;}
+            .lightbox-details {max-width:100%; padding:15px; background:rgba(26,26,26,.8); border-radius:8px;}
+            .lightbox-details h3 {font-size:1.6rem;}
+            .lightbox-details p {font-size:1rem; color:#f5f5f5 !important;}
             .vr-button {padding:16px 40px; font-size:1rem;}
             .auto-scroll-left, .auto-scroll-right {width:50px; height:50px; font-size:1.5rem;}
             .lightbox-nav {width:40px; height:40px; font-size:1.4rem;}
@@ -143,7 +146,7 @@
         <button class="zoom-button" id="zoomOut">ZOOM −</button>
         <button class="zoom-button" id="resetZoom">RESET</button>
     </div>
-    <div class="controls-info" id="controlsInfo">WASD to move • Mouse to look • Click painting to view</div>
+    <div class="controls-info" id="controlsInfo">WASD to move • Mouse to look • Click to view</div>
     <canvas id="vrCanvas"></canvas>
 </div>
 
@@ -247,8 +250,8 @@ const leftArrow = document.querySelector('.auto-scroll-left');
 const rightArrow = document.querySelector('.auto-scroll-right');
 
 wrapper.addEventListener('scroll', () => {
-    leftArrow.classList.toggle('show', wrapper.scrollLeft > 50);
-    rightArrow.classList.toggle('show', wrapper.scrollLeft < wrapper.scrollWidth - wrapper.clientWidth - 50);
+    leftArrow.style.opacity = wrapper.scrollLeft > 50 ? '0.9' : '0.7';
+    rightArrow.style.opacity = wrapper.scrollLeft < wrapper.scrollWidth - wrapper.clientWidth - 50 ? '0.9' : '0.7';
 });
 leftArrow.onclick = () => wrapper.scrollBy({left: -400, behavior: 'smooth'});
 rightArrow.onclick = () => wrapper.scrollBy({left: 400, behavior: 'smooth'});
@@ -286,7 +289,7 @@ function initVR() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
 
-    const ambient = new THREE.AmbientLight(0x404040, 0.6);
+    const ambient = new THREE.AmbientLight(0x404040, 0.5);
     scene.add(ambient);
 
     const floorTex = new THREE.CanvasTexture(createCheckerboard());
@@ -294,7 +297,7 @@ function initVR() {
     floorTex.repeat.set(20, 20);
     const floor = new THREE.Mesh(
         new THREE.PlaneGeometry(14, 14),
-        new THREE.MeshStandardMaterial({map: floorTex, roughness: 0.8})
+        new THREE.MeshStandardMaterial({map: floorTex, roughness: 0.8, metalness: 0.1})
     );
     floor.rotation.x = -Math.PI/2;
     floor.receiveShadow = true;
@@ -340,7 +343,7 @@ function initVR() {
             tex.colorSpace = THREE.SRGBColorSpace;
             const plane = new THREE.Mesh(
                 new THREE.PlaneGeometry(planeWidth, planeHeight),
-                new THREE.MeshStandardMaterial({map: tex, roughness: 0.9})
+                new THREE.MeshStandardMaterial({map: tex, roughness: 0.9, metalness: 0.1})
             );
             plane.position.z = 0.06;
             plane.userData.idx = i;
@@ -353,11 +356,13 @@ function initVR() {
             );
             g.add(frame);
 
-            // SPOTLIGHT ABOVE EACH PAINTING
-            const light = new THREE.SpotLight(0xdaa520, 2, 8, Math.PI/4, 0.5);
+            // SPOTLIGHT FROM ABOVE — FIXED
+            const light = new THREE.SpotLight(0xdaa520, 3, 12, Math.PI/3, 0.6);
             light.position.set(x, 4.8, z);
             light.target.position.set(x, 2.2, z);
             light.castShadow = true;
+            light.shadow.mapSize.width = 1024;
+            light.shadow.mapSize.height = 1024;
             scene.add(light);
             scene.add(light.target);
         };
@@ -376,7 +381,7 @@ function initVR() {
 function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
-    vel.multiplyScalar(0.9); // Smooth inertia
+    vel.multiplyScalar(0.9);
     dir.z = Number(moveF) - Number(moveB);
     dir.x = Number(moveR) - Number(moveL);
     dir.normalize();
