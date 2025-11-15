@@ -4,14 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Axis Mundi | Omar Kareim</title>
+    <!-- Force refresh cache -->
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
+        html {scroll-behavior: smooth;}
         body{font-family:'Georgia',serif;background:#0a0a0a;color:#f5f5f5;overflow-x:hidden}
         .landing{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;background:linear-gradient(135deg,#1a1a1a 0%,#0a0a0a 100%);position:relative;overflow:hidden}
         .landing::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(218,165,32,0.1)0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:pulse 4s ease-in-out infinite}
         @keyframes pulse{0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.3}50%{transform:translate(-50%,-50%)scale(1.2);opacity:.5}}
         h1{font-size:4rem;font-weight:300;letter-spacing:.3rem;margin-bottom:1rem;background:linear-gradient(135deg,#daa520,#f4e4c1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:fadeInUp 1s ease-out}
-        .subtitle{font-size:1.5rem;letter-spacing:.5rem;color:#daa520;margin-bottom:3rem;font-weight:300;animation:fadeInUp 1s ease-out .3s both}
+        .subtitle{font-size:1.5rem;letter-spacing:.5rem;color:#daa520;margin-bottom:3rem;font-weight:300;animation:fadeInUp 1s ease-out .3s both;text-align:center}
         @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
         .scroll-indicator{position:absolute;bottom:40px;font-size:.9rem;color:#daa520;letter-spacing:.2rem;opacity:0.7;animation:bounce 2s infinite}
         @keyframes bounce{0%,20%,50%,80%,100%{transform:translateY(0)}40%{transform:translateY(-10px)}60%{transform:translateY(-5px)}}
@@ -21,7 +26,8 @@
         .gallery-wrapper.grabbing{cursor:grabbing}
         .gallery-wrapper::-webkit-scrollbar{display:none}
         .gallery-grid{display:flex;gap:30px}
-        .gallery-item{flex:0 0 350px;position:relative;overflow:hidden;border-radius:8px;cursor:pointer;transition:transform .3s,box-shadow .3s;background:#1a1a1a}
+        .gallery-item{flex:0 0 350px;position:relative;overflow:hidden;border-radius:8px;cursor:pointer;transition:transform .3s,box-shadow .3s;background:#1a1a1a;opacity:0;animation:fadeInGallery 0.8s ease forwards}
+        @keyframes fadeInGallery{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
         .gallery-item:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(218,165,32,.3)}
         .gallery-item img{width:100%;height:400px;object-fit:cover;display:block;transition:transform .5s}
         .gallery-item:hover img{transform:scale(1.05)}
@@ -31,7 +37,7 @@
         .auto-scroll-left,.auto-scroll-right{position:absolute;top:50%;transform:translateY(-50%);width:60px;height:60px;background:rgba(218,165,32,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#daa520;font-size:1.8rem;cursor:pointer;z-index:10;opacity:0;transition:opacity .3s;pointer-events:none}
         .auto-scroll-left.show,.auto-scroll-right.show{opacity:1;pointer-events:auto}
         .auto-scroll-left{left:20px}.auto-scroll-right{right:20px}
-        .auto-scroll-left::before{content:'<'}.auto-scroll-right::before{content:'>'}
+        .auto-scroll-left::before{content:'<'} .auto-scroll-right::before{content:'>'}
         .vr-section{padding:100px 5%;text-align:center;background:linear-gradient(180deg,#0a0a0a 0%,#1a1a1a 100%)}
         .vr-button{display:inline-block;padding:20px 50px;font-size:1.2rem;letter-spacing:.2rem;color:#0a0a0a;background:linear-gradient(135deg,#daa520,#f4e4c1);border:none;border-radius:50px;cursor:pointer;transition:all .3s;font-family:'Georgia',serif;box-shadow:0 10px 30px rgba(218,165,32,.3)}
         .vr-button:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 15px 40px rgba(218,165,32,.5)}
@@ -52,125 +58,410 @@
         .zoom-controls{position:fixed;top:20px;right:20px;display:flex;gap:10px;z-index:2001}
         .zoom-button{padding:12px 20px;background:rgba(218,165,32,.9);color:#0a0a0a;border:none;border-radius:30px;cursor:pointer;font-size:1rem;letter-spacing:.1rem;transition:all .3s}
         .zoom-button:hover{background:#daa520;transform:scale(1.05)}
-        .controls-info{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,26,26,.8);padding:12px 25px;border-radius:30px;color:#daa520;z-index:2001;font-size:.85rem;letter-spacing:.1rem;opacity:0;transition:opacity .5s ease}
+        .controls-info{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(26,26,26,.8);color:#daa520;padding:8px 16px;border-radius:20px;font-size:.9rem;opacity:0;transition:opacity .3s;z-index:2001}
         .controls-info.show{opacity:1}
-        .about-section{min-height:80vh;padding:100px 5%;background:#1a1a1a}
-        .about-content{display:flex;gap:50px;max-width:1200px;margin:0 auto;align-items:center}
-        .about-image{flex-shrink:0;width:300px;height:300px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 10px rgba(218,165,32,.2)}
-        .about-image img{width:100%;height:100%;object-fit:cover}
-        .about-text{flex-grow:1;line-height:1.8;font-size:1.1rem}
-        .about-text h2{font-size:2rem;color:#f4e4c1;margin-bottom:20px;font-weight:300}
-        .about-text p{margin-bottom:15px}
-        @media(max-width:1024px){.about-content{flex-direction:column;text-align:center}.about-image{margin-bottom:30px}.lightbox-content{flex-direction:column;max-height:95vh;gap:15px;overflow-y:auto}.lightbox img{max-width:100%;max-height:60vh}.lightbox-details{max-width:100%;padding:0 10px;text-align:center}}
-        @media(max-width:768px){h1{font-size:2.5rem}.subtitle{font-size:1rem}.gallery-item{flex:0 0 280px}.zoom-controls{flex-direction:column;top:80px}.controls-info{font-size:.65rem;padding:8px 16px}.auto-scroll-left,.auto-scroll-right{width:40px;height:40px;font-size:1.2rem}}
+        /* ETHEREAL BACKGROUND SOUND */
+        #muteToggle{position:fixed;bottom:20px;right:20px;z-index:10000;background:rgba(218,165,32,.8);color:#0a0a0a;border:none;border-radius:50%;width:50px;height:50px;cursor:pointer;font-size:1.1rem;line-height:1;font-family:Georgia,serif;transition:transform .2s}
+        #muteToggle:hover{transform:scale(1.1)}
     </style>
 </head>
 <body>
-    <section class="landing">
-        <div class="landing-content"><h1>OMAR KAREIM</h1><div class="subtitle">AXIS MUNDI</div></div>
-        <div class="scroll-indicator">SCROLL TO EXPLORE</div>
-    </section>
 
-    <section class="gallery-section">
-        <h2 class="section-title">COLLECTION</h2>
-        <div class="gallery-wrapper" id="galleryWrapper">
-            <div class="gallery-grid" id="galleryGrid"></div>
-            <div class="auto-scroll-left" id="scrollLeft"></div>
-            <div class="auto-scroll-right" id="scrollRight"></div>
-        </div>
-    </section>
+<!-- LANDING -->
+<section class="landing">
+    <h1>OMAR KAREIM</h1>
+    <p class="subtitle">AXIS MUNDI</p>
+    <div class="scroll-indicator">SCROLL</div>
+</section>
 
-    <section class="vr-section">
-        <h2 class="section-title">IMMERSIVE EXPERIENCE</h2>
-        <button class="vr-button" onclick="enterVR()">ENTER VIRTUAL GALLERY</button>
-    </section>
+<!-- 2D GALLERY -->
+<section class="gallery-section">
+    <h2 class="section-title">GALLERY</h2>
+    <div class="gallery-wrapper">
+        <div class="gallery-grid" id="galleryGrid"></div>
+        <div class="auto-scroll-left"><</div>
+        <div class="auto-scroll-right">></div>
+    </div>
+</section>
 
-    <section class="about-section">
-        <h2 class="section-title">ABOUT THE ARTIST</h2>
-        <div class="about-content">
-            <div class="about-image">
-                <picture>
-                    <source srcset="images/omar_kareim_profile.webp" type="image/webp">
-                    <img src="images/omar_kareim_profile.png" alt="Omar Kareim Profile">
-                </picture>
-            </div>
-            <div class="about-text">
-                <p>Omar Kareim is a multidisciplinary artist whose work weaves the richness of cultural identity with the evolving language of the digital age. Raised in the American Midwest, his artistic sensibilities developed organically before being refined through formal study and later expanded by a professional journey in the technical world. This dual foundation—creative and analytical—deeply shapes his practice, where imagination and structure, emotion and precision, intersect seamlessly.</p>
-                <p>At the heart of Kareim's work is the exploration of interconnectedness. His pieces are defined by a meticulous synthesis of symbolism, intricate detail, rich color, and striking contrast. Whether expressed through abstraction, portraiture, or mixed-media forms, these elements form a consistent visual vocabulary that invites viewers into layered discovery.</p>
-                <p>Kareim's process is guided by an instinctive ability to find order within complexity. He is driven by a desire to reveal the patterns, harmonies, and hidden relationships that unite seemingly disparate ideas. His visions emerge from an internal landscape—concepts first experienced inwardly, then translated into tangible form.</p>
-                <p>Each piece is more than an artwork; it is an expression of connection, a vessel through which his insights into the human experience are shared.</p>
-            </div>
-        </div>
-    </section>
+<!-- VR SECTION -->
+<section class="vr-section">
+    <button class="vr-button" id="enterVR">ENTER VIRTUAL GALLERY</button>
+</section>
 
-    <div class="lightbox" id="lightbox">
-        <div class="lightbox-close" onclick="closeLightbox()">X</div>
-        <div class="lightbox-content">
-            <img id="lightboxImg" src="" alt="">
-            <div class="lightbox-details">
-                <h3 id="lightboxTitle"></h3>
-                <p id="lightboxMedium"></p>
-                <p id="lightboxDate"></p>
-                <p id="lightboxDescription"></p>
-            </div>
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+    <div class="lightbox-content">
+        <img id="lightboxImg" src="" alt="">
+        <div class="lightbox-details">
+            <h3 id="lightboxTitle"></h3>
+            <p id="lightboxMedium"></p>
+            <p id="lightboxDate"></p>
+            <p id="lightboxDesc"></p>
         </div>
     </div>
+    <div class="lightbox-close">×</div>
+</div>
 
-    <div class="vr-gallery" id="vrGallery">
-        <button class="vr-exit" onclick="exitVR()">EXIT GALLERY</button>
-        <div class="zoom-controls">
-            <button class="zoom-button" onclick="zoomIn()">Zoom In (+)</button>
-            <button class="zoom-button" onclick="zoomOut()">Zoom Out (-)</button>
-            <button class="zoom-button" onclick="resetZoom()">Reset</button>
-        </div>
-        <div class="controls-info" id="controlsInfo">WASD/Arrows: Move | Mouse/Touch: Look | Click/Tap Artwork to Full View</div>
-        <div id="vrCanvas"></div>
+<!-- VR GALLERY -->
+<div class="vr-gallery" id="vrGallery">
+    <button class="vr-exit" id="exitVR">EXIT</button>
+    <div class="zoom-controls">
+        <button class="zoom-button" id="zoomIn">ZOOM +</button>
+        <button class="zoom-button" id="zoomOut">ZOOM −</button>
+        <button class="zoom-button" id="resetZoom">RESET</button>
     </div>
+    <div class="controls-info" id="controlsInfo">WASD to move • Click to view • Scroll to zoom</div>
+    <canvas id="vrCanvas"></canvas>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-        const artworkData = [
-            {file:'images/artwork1.webp',fallback:'images/artwork1.png',title:'Axis Mundi: Codex of Connectedness',medium:'Acrylic on Canvas',date:'2025',description:'A sweeping exploration of human interconnectedness, belief, and belonging, this monumental work unifies diverse spiritual and cultural iconographies within a cosmological framework. Elements of earth, wind, fire, and water serve as anchoring forces, binding the narrative across traditions. At its center stands your interpretation of the Shroud of Turin, framed by symbols that span Abrahamic faiths, ancient mythologies, and contemporary metaphysics. The figure on the far right—your "Goddess of the Information Age"—introduces a striking tension between the ancient and the digital, suggesting a future in which wisdom, technology, and spirituality converge. The result is a visual codex: a map of humanity\'s shared search for meaning.'},
-            {file:'images/artwork2.webp',fallback:'images/artwork2.png',title:'Axis Mundi',medium:'Acrylic on Canvas',date:'2025',description:''},
-            {file:'images/artwork3.webp',fallback:'images/artwork3.png',title:'El Dorado',medium:'Acrylic on Canvas',date:'2025',description:''},
-            {file:'images/artwork4.webp',fallback:'images/artwork4.png',title:'El Dorado',medium:'Acrylic on Canvas',date:'2023',description:'A dynamic fusion of classical form and contemporary iconography, this portrait reimagines Lionel Messi through a Greco-Roman lens—elevating an athlete into the realm of myth. Sculptural gold leaf accentuates his profile, evoking both heroic statuary and regal ornamentation, while roses intertwine as symbols of honor, admiration, and legacy. Set against an expressive modern background, the piece functions as a visual homage to the idea of "giving them their flowers"—celebrating greatness not as spectacle, but as a timeless human pursuit.'},
-            {file:'images/artwork5.webp',fallback:'images/artwork5.png',title:'Mjolnir: Forge of Resilience',medium:'Acrylic on Canvas',date:'2023',description:'Echoing the mythical hammer of Thor, this intricate work embodies resilience, sovereignty, and the raw force of creation. The form of Mjolnir emerges through a labyrinth of linework—part sigil, part circuitry—suggesting the convergence of ancient power and modern symbolic languages. Its unexpected uterine silhouette introduces a compelling duality: destruction and creation, war and fertility, chaos and regeneration. This tension reframes the hammer not merely as a weapon of the gods, but as a vessel for rebirth through struggle.'},
-            {file:'images/artwork6.webp',fallback:'images/artwork6.png',title:'Threshold',medium:'Acrylic on Canvas',date:'2012',description:'An evocative abstract meditation on transition and possibility, Threshold captures the moment just before emergence—when the familiar dissolves and the unknown begins to take shape. The central circular form, both portal and boundary, anchors the composition as sweeping lines and fragmented geometric marks swirl around it like remnants of past structures. Gold fields meet deep shadow, suggesting the meeting point between illumination and obscurity, intention and uncertainty. This work embodies the quiet power of liminality: the space where identity, direction, and meaning are actively formed.'},
-            {file:'images/artwork7.webp',fallback:'images/artwork7.png',title:'Threshold',medium:'Acrylic on Canvas',date:'2012',description:''}
-        ];
-        const grid=document.getElementById('galleryGrid');
-        let cur=-1,inVR=false;
-        function build2D(){grid.innerHTML='';artworkData.forEach((a,i)=>{const div=document.createElement('div');div.className='gallery-item';div.onclick=()=>openLightbox(i);const pic=document.createElement('picture');const src=document.createElement('source');src.srcset=a.file;src.type='image/webp';const img=document.createElement('img');img.src=a.fallback;img.alt=a.title;pic.appendChild(src);pic.appendChild(img);const det=document.createElement('div');det.className='gallery-details';det.innerHTML=`<h3>${a.title}</h3><p>${a.medium} | ${a.date}</p>`;div.appendChild(pic);div.appendChild(det);grid.appendChild(div)})}
-        build2D();
-        const wrapper=document.getElementById('galleryWrapper');
-        const leftBtn=document.getElementById('scrollLeft');
-        const rightBtn=document.getElementById('scrollRight');
-        let autoScrollInterval;
-        function showScrollArrows(){leftBtn.classList.add('show');rightBtn.classList.add('show')}
-        function hideScrollArrows(){leftBtn.classList.remove('show');rightBtn.classList.remove('show')}
-        wrapper.addEventListener('mousemove',e=>{const rect=wrapper.getBoundingClientRect();const x=e.clientX-rect.left;const threshold=rect.width*0.15;clearInterval(autoScrollInterval);showScrollArrows();if(x<threshold){autoScrollInterval=setInterval(()=>wrapper.scrollLeft-=8,16)}else if(x>rect.width-threshold){autoScrollInterval=setInterval(()=>wrapper.scrollLeft+=8,16)}});
-        wrapper.addEventListener('mouseleave',()=>{clearInterval(autoScrollInterval);setTimeout(hideScrollArrows,1000)});
-        leftBtn.onclick=()=>wrapper.scrollBy({left:-300,behavior:'smooth'});
-        rightBtn.onclick=()=>wrapper.scrollBy({left:300,behavior:'smooth'});
-        function openLightbox(i){cur=i;const a=artworkData[i];document.getElementById('lightboxImg').src=a.file;document.getElementById('lightboxTitle').textContent=a.title;document.getElementById('lightboxMedium').textContent=a.medium;document.getElementById('lightboxDate').textContent=a.date;document.getElementById('lightboxDescription').textContent=a.description;document.getElementById('lightbox').classList.add('active');document.addEventListener('keydown',lbKey)}
-        function closeLightbox(){document.getElementById('lightbox').classList.remove('active');document.removeEventListener('keydown',lbKey);if(inVR){document.getElementById('vrGallery').classList.add('active')}}
-        function lbKey(e){if(e.code==='ArrowRight')openLightbox((cur+1)%artworkData.length);else if(e.code==='ArrowLeft')openLightbox((cur-1+artworkData.length)%artworkData.length);else if(e.code==='Escape')closeLightbox()}
-        let scene,camera,renderer,ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
-        let moveF=moveB=moveL=moveR=false,vel=new THREE.Vector3(),dir=new THREE.Vector3();
-        let fov=75,minF=30,maxF=100;
-        let clickables=[];
-        let isPointerDown=false,prevX=0,prevY=0,isDraggingVR=false;
-        let controlsTimeout;
-        function enterVR(){inVR=true;document.getElementById('vrGallery').classList.add('active');document.getElementById('controlsInfo').classList.add('show');clearTimeout(controlsTimeout);controlsTimeout=setTimeout(()=>document.getElementById('controlsInfo').classList.remove('show'),4000);initVR()}
-        function exitVR(){inVR=false;document.getElementById('vrGallery').classList.remove('active');clickables=[];if(renderer)renderer.domElement.remove()}
-        function initVR(){const c=document.getElementById('vrCanvas');scene=new THREE.Scene();scene.background=new THREE.Color(0x0a0a0a);camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,.1,1000);camera.position.set(0,1.6,5);renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(window.devicePixelRatio);renderer.setSize(window.innerWidth,window.innerHeight);c.appendChild(renderer.domElement);scene.add(new THREE.AmbientLight(0xffffff,1.2));const top=new THREE.DirectionalLight(0xffffff,1.5);top.position.set(0,8,0);scene.add(top);const floor=new THREE.Mesh(new THREE.PlaneGeometry(14,14),new THREE.MeshStandardMaterial({color:0x222222,roughness:0.7}));floor.rotation.x=-Math.PI/2;scene.add(floor);const canvas=document.createElement('canvas');canvas.width=128;canvas.height=128;const ctx=canvas.getContext('2d');ctx.fillStyle='#f0f0f0';ctx.fillRect(0,0,128,128);ctx.fillStyle='#e0e0e0';ctx.fillRect(0,0,64,64);ctx.fillRect(64,64,64,64);ctx.fillStyle='#f8f8f8';ctx.fillRect(32,32,32,32);ctx.fillRect(96,96,32,32);const ceilingTex=new THREE.CanvasTexture(canvas);ceilingTex.wrapS=ceilingTex.wrapT=THREE.RepeatWrapping;ceilingTex.repeat.set(8,8);const ceiling=new THREE.Mesh(new THREE.PlaneGeometry(14,14),new THREE.MeshStandardMaterial({color:0xffffff,map:ceilingTex,roughness:0.3,metalness:0.1}));ceiling.rotation.x=Math.PI/2;ceiling.position.y=5.5;scene.add(ceiling);const wallMat=new THREE.MeshStandardMaterial({color:0x000000,roughness:0.9});const walls=[{pos:[0,2.75,-7],size:[14,5.5,0.3]},{pos:[-7,2.75,0],size:[0.3,5.5,14]},{pos:[7,2.75,0],size:[0.3,5.5,14]}];walls.forEach(w=>{const wall=new THREE.Mesh(new THREE.BoxGeometry(...w.size),wallMat);wall.position.set(...w.pos);scene.add(wall)});const radius=6;const maxWidth=3.5;const maxHeight=3.5;artworkData.forEach((art,i)=>{const angle=(i/artworkData.length)*Math.PI*2;const x=Math.sin(angle)*radius;const z=Math.cos(angle)*radius;const g=new THREE.Group();const img=new Image();img.crossOrigin='anonymous';img.src=art.file;img.onload=()=>{const aspect=img.width/img.height;let planeWidth=maxWidth;let planeHeight=maxWidth/aspect;if(planeHeight>maxHeight){planeHeight=maxHeight;planeWidth=maxHeight*aspect}const tex=new THREE.TextureLoader().load(art.file);tex.colorSpace=THREE.SRGBColorSpace;const plane=new THREE.Mesh(new THREE.PlaneGeometry(planeWidth,planeHeight),new THREE.MeshStandardMaterial({map:tex,roughness:0.9}));plane.position.z=0.06;plane.userData.idx=i;g.add(plane);clickables.push(plane);const frame=new THREE.Mesh(new THREE.BoxGeometry(planeWidth+0.2,planeHeight+0.2,0.1),new THREE.MeshStandardMaterial({color:0x000000}));g.add(frame)};g.position.set(x,2.2,z);g.lookAt(0,2.2,0);scene.add(g)});clock=new THREE.Clock();animate();setupVREvents()}
-        let clock;
-        function animate(){requestAnimationFrame(animate);const delta=clock.getDelta();vel.x-=vel.x*12*delta;vel.z-=vel.z*12*delta;dir.z=Number(moveF)-Number(moveB);dir.x=Number(moveR)-Number(moveL);dir.normalize();if(moveF||moveB)vel.z-=dir.z*18*delta;if(moveL||moveR)vel.x-=dir.x*18*delta;camera.translateX(vel.x*delta);camera.translateZ(vel.z*delta);const max=6.5;camera.position.x=Math.max(-max,Math.min(max,camera.position.x));camera.position.z=Math.max(-max,Math.min(max,camera.position.z));if(isPointerDown){ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(clickables);if(hits.length){const idx=hits[0].object.userData.idx;document.getElementById('vrGallery').classList.remove('active');openLightbox(idx)}isPointerDown=false}renderer.render(scene,camera)}
-        function setupVREvents(){window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight)});document.addEventListener('keydown',e=>{if(['KeyW','ArrowUp'].includes(e.code))moveF=true;else if(['KeyS','ArrowDown'].includes(e.code))moveB=true;else if(['KeyA','ArrowLeft'].includes(e.code))moveL=true;else if(['KeyD','ArrowRight'].includes(e.code))moveR=true;showControls()});document.addEventListener('keyup',e=>{if(['KeyW','ArrowUp'].includes(e.code))moveF=false;else if(['KeyS','ArrowDown'].includes(e.code))moveB=false;else if(['KeyA','ArrowLeft'].includes(e.code))moveL=false;else if(['KeyD','ArrowRight'].includes(e.code))moveR=false});const canvas=renderer.domElement;canvas.addEventListener('pointerdown',e=>{isDraggingVR=true;prevX=e.clientX;prevY=e.clientY;showControls()});canvas.addEventListener('pointermove',e=>{if(!isDraggingVR)return;const dx=e.clientX-prevX,dy=e.clientY-prevY;camera.rotation.y-=dx*0.002;camera.rotation.x-=dy*0.002;camera.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,camera.rotation.x));prevX=e.clientX;prevY=e.clientY;mouse.x=(e.clientX/window.innerWidth)*2-1;mouse.y=-(e.clientY/window.innerHeight)*2+1});canvas.addEventListener('pointerup',e=>{isDraggingVR=false;mouse.x=(e.clientX/window.innerWidth)*2-1;mouse.y=-(e.clientY/window.innerHeight)*2+1;isPointerDown=true});let touchDragging=false,touchStartXVR=0,touchStartYVR=0;canvas.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];touchDragging=false;touchStartXVR=t.clientX;touchStartYVR=t.clientY;prevX=t.clientX;prevY=t.clientY;showControls()});canvas.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];const dx=t.clientX-prevX,dy=t.clientY-prevY;if(Math.abs(t.clientX-touchStartXVR)>5||Math.abs(t.clientY-touchStartYVR)>5)touchDragging=true;camera.rotation.y-=dx*0.002;camera.rotation.x-=dy*0.002;camera.rotation.x=Math.max(-Math.PI/2,Math.min(Math.PI/2,camera.rotation.x));prevX=t.clientX;prevY=t.clientY});canvas.addEventListener('touchend',e=>{if(!touchDragging&&e.changedTouches.length){const t=e.changedTouches[0];mouse.x=(t.clientX/window.innerWidth)*2-1;mouse.y=-(t.clientY/window.innerHeight)*2+1;isPointerDown=true}});canvas.addEventListener('wheel',e=>{e.preventDefault();fov=Math.max(minF,Math.min(maxF,fov+e.deltaY*0.05));camera.fov=fov;camera.updateProjectionMatrix();showControls()})}
-        function showControls(){const info=document.getElementById('controlsInfo');info.classList.add('show');clearTimeout(controlsTimeout);controlsTimeout=setTimeout(()=>info.classList.remove('show'),3000)}
-        function zoomIn(){fov=Math.max(minF,fov-10);camera.fov=fov;camera.updateProjectionMatrix()}
-        function zoomOut(){fov=Math.min(maxF,fov+10);camera.fov=fov;camera.updateProjectionMatrix()}
-        function resetZoom(){fov=75;camera.fov=fov;camera.updateProjectionMatrix()}
-    </script>
+<!-- ETHEREAL BACKGROUND SOUND -->
+<audio id="bgAudio" loop preload="auto">
+    <source src="images/ethereal-bg.mp3" type="audio/mpeg">
+</audio>
+<button id="muteToggle" title="Toggle background music">Play</button>
+
+<script>
+const artworkData = [
+    {file:'images/artwork1.webp',fallback:'images/artwork1.png',title:'Axis Mundi: Codex of Connectedness',medium:'Acrylic on Canvas',date:'2025',description:'A sweeping exploration of human interconnectedness, belief, and belonging, this monumental work unifies diverse spiritual and cultural iconographies within a cosmological framework. Elements of earth, wind, fire, and water serve as anchoring forces, binding the narrative across traditions. At its center stands your interpretation of the Shroud of Turin, framed by symbols that span Abrahamic faiths, ancient mythologies, and contemporary metaphysics. The figure on the far right—your "Goddess of the Information Age"—introduces a striking tension between the ancient and the digital, suggesting a future in which wisdom, technology, and spirituality converge. The result is a visual codex: a map of humanity\'s shared search for meaning.'},
+    {file:'images/artwork2.webp',fallback:'images/artwork2.png',title:'Axis Mundi',medium:'Acrylic on Canvas',date:'2025',description:''},
+    {file:'images/artwork3.webp',fallback:'images/artwork3.png',title:'El Dorado',medium:'Acrylic on Canvas',date:'2025',description:''},
+    {file:'images/artwork4.webp',fallback:'images/artwork4.png',title:'El Dorado',medium:'Acrylic on Canvas',date:'2023',description:'A dynamic fusion of classical form and contemporary iconography, this portrait reimagines Lionel Messi through a Greco-Roman lens—elevating an athlete into the realm of myth. Sculptural gold leaf accentuates his profile, evoking both heroic statuary and regal ornamentation, while roses intertwine as symbols of honor, admiration, and legacy. Set against an expressive modern background, the piece functions as a visual homage to the idea of "giving them their flowers"—celebrating greatness not as spectacle, but as a timeless human pursuit.'},
+    {file:'images/artwork5.webp',fallback:'images/artwork5.png',title:'Mjolnir: Forge of Resilience',medium:'Acrylic on Canvas',date:'2023',description:'Echoing the mythical hammer of Thor, this intricate work embodies resilience, sovereignty, and the raw force of creation. The form of Mjolnir emerges through a labyrinth of linework—part sigil, part circuitry—suggesting the convergence of ancient power and modern symbolic languages. Its unexpected uterine silhouette introduces a compelling duality: destruction and creation, war and fertility, chaos and regeneration. This tension reframes the hammer not merely as a weapon of the gods, but as a vessel for rebirth through struggle.'},
+    {file:'images/artwork6.webp',fallback:'images/artwork6.png',title:'Threshold',medium:'Acrylic on Canvas',date:'2012',description:'An evocative abstract meditation on transition and possibility, Threshold captures the moment just before emergence—when the familiar dissolves and the unknown begins to take shape. The central circular form, both portal and boundary, anchors the composition as sweeping lines and fragmented geometric marks swirl around it like remnants of past structures. Gold fields meet deep shadow, suggesting the meeting point between illumination and obscurity, intention and uncertainty. This work embodies the quiet power of liminality: the space where identity, direction, and meaning are actively formed.'},
+    {file:'images/artwork7.webp',fallback:'images/artwork7.png',title:'Threshold',medium:'Acrylic on Canvas',date:'2012',description:''}
+];
+
+/* ===== GALLERY BUILDER ===== */
+const grid = document.getElementById('galleryGrid');
+artworkData.forEach((art, i) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+    item.style.animationDelay = `${i * 0.1}s`;
+    item.onclick = () => openLightbox(i);
+
+    const img = document.createElement('img');
+    img.src = art.file;
+    img.alt = art.title;
+    img.onerror = () => img.src = art.fallback;
+
+    const details = document.createElement('div');
+    details.className = 'gallery-details';
+    details.innerHTML = `<h3>${art.title}</h3><p>${art.medium} • ${art.date}</p>`;
+
+    item.appendChild(img);
+    item.appendChild(details);
+    grid.appendChild(item);
+});
+
+/* ===== LIGHTBOX ===== */
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lightboxImg');
+const lbTitle = document.getElementById('lightboxTitle');
+const lbMedium = document.getElementById('lightboxMedium');
+const lbDate = document.getElementById('lightboxDate');
+const lbDesc = document.getElementById('lightboxDesc');
+const closeBtn = document.querySelector('.lightbox-close');
+
+function openLightbox(idx) {
+    const art = artworkData[idx];
+    lbImg.src = art.file;
+    lbImg.onerror = () => lbImg.src = art.fallback;
+    lbTitle.textContent = art.title;
+    lbMedium.textContent = art.medium;
+    lbDate.textContent = art.date;
+    lbDesc.textContent = art.description || '';
+    lightbox.classList.add('active');
+}
+closeBtn.onclick = () => lightbox.classList.remove('active');
+lightbox.onclick = e => { if (e.target === lightbox) lightbox.classList.remove('active'); };
+
+/* ===== AUTO-SCROLL ARROWS ===== */
+const wrapper = document.querySelector('.gallery-wrapper');
+const leftArrow = document.querySelector('.auto-scroll-left');
+const rightArrow = document.querySelector('.auto-scroll-right');
+
+wrapper.addEventListener('scroll', () => {
+    leftArrow.classList.toggle('show', wrapper.scrollLeft > 50);
+    rightArrow.classList.toggle('show', wrapper.scrollLeft < wrapper.scrollWidth - wrapper.clientWidth - 50);
+});
+leftArrow.onclick = () => wrapper.scrollBy({left: -400, behavior: 'smooth'});
+rightArrow.onclick = () => wrapper.scrollBy({left: 400, behavior: 'smooth'});
+
+/* ===== VR GALLERY (THREE.JS) ===== */
+const vrBtn = document.getElementById('enterVR');
+const vrGallery = document.getElementById('vrGallery');
+const exitBtn = document.getElementById('exitVR');
+const canvas = document.getElementById('vrCanvas');
+
+let scene, camera, renderer, clock;
+let moveF = moveB = moveL = moveR = false;
+let vel = new THREE.Vector3();
+let dir = new THREE.Vector3();
+let isDraggingVR = false, prevX, prevY;
+let isPointerDown = false;
+const mouse = new THREE.Vector2();
+const ray = new THREE.Raycaster();
+const clickables = [];
+let fov = 75, minF = 30, maxF = 100;
+let controlsTimeout;
+
+vrBtn.onclick = initVR;
+exitBtn.onclick = () => { vrGallery.classList.remove('active'); document.exitPointerLock?.(); };
+
+function initVR() {
+    vrGallery.classList.add('active');
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.6, 5);
+
+    renderer = new THREE.WebGLRenderer({canvas, antialias: true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+
+    const ambient = new THREE.AmbientLight(0x404040, 1.5);
+    scene.add(ambient);
+    const spot = new THREE.SpotLight(0xdaa520, 2, 20, Math.PI/6, 0.5);
+    spot.position.set(0, 5, 0);
+    spot.castShadow = true;
+    scene.add(spot);
+
+    const floorTex = new THREE.CanvasTexture(createCheckerboard());
+    floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
+    floorTex.repeat.set(20, 20);
+    const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(14, 14),
+        new THREE.MeshStandardMaterial({map: floorTex, roughness: 0.8})
+    );
+    floor.rotation.x = -Math.PI/2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const ceilingTex = new THREE.CanvasTexture(createCheckerboard());
+    ceilingTex.wrapS = ceilingTex.wrapT = THREE.RepeatWrapping;
+    ceilingTex.repeat.set(8, 8);
+    const ceiling = new THREE.Mesh(
+        new THREE.PlaneGeometry(14, 14),
+        new THREE.MeshStandardMaterial({color: 0xffffff, map: ceilingTex, roughness: 0.3, metalness: 0.1})
+    );
+    ceiling.rotation.x = Math.PI/2;
+    ceiling.position.y = 5.5;
+    scene.add(ceiling);
+
+    const wallMat = new THREE.MeshStandardMaterial({color: 0x000000, roughness: 0.9});
+    const walls = [
+        {pos: [0, 2.75, -7], size: [14, 5.5, 0.3]},
+        {pos: [-7, 2.75, 0], size: [0.3, 5.5, 14]},
+        {pos: [7, 2.75, 0], size: [0.3, 5.5, 14]}
+    ];
+    walls.forEach(w => {
+        const wall = new THREE.Mesh(new THREE.BoxGeometry(...w.size), wallMat);
+        wall.position.set(...w.pos);
+        scene.add(wall);
+    });
+
+    const radius = 6;
+    const maxWidth = 3.5, maxHeight = 3.5;
+    artworkData.forEach((art, i) => {
+        const angle = (i / artworkData.length) * Math.PI * 2;
+        const x = Math.sin(angle) * radius;
+        const z = Math.cos(angle) * radius;
+        const g = new THREE.Group();
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = art.file;
+        img.onload = () => {
+            const aspect = img.width / img.height;
+            let planeWidth = maxWidth;
+            let planeHeight = maxWidth / aspect;
+            if (planeHeight > maxHeight) { planeHeight = maxHeight; planeWidth = maxHeight * aspect; }
+            const tex = new THREE.TextureLoader().load(art.file);
+            tex.colorSpace = THREE.SRGBColorSpace;
+            const plane = new THREE.Mesh(
+                new THREE.PlaneGeometry(planeWidth, planeHeight),
+                new THREE.MeshStandardMaterial({map: tex, roughness: 0.9})
+            );
+            plane.position.z = 0.06;
+            plane.userData.idx = i;
+            g.add(plane);
+            clickables.push(plane);
+
+            const frame = new THREE.Mesh(
+                new THREE.BoxGeometry(planeWidth + 0.2, planeHeight + 0.2, 0.1),
+                new THREE.MeshStandardMaterial({color: 0x000000})
+            );
+            g.add(frame);
+        };
+
+        g.position.set(x, 2.2, z);
+        g.lookAt(0, 2.2, 0);
+        scene.add(g);
+    });
+
+    clock = new THREE.Clock();
+    animate();
+    setupVREvents();
+    canvas.requestPointerLock();
+}
+
+/* ===== VR ANIMATION LOOP ===== */
+function animate() {
+    requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+    vel.x -= vel.x * 12 * delta;
+    vel.z -= vel.z * 12 * delta;
+    dir.z = Number(moveF) - Number(moveB);
+    dir.x = Number(moveR) - Number(moveL);
+    dir.normalize();
+    if (moveF || moveB) vel.z -= dir.z * 18 * delta;
+    if (moveL || moveR) vel.x -= dir.x * 18 * delta;
+    camera.translateX(vel.x * delta);
+    camera.translateZ(vel.z * delta);
+    const max = 6.5;
+    camera.position.x = Math.max(-max, Math.min(max, camera.position.x));
+    camera.position.z = Math.max(-max, Math.min(max, camera.position.z));
+
+    if (isPointerDown) {
+        ray.setFromCamera(mouse, camera);
+        const hits = ray.intersectObjects(clickables);
+        if (hits.length) {
+            const idx = hits[0].object.userData.idx;
+            vrGallery.classList.remove('active');
+            openLightbox(idx);
+        }
+        isPointerDown = false;
+    }
+    renderer.render(scene, camera);
+}
+
+/* ===== VR CONTROLS ===== */
+function setupVREvents() {
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    document.addEventListener('keydown', e => {
+        if (['KeyW','ArrowUp'].includes(e.code)) moveF = true;
+        else if (['KeyS','ArrowDown'].includes(e.code)) moveB = true;
+        else if (['KeyA','ArrowLeft'].includes(e.code)) moveL = true;
+        else if (['KeyD','ArrowRight'].includes(e.code)) moveR = true;
+        showControls();
+    });
+    document.addEventListener('keyup', e => {
+        if (['KeyW','ArrowUp'].includes(e.code)) moveF = false;
+        else if (['KeyS','ArrowDown'].includes(e.code)) moveB = false;
+        else if (['KeyA','ArrowLeft'].includes(e.code)) moveL = false;
+        else if (['KeyD','ArrowRight'].includes(e.code)) moveR = false;
+    });
+
+    canvas.addEventListener('pointerdown', e => {
+        isDraggingVR = true;
+        prevX = e.clientX; prevY = e.clientY;
+        showControls();
+    });
+    canvas.addEventListener('pointermove', e => {
+        if (!isDraggingVR) return;
+        const dx = e.clientX - prevX, dy = e.clientY - prevY;
+        camera.rotation.y -= dx * 0.002;
+        camera.rotation.x -= dy * 0.002;
+        camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
+        prevX = e.clientX; prevY = e.clientY;
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    });
+    canvas.addEventListener('pointerup', e => {
+        isDraggingVR = false;
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        isPointerDown = true;
+    });
+
+    let touchDragging = false, touchStartXVR = 0, touchStartYVR = 0;
+    canvas.addEventListener('touchstart', e => {
+        e.preventDefault();
+        const t = e.touches[0];
+        touchDragging = false;
+        touchStartXVR = t.clientX; touchStartYVR = t.clientY;
+        prevX = t.clientX; prevY = t.clientY;
+        showControls();
+    });
+    canvas.addEventListener('touchmove', e => {
+        e.preventDefault();
+        const t = e.touches[0];
+        const dx = t.clientX - prevX, dy = t.clientY - prevY;
+        if (Math.abs(t.clientX - touchStartXVR) > 5 || Math.abs(t.clientY - touchStartYVR) > 5) touchDragging = true;
+        camera.rotation.y -= dx * 0.002;
+        camera.rotation.x -= dy * 0.002;
+        camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
+        prevX = t.clientX; prevY = t.clientY;
+    });
+    canvas.addEventListener('touchend', e => {
+        if (!touchDragging && e.changedTouches.length) {
+            const t = e.changedTouches[0];
+            mouse.x = (t.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(t.clientY / window.innerHeight) * 2 + 1;
+            isPointerDown = true;
+        }
+    });
+
+    canvas.addEventListener('wheel', e => {
+        e.preventDefault();
+        fov = Math.max(minF, Math.min(maxF, fov + e.deltaY * 0.05));
+        camera.fov = fov;
+        camera.updateProjectionMatrix();
+        showControls();
+    });
+}
+
+function showControls() {
+    const info = document.getElementById('controlsInfo');
+    info.classList.add('show');
+    clearTimeout(controlsTimeout);
+    controlsTimeout = setTimeout(() => info.classList.remove('show'), 3000);
+}
+function zoomIn() { fov = Math.max(minF, fov - 10); camera.fov = fov; camera.updateProjectionMatrix(); }
+function zoomOut() { fov = Math.min(maxF, fov + 10); camera.fov = fov; camera.updateProjectionMatrix(); }
+function resetZoom() { fov = 75; camera.fov = fov; camera.updateProjectionMatrix(); }
+
+/* ===== ETHEREAL BACKGROUND SOUND ===== */
+const audio = document.getElementById('bgAudio');
+const btn = document.getElementById('muteToggle');
+let playing = false;
+
+btn.addEventListener('click', () => {
+    if (playing) {
+        audio.pause();
+        btn.textContent = 'Play';
+    } else {
+        audio.play().catch(() => {});
+        btn.textContent = 'Pause';
+    }
+    playing = !playing;
+});
+
+document.addEventListener('click', () => {
+    if (!playing) {
+        audio.volume = 0.25;
+        audio.play().catch(() => {});
+        playing = true;
+        btn.textContent = 'Pause';
+    }
+}, { once: true });
+
+/* ===== HELPER: CHECKERBOARD TEXTURE ===== */
+function createCheckerboard() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128; canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#f0f0f0'; ctx.fillRect(0,0,128,128);
+    ctx.fillStyle = '#e0e0e0'; ctx.fillRect(0,0,64,64); ctx.fillRect(64,64,64,64);
+    ctx.fillStyle = '#f8f8f8'; ctx.fillRect(32,32,32,32); ctx.fillRect(96,96,32,32);
+    return canvas;
+}
+</script>
 </body>
 </html>
