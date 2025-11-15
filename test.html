@@ -1,0 +1,33 @@
+<!-- ETHEREAL BACKGROUND SOUND -->
+<audio id="bgAudio" loop preload="auto">
+  <source src="images/ethereal-bg.mp3" type="audio/mpeg">
+</audio>
+
+<button id="muteToggle" title="Toggle sound"
+        style="position:fixed;bottom:20px;right:20px;z-index:10000;
+               background:rgba(218,165,32,.8);color:#0a0a0a;
+               border:none;border-radius:50%;width:50px;height:50px;
+               cursor:pointer;font-size:1.4rem;line-height:1;">
+  Speaker
+</button>
+
+<script>
+const audio = document.getElementById('bgAudio');
+const btn = document.getElementById('muteToggle');
+let playing = false;
+
+btn.addEventListener('click', () => {
+  if (playing) { audio.pause(); btn.textContent = 'Speaker'; }
+  else { audio.play().catch(() => {}); btn.textContent = 'Speaker'; }
+  playing = !playing;
+});
+
+document.addEventListener('click', () => {
+  if (!playing) {
+    audio.volume = 0.25;
+    audio.play().catch(() => {});
+    playing = true;
+    btn.textContent = 'Speaker';
+  }
+}, { once: true });
+</script>
