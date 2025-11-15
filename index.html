@@ -41,9 +41,9 @@
         .vr-section{padding:100px 5%;text-align:center;background:linear-gradient(180deg,#0a0a0a 0%,#1a1a1a 100%)}
         .vr-button{display:inline-block;padding:20px 50px;font-size:1.2rem;letter-spacing:.2rem;color:#0a0a0a;background:linear-gradient(135deg,#daa520,#f4e4c1);border:none;border-radius:50px;cursor:pointer;transition:all .3s;font-family:'Georgia',serif;box-shadow:0 10px 30px rgba(218,165,32,.3)}
         .vr-button:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 15px 40px rgba(218,165,32,.5)}
-        .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:3000;justify-content:center;align-items:center}
+        .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:3000;justify-content:center;align-items:center;overflow-y:auto}
         .lightbox.active{display:flex}
-        .lightbox-content{display:flex;max-width:90%;max-height:90vh;gap:40px;align-items:flex-start;pointer-events:none}
+        .lightbox-content{display:flex;max-width:90%;max-height:90vh;gap:40px;align-items:flex-start;pointer-events:none;flex-wrap:wrap}
         .lightbox-content *{pointer-events:auto}
         .lightbox img{max-width:70%;max-height:90vh;object-fit:contain;border-radius:8px}
         .lightbox-details{max-width:30%;color:#f5f5f5;padding-top:20px}
@@ -52,7 +52,7 @@
         .lightbox-close{position:absolute;top:20px;right:20px;font-size:2rem;color:#daa520;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(26,26,26,.7);border-radius:50%;transition:transform .3s,background .3s;z-index:3001}
         .lightbox-close:hover{background:#daa520;color:#0a0a0a;transform:scale(1.1)}
         .vr-gallery{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:2000;background:#000}
-        .vr-gallery.active{display:block}
+        .vr-gallery.active{display:block;cursor:none}
         .vr-exit{position:fixed;top:20px;left:20px;padding:15px 30px;background:rgba(218,165,32,.9);color:#0a0a0a;border:none;border-radius:30px;cursor:pointer;z-index:2001;font-size:1rem;letter-spacing:.1rem;transition:all .3s}
         .vr-exit:hover{background:#daa520;transform:scale(1.05)}
         .zoom-controls{position:fixed;top:20px;right:20px;display:flex;gap:10px;z-index:2001}
@@ -62,6 +62,30 @@
         .controls-info.show{opacity:1}
         #muteToggle{position:fixed;bottom:20px;right:20px;z-index:10000;background:rgba(218,165,32,.8);color:#0a0a0a;border:none;border-radius:50%;width:50px;height:50px;cursor:pointer;font-size:1.1rem;line-height:1;font-family:Georgia,serif;transition:transform .2s}
         #muteToggle:hover{transform:scale(1.1)}
+
+        /* MOBILE OPTIMIZATIONS */
+        @media (max-width: 768px) {
+            h1 {font-size:2.5rem; letter-spacing:.2rem;}
+            .subtitle {font-size:1rem; letter-spacing:.3rem;}
+            .section-title {font-size:1.8rem;}
+            .gallery-item {flex:0 0 280px;}
+            .gallery-item img {height:320px;}
+            .gallery-details h3 {font-size:1rem;}
+            .gallery-details p {font-size:0.8rem;}
+            .lightbox-content {flex-direction:column; gap:20px;}
+            .lightbox img {max-width:100%; max-height:60vh;}
+            .lightbox-details {max-width:100%; padding:10px;}
+            .lightbox-details h3 {font-size:1.5rem;}
+            .lightbox-details p {font-size:0.9rem;}
+            .vr-button {padding:16px 40px; font-size:1rem;}
+            .auto-scroll-left, .auto-scroll-right {width:50px; height:50px; font-size:1.5rem;}
+        }
+        @media (max-width: 480px) {
+            h1 {font-size:2rem;}
+            .subtitle {font-size:0.9rem;}
+            .gallery-item {flex:0 0 240px;}
+            .gallery-item img {height:280px;}
+        }
     </style>
 </head>
 <body>
@@ -128,7 +152,7 @@ const artworkData = [
     {file:'images/artwork3.webp',fallback:'images/artwork3.png',title:'El Dorado',medium:'Acrylic on Canvas',date:'2025',description:''},
     {file:'images/artwork4.webp',fallback:'images/artwork4.png',title:'El Dorado',medium:'Acrylic on Canvas',date:'2023',description:'A dynamic fusion of classical form and contemporary iconography, this portrait reimagines Lionel Messi through a Greco-Roman lens—elevating an athlete into the realm of myth. Sculptural gold leaf accentuates his profile, evoking both heroic statuary and regal ornamentation, while roses intertwine as symbols of honor, admiration, and legacy. Set against an expressive modern background, the piece functions as a visual homage to the idea of "giving them their flowers"—celebrating greatness not as spectacle, but as a timeless human pursuit.'},
     {file:'images/artwork5.webp',fallback:'images/artwork5.png',title:'Mjolnir: Forge of Resilience',medium:'Acrylic on Canvas',date:'2023',description:'Echoing the mythical hammer of Thor, this intricate work embodies resilience, sovereignty, and the raw force of creation. The form of Mjolnir emerges through a labyrinth of linework—part sigil, part circuitry—suggesting the convergence of ancient power and modern symbolic languages. Its unexpected uterine silhouette introduces a compelling duality: destruction and creation, war and fertility, chaos and regeneration. This tension reframes the hammer not merely as a weapon of the gods, but as a vessel for rebirth through struggle.'},
-    {file:'images/artwork6.webp',fallback:'images/artwork6.png',title:'Threshold',medium:'Acrylic on Canvas',date:'2012',description:'An evocative abstract meditation on transition and possibility, Threshold captures the moment just before emergence—when the familiar dissolves and the unknown begins to take shape. The central circular form, both portal and boundary, anchors the composition as sweeping lines and fragmented geometric marks swirl around it like remnants of past structures. Gold fields meet deep shadow, suggesting the meeting point between illumination and obscurity, intention and uncertainty. This work embodies the quiet power of liminality: the space where identity, direction, and meaning are actively formed.'},
+    {file:'images/artwork6.webp',fallback:'images/artwork6.png',title:'Threshold',medium:'Acrylic on Canvas',date:'2012',description:'An evocative abstract meditation on transition and possibility, Threshold captures the moment just before emergence—when the familiar dissolves and the unknown begins to take shape. The central circular form, both portal and boundary, both portal and boundary, anchors the composition as sweeping lines and fragmented geometric marks swirl around it like remnants of past structures. Gold fields meet deep shadow, suggesting the meeting point between illumination and obscurity, intention and uncertainty. This work embodies the quiet power of liminality: the space where identity, direction, and meaning are actively formed.'},
     {file:'images/artwork7.webp',fallback:'images/artwork7.png',title:'Threshold',medium:'Acrylic on Canvas',date:'2012',description:''}
 ];
 
@@ -172,9 +196,18 @@ function openLightbox(idx) {
     lbDate.textContent = art.date;
     lbDesc.textContent = art.description || '';
     lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
-closeBtn.onclick = () => lightbox.classList.remove('active');
-lightbox.onclick = e => { if (e.target === lightbox) lightbox.classList.remove('active'); };
+closeBtn.onclick = () => {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+};
+lightbox.onclick = e => { 
+    if (e.target === lightbox) {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+};
 
 /* ===== AUTO-SCROLL ARROWS ===== */
 const wrapper = document.querySelector('.gallery-wrapper');
@@ -207,10 +240,15 @@ let fov = 75, minF = 30, maxF = 100;
 let controlsTimeout;
 
 vrBtn.onclick = initVR;
-exitBtn.onclick = () => { vrGallery.classList.remove('active'); document.exitPointerLock?.(); };
+exitBtn.onclick = () => { 
+    vrGallery.classList.remove('active'); 
+    document.exitPointerLock?.(); 
+    document.body.style.overflow = '';
+};
 
 function initVR() {
     vrGallery.classList.add('active');
+    document.body.style.overflow = 'hidden';
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(0, 1.6, 5);
@@ -220,12 +258,8 @@ function initVR() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.shadowMap.enabled = true;
 
-    const ambient = new THREE.AmbientLight(0x404040, 1.5);
+    const ambient = new THREE.AmbientLight(0x404040, 0.8);
     scene.add(ambient);
-    const spot = new THREE.SpotLight(0xdaa520, 2, 20, Math.PI/6, 0.5);
-    spot.position.set(0, 5, 0);
-    spot.castShadow = true;
-    scene.add(spot);
 
     const floorTex = new THREE.CanvasTexture(createCheckerboard());
     floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
@@ -243,7 +277,7 @@ function initVR() {
     ceilingTex.repeat.set(8, 8);
     const ceiling = new THREE.Mesh(
         new THREE.PlaneGeometry(14, 14),
-        new THREE.MeshStandardMaterial({color: 0xffffff, map: ceilingTex, roughness: 0.3, metalness: 0.1})
+        new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.9})
     );
     ceiling.rotation.x = Math.PI/2;
     ceiling.position.y = 5.5;
@@ -263,6 +297,7 @@ function initVR() {
 
     const radius = 6;
     const maxWidth = 3.5, maxHeight = 3.5;
+    const spotLights = [];
     artworkData.forEach((art, i) => {
         const angle = (i / artworkData.length) * Math.PI * 2;
         const x = Math.sin(angle) * radius;
@@ -293,6 +328,15 @@ function initVR() {
                 new THREE.MeshStandardMaterial({color: 0x000000})
             );
             g.add(frame);
+
+            // INDIVIDUAL SPOTLIGHT ABOVE EACH PAINTING
+            const light = new THREE.SpotLight(0xdaa520, 1.5, 10, Math.PI/6, 0.5);
+            light.position.set(x, 4.5, z);
+            light.target.position.set(x, 2.2, z);
+            light.castShadow = true;
+            scene.add(light);
+            scene.add(light.target);
+            spotLights.push(light);
         };
 
         g.position.set(x, 2.2, z);
@@ -330,6 +374,7 @@ function animate() {
             const idx = hits[0].object.userData.idx;
             vrGallery.classList.remove('active');
             openLightbox(idx);
+            document.exitPointerLock();
         }
         isPointerDown = false;
     }
