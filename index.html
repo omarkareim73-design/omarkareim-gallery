@@ -1,22 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="images/ok_favicon.png" sizes="32x32">
-    <link rel="apple-touch-icon" href="images/ok_favicon.png">
-    <meta name="theme-color" content="#000000">
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="images/ok_favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="images/ok_favicon.png">
+<meta name="theme-color" content="#000000">
 
-    <!-- Mobile layout -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Mobile layout -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- SEO -->
-    <title>Omar Kareim | Multidisciplinary Artist & Virtual Gallery</title>
-    <meta name="description" content="Explore the multidimensional artwork of Omar Kareim – a fusion of cultural symbolism, spirituality, and digital-age aesthetics. View mixed-media works, abstraction, portraiture, and immersive visual narratives.">
+    <title>omar kareim | art gallery</title>
+    <meta name="description" content="Explore the multidimensional artwork of Omar Kareim — a fusion of cultural symbolism, spirituality, and digital-age aesthetics. View mixed-media works, abstraction, portraiture, and immersive visual narratives.">
 
     <!-- OpenGraph (Social Sharing) -->
-    <meta property="og:title" content="omar kareim | art gallery">
-    <meta property="og:description" content="Experience the artwork of Omar Kareim – symbolic, culturally layered, and digitally infused. Explore the gallery.">
+    <meta property="og:title" content="Omar Kareim | Virtual Art Gallery">
+    <meta property="og:description" content="Experience the artwork of Omar Kareim — symbolic, culturally layered, and digitally infused. Explore the gallery.">
     <meta property="og:image" content="https://omarkareim.art/images/og-image.jpg">
     <meta property="og:url" content="https://omarkareim.art">
     <meta property="og:type" content="website">
@@ -24,8 +21,9 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Omar Kareim | Virtual Art Gallery">
-    <meta name="twitter:description" content="Experience the multidimensional artwork of Omar Kareim.">
+    <meta name="twitter:description" content="Experience the artwork of Omar Kareim.">
     <meta name="twitter:image" content="https://omarkareim.art/images/og-image.jpg">
+
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -34,85 +32,74 @@
         *{margin:0;padding:0;box-sizing:border-box}
         html {scroll-behavior: smooth;}
         body{font-family:'Georgia',serif;background:#0a0a0a;color:#f5f5f5;overflow-x:hidden;user-select:none}
-        
-        /* Luxurious smooth scrolling */
-        * {
-            scroll-behavior: smooth;
-            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-                        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
         .landing{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;background:linear-gradient(135deg,#1a1a1a 0%,#0a0a0a 100%);position:relative;overflow:hidden}
         .landing::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(218,165,32,0.1)0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:pulse 4s ease-in-out infinite}
         @keyframes pulse{0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.3}50%{transform:translate(-50%,-50%)scale(1.2);opacity:.5}}
-        h1{font-size:4rem;font-weight:300;letter-spacing:.3rem;margin-bottom:1rem;background:linear-gradient(135deg,#daa520,#f4e4c1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:fadeInUp 1.2s cubic-bezier(0.4, 0, 0.2, 1)}
-        .subtitle{font-size:1.5rem;letter-spacing:.5rem;color:#daa520;margin-bottom:3rem;font-weight:300;animation:fadeInUp 1.2s cubic-bezier(0.4, 0, 0.2, 1) .3s both;text-align:center}
-        @keyframes fadeInUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
-        .scroll-indicator{position:absolute;bottom:40px;font-size:.9rem;color:#daa520;letter-spacing:.2rem;opacity:0.7;animation:bounce 2s cubic-bezier(0.4, 0, 0.2, 1) infinite}
+        h1{font-size:4rem;font-weight:300;letter-spacing:.3rem;margin-bottom:1rem;background:linear-gradient(135deg,#daa520,#f4e4c1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:fadeInUp 1s ease-out}
+        .subtitle{font-size:1.5rem;letter-spacing:.5rem;color:#daa520;margin-bottom:3rem;font-weight:300;animation:fadeInUp 1s ease-out .3s both;text-align:center}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        .scroll-indicator{position:absolute;bottom:40px;font-size:.9rem;color:#daa520;letter-spacing:.2rem;opacity:0.7;animation:bounce 2s infinite}
         @keyframes bounce{0%,20%,50%,80%,100%{transform:translateY(0)}40%{transform:translateY(-10px)}60%{transform:translateY(-5px)}}
         .gallery-section{min-height:100vh;padding:100px 5%;background:#0a0a0a}
-        .section-title{text-align:center;font-size:2.5rem;margin-bottom:60px;color:#daa520;letter-spacing:.3rem;font-weight:300;opacity:0;animation:fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards}
+        .section-title{text-align:center;font-size:2.5rem;margin-bottom:60px;color:#daa520;letter-spacing:.3rem;font-weight:300}
         .gallery-wrapper{overflow-x:auto;scroll-behavior:smooth;scrollbar-width:thin;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;padding-bottom:20px;cursor:grab;position:relative}
         .gallery-wrapper:hover{scrollbar-width:auto}
         .gallery-wrapper:active{cursor:grabbing}
         .gallery-wrapper::-webkit-scrollbar{display:none}
-        .gallery-wrapper:hover::-webkit-scrollbar{display:block;height:8px}
-        .gallery-wrapper::-webkit-scrollbar-track{background:rgba(26,26,26,0.3);border-radius:10px}
-        .gallery-wrapper::-webkit-scrollbar-thumb{background:rgba(218,165,32,.5);border-radius:10px;transition:background 0.3s ease}
-        .gallery-wrapper::-webkit-scrollbar-thumb:hover{background:rgba(218,165,32,.8)}
+        .gallery-wrapper:hover::-webkit-scrollbar{display:block}
+        .gallery-wrapper::-webkit-scrollbar-thumb{background:rgba(218,165,32,.5);border-radius:10px}
         .gallery-grid{display:flex;gap:30px}
-        .gallery-item{flex:0 0 350px;position:relative;overflow:hidden;border-radius:8px;cursor:pointer;transition:transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);background:#1a1a1a;opacity:0;animation:fadeInGallery 1s cubic-bezier(0.4, 0, 0.2, 1) forwards}
-        @keyframes fadeInGallery{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
-        .gallery-item:hover{transform:translateY(-15px);box-shadow:0 25px 50px rgba(218,165,32,.4)}
-        .gallery-item img{width:100%;height:400px;object-fit:cover;display:block;transition:transform 0.7s cubic-bezier(0.4, 0, 0.2, 1)}
-        .gallery-item:hover img{transform:scale(1.08)}
-        .gallery-details{padding:15px;text-align:left;transition:background 0.4s ease}
-        .gallery-item:hover .gallery-details{background:rgba(218,165,32,.05)}
-        .gallery-details h3{font-size:1.2rem;color:#daa520;margin-bottom:5px;font-weight:500;line-height:1.3;transition:color 0.3s ease}
-        .gallery-item:hover .gallery-details h3{color:#f4e4c1}
-        .gallery-details p{font-size:.9rem;color:#ccc;margin-bottom:3px;transition:color 0.3s ease}
-        .gallery-item:hover .gallery-details p{color:#e0e0e0}
-        .auto-scroll-left,.auto-scroll-right{position:absolute;top:50%;transform:translateY(-50%);width:60px;height:60px;background:rgba(218,165,32,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#daa520;font-size:1.8rem;cursor:pointer;z-index:10;opacity:0.7;transition:opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),background 0.4s ease}
-        .auto-scroll-left:hover,.auto-scroll-right:hover{opacity:1;background:rgba(218,165,32,.6);transform:translateY(-50%) scale(1.1)}
+        .gallery-item{flex:0 0 350px;position:relative;overflow:hidden;border-radius:8px;cursor:pointer;transition:transform .3s,box-shadow .3s;background:#1a1a1a;opacity:0;animation:fadeInGallery 0.8s ease forwards}
+        @keyframes fadeInGallery{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        .gallery-item:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(218,165,32,.3)}
+        .gallery-item img{width:100%;height:400px;object-fit:cover;display:block;transition:transform .5s}
+        .gallery-item:hover img{transform:scale(1.05)}
+        .gallery-details{padding:15px;text-align:left}
+        .gallery-details h3{font-size:1.2rem;color:#daa520;margin-bottom:5px;font-weight:500;line-height:1.3}
+        .gallery-details p{font-size:.9rem;color:#ccc;margin-bottom:3px}
+        .auto-scroll-left,.auto-scroll-right{position:absolute;top:50%;transform:translateY(-50%);width:60px;height:60px;background:rgba(218,165,32,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#daa520;font-size:1.8rem;cursor:pointer;z-index:10;opacity:0.7;transition:opacity .3s}
+        .auto-scroll-left:hover,.auto-scroll-right:hover{opacity:1;background:rgba(218,165,32,.5)}
         .auto-scroll-left{left:20px}.auto-scroll-right{right:20px}
         .auto-scroll-left::before{content:'<'} .auto-scroll-right::before{content:'>'}
         .vr-section{padding:100px 5%;text-align:center;background:linear-gradient(180deg,#0a0a0a 0%,#1a1a1a 100%)}
-        .vr-button{display:inline-block;padding:20px 50px;font-size:1.2rem;letter-spacing:.2rem;color:#0a0a0a;background:linear-gradient(135deg,#daa520,#f4e4c1);border:none;border-radius:50px;cursor:pointer;transition:all 0.5s cubic-bezier(0.4, 0, 0.2, 1);font-family:'Georgia',serif;box-shadow:0 10px 30px rgba(218,165,32,.3)}
-        .vr-button:hover{transform:translateY(-5px) scale(1.08);box-shadow:0 20px 50px rgba(218,165,32,.6)}
+        .vr-button{display:inline-block;padding:20px 50px;font-size:1.2rem;letter-spacing:.2rem;color:#0a0a0a;background:linear-gradient(135deg,#daa520,#f4e4c1);border:none;border-radius:50px;cursor:pointer;transition:all .3s;font-family:'Georgia',serif;box-shadow:0 10px 30px rgba(218,165,32,.3)}
+        .vr-button:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 15px 40px rgba(218,165,32,.5)}
+
+        /* LUXE SECTION FADE-IN */
+        .section-fade{opacity:0;transform:translateY(40px);transition:opacity .9s cubic-bezier(0.22,0.61,0.36,1),transform .9s cubic-bezier(0.22,0.61,0.36,1);}
+        .section-fade.visible{opacity:1;transform:translateY(0);}
 
         /* ABOUT SECTION */
         .about-section{padding:100px 5%;background:#0a0a0a;display:flex;flex-direction:column;align-items:center}
-        .about-container{max-width:900px;display:flex;gap:50px;align-items:flex-start;opacity:0;animation:fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards}
+        .about-container{max-width:900px;display:flex;gap:50px;align-items:flex-start}
         .about-photo{flex-shrink:0}
-        .about-photo img{width:250px;height:250px;border-radius:50%;object-fit:cover;border:4px solid #daa520;box-shadow:0 10px 30px rgba(218,165,32,.3);transition:transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),box-shadow 0.5s ease}
-        .about-photo img:hover{transform:scale(1.05);box-shadow:0 15px 40px rgba(218,165,32,.5)}
+        .about-photo img{width:250px;height:250px;border-radius:50%;object-fit:cover;border:4px solid #daa520;box-shadow:0 10px 30px rgba(218,165,32,.3)}
         .about-text{flex:1}
         .about-text h2{font-size:2.5rem;color:#daa520;margin-bottom:30px;letter-spacing:.3rem;font-weight:300;text-align:left}
         .about-text p{font-size:1.1rem;line-height:1.8;color:#f5f5f5;margin-bottom:20px;text-align:left}
 
         /* LIGHTBOX CAROUSEL */
-        .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:3000;justify-content:center;align-items:center;overflow:hidden;opacity:0;transition:opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)}
-        .lightbox.active{display:flex;opacity:1}
-        .lightbox-content{display:flex;max-width:90%;max-height:90vh;gap:40px;align-items:flex-start;flex-wrap:nowrap;position:relative;transform:scale(0.95);transition:transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)}
-        .lightbox.active .lightbox-content{transform:scale(1)}
-        .lightbox img{max-width:70%;max-height:90vh;object-fit:contain;border-radius:8px;transition:transform 0.3s ease}
+        .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:3000;justify-content:center;align-items:center;overflow:hidden}
+        .lightbox.active{display:flex}
+        .lightbox-content{display:flex;max-width:90%;max-height:90vh;gap:40px;align-items:flex-start;flex-wrap:nowrap;position:relative}
+        .lightbox img{max-width:70%;max-height:90vh;object-fit:contain;border-radius:8px}
         .lightbox-details{max-width:30%;color:#f5f5f5;padding-top:20px;word-wrap:break-word;overflow-wrap:break-word;hyphens:auto}
         .lightbox-details h3{font-size:2rem;color:#daa520;margin-bottom:15px;font-weight:500}
         .lightbox-details p{font-size:1.1rem;line-height:1.6;margin-bottom:10px;color:#f5f5f5}
-        .lightbox-close{position:absolute;top:20px;right:20px;font-size:2rem;color:#daa520;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(26,26,26,.7);border-radius:50%;transition:transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),background 0.4s ease;z-index:3001}
-        .lightbox-close:hover{background:#daa520;color:#0a0a0a;transform:scale(1.15) rotate(90deg)}
-        .lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:50px;height:50px;background:rgba(218,165,32,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#daa520;font-size:1.8rem;cursor:pointer;z-index:3001;opacity:0.7;transition:opacity 0.4s ease,transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),background 0.4s ease}
-        .lightbox-nav:hover{opacity:1;background:rgba(218,165,32,.6);transform:translateY(-50%) scale(1.1)}
+        .lightbox-close{position:absolute;top:20px;right:20px;font-size:2rem;color:#daa520;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(26,26,26,.7);border-radius:50%;transition:transform .3s,background .3s;z-index:3001}
+        .lightbox-close:hover{background:#daa520;color:#0a0a0a;transform:scale(1.1)}
+        .lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:50px;height:50px;background:rgba(218,165,32,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#daa520;font-size:1.8rem;cursor:pointer;z-index:3001;opacity:0.7}
+        .lightbox-nav:hover{opacity:1;background:rgba(218,165,32,.5)}
         .lightbox-prev{left:20px}
         .lightbox-next{right:20px}
 
         .vr-gallery{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:2000;background:#000;cursor:default}
         .vr-gallery.active{display:block}
-        .vr-exit{position:fixed;top:20px;left:20px;padding:15px 30px;background:rgba(218,165,32,.9);color:#0a0a0a;border:none;border-radius:30px;cursor:pointer;z-index:2001;font-size:1rem;letter-spacing:.1rem;transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1)}
-        .vr-exit:hover{background:#daa520;transform:scale(1.08)}
+        .vr-exit{position:fixed;top:20px;left:20px;padding:15px 30px;background:rgba(218,165,32,.9);color:#0a0a0a;border:none;border-radius:30px;cursor:pointer;z-index:2001;font-size:1rem;letter-spacing:.1rem;transition:all .3s}
+        .vr-exit:hover{background:#daa520;transform:scale(1.05)}
         .zoom-controls{position:fixed;top:20px;right:20px;display:flex;gap:10px;z-index:2001}
-        .zoom-button{padding:12px 20px;background:rgba(218,165,32,.9);color:#0a0a0a;border:none;border-radius:30px;cursor:pointer;font-size:1rem;letter-spacing:.1rem;transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1)}
-        .zoom-button:hover{background:#daa520;transform:scale(1.08)}
+        .zoom-button{padding:12px 20px;background:rgba(218,165,32,.9);color:#0a0a0a;border:none;border-radius:30px;cursor:pointer;font-size:1rem;letter-spacing:.1rem;transition:all .3s}
+        .zoom-button:hover{background:#daa520;transform:scale(1.05)}
 
         /* MOBILE */
         @media (max-width: 768px) {
@@ -157,17 +144,17 @@
 </section>
 
 <!-- 2D GALLERY -->
-<section class="gallery-section">
+<section class="gallery-section section-fade">
     <h2 class="section-title">GALLERY</h2>
     <div class="gallery-wrapper">
         <div class="gallery-grid" id="galleryGrid"></div>
-        <div class="auto-scroll-left"></div>
-        <div class="auto-scroll-right"></div>
+        <div class="auto-scroll-left"><</div>
+        <div class="auto-scroll-right">></div>
     </div>
 </section>
 
 <!-- ABOUT SECTION -->
-<section class="about-section">
+<section class="about-section section-fade">
     <div class="about-container">
         <div class="about-photo">
             <img src="images/omar_kareim_profile.webp" alt="Omar Kareim">
@@ -175,14 +162,14 @@
         <div class="about-text">
             <h2>ABOUT</h2>
             <p>Omar Kareim is a contemporary visual artist whose work brings together cultural symbolism, spirituality, and the quiet logic of the digital world. Raised in the Midwest, his path into art began simply through observation, curiosity, and a desire to understand how things connect. That early sense of wonder still guides his practice today.</p>
-            <p>Kareim's work is shaped by the idea that meaning often lives in the spaces between things. He uses layered forms, precise detail, and intentional color to explore how traditions, beliefs, and personal histories overlap. His compositions invite viewers to slow down, notice patterns, and consider the relationships woven beneath the surface.</p>
+            <p>Kareim’s work is shaped by the idea that meaning often lives in the spaces between things. He uses layered forms, precise detail, and intentional color to explore how traditions, beliefs, and personal histories overlap. His compositions invite viewers to slow down, notice patterns, and consider the relationships woven beneath the surface.</p>
             <p>Although his subjects often reach into big ideas, Kareim approaches his art with humility. Each piece is a study, an attempt to gather thoughts, reconcile influences, and express something honest. His background in technical fields informs his structure and discipline, while his creative instincts bring warmth, symbolism, and humanity to the work. The result is a visual language rooted in stillness and curiosity, connecting the ancient and the contemporary in subtle, thoughtful ways.</p>
         </div>
     </div>
 </section>
 
 <!-- VR SECTION -->
-<section class="vr-section">
+<section class="vr-section section-fade">
     <button class="vr-button" id="enterVR">ENTER VIRTUAL GALLERY</button>
 </section>
 
@@ -216,12 +203,40 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
 <script>
 const artworkData = [
-    {file:'images/artwork1.webp',fallback:'images/artwork1.png',title:'Axis Mundi: Codex of Connectedness',medium:'Acrylic on Canvas',date:'2025',description:'A sweeping exploration of human interconnectedness, belief, and belonging, this work unifies diverse spiritual and cultural iconographies within a cosmological framework. Elements of earth, wind, fire, and water serve as anchoring forces, binding the narrative across traditions. At its center stands a rendition of the Shroud of Turin, framed by symbols that span Abrahamic faiths, ancient mythologies, and contemporary metaphysics.\n\nThe figure on the far right, often read as a "Goddess of the Information Age," introduces a striking tension between the ancient and the digital, suggesting a future in which wisdom, technology, and spirituality converge. The result is a visual codex: a map of humanity\'s shared search for meaning.'},
+    {
+        file:'images/artwork1.webp',
+        fallback:'images/artwork1.png',
+        title:'Axis Mundi: Codex of Connectedness',
+        medium:'Acrylic on Canvas',
+        date:'2025',
+        description:'A sweeping exploration of human interconnectedness, belief, and belonging, this work unifies diverse spiritual and cultural iconographies within a cosmological framework. Elements of earth, wind, fire, and water serve as anchoring forces, binding the narrative across traditions. At its center stands a rendition of the Shroud of Turin, framed by symbols that span Abrahamic faiths, ancient mythologies, and contemporary metaphysics.\n\nThe figure on the far right, often read as a "Goddess of the Information Age," introduces a striking tension between the ancient and the digital, suggesting a future in which wisdom, technology, and spirituality converge. The result is a visual codex: a map of humanity’s shared search for meaning.'
+    },
     {file:'images/artwork2.webp',fallback:'images/artwork2.png',title:'Axis Mundi',medium:'Acrylic on Canvas',date:'2025',description:''},
     {file:'images/artwork3.webp',fallback:'images/artwork3.png',title:'El Dorado',medium:'Acrylic on Canvas',date:'2025',description:''},
-    {file:'images/artwork4.webp',fallback:'images/artwork4.png',title:'El Dorado',medium:'Acrylic on Canvas',date:'2023',description:'A dynamic fusion of classical form and contemporary iconography, this portrait reimagines Lionel Messi through a Greco-Roman lens - elevating an athlete into the realm of myth. Sculptural gold accentuates his profile, evoking both heroic statuary and regal ornamentation, while roses intertwine as symbols of honor, admiration, and legacy. Set against an expressive modern background, the piece functions as a visual homage to the idea of "giving them their flowers" - celebrating greatness not as spectacle, but as a timeless human pursuit.'},
-    {file:'images/artwork5.webp',fallback:'images/artwork5.png',title:'Mjolnir: Forge of Resilience',medium:'Acrylic on Canvas',date:'2023',description:'Echoing the mythical hammer of Thor, this intricate work embodies resilience, sovereignty, and the raw force of creation. The form of Mjolnir emerges through a labyrinth of linework - part sigil, part circuitry - suggesting the convergence of ancient power and modern symbolic languages. Its uterine silhouette introduces a compelling duality: destruction and creation, war and fertility, chaos and regeneration. This tension reframes the hammer not merely as a weapon of the gods, but as a vessel for rebirth through struggle.'},
-    {file:'images/artwork6.webp',fallback:'images/artwork6.png',title:'Threshold',medium:'Acrylic on Canvas',date:'2012',description:'An evocative abstract meditation on transition and possibility, Threshold captures the moment just before emergence - when the familiar dissolves and the unknown begins to take shape. The central circular form, both portal and boundary, anchors the composition as sweeping lines and fragmented geometric marks swirl around it like remnants of past structures. Gold fields meet deep shadow, suggesting the meeting point between illumination and obscurity, intention and uncertainty. This work embodies the quiet power of liminality: the space where identity, direction, and meaning are actively formed.'},
+    {
+        file:'images/artwork4.webp',
+        fallback:'images/artwork4.png',
+        title:'El Dorado',
+        medium:'Acrylic on Canvas',
+        date:'2023',
+        description:'A dynamic fusion of classical form and contemporary iconography, this portrait reimagines Lionel Messi through a Greco-Roman lens - elevating an athlete into the realm of myth. Sculptural gold accentuates his profile, evoking both heroic statuary and regal ornamentation, while roses intertwine as symbols of honor, admiration, and legacy. Set against an expressive modern background, the piece functions as a visual homage to the idea of "giving them their flowers" - celebrating greatness not as spectacle, but as a timeless human pursuit.'
+    },
+    {
+        file:'images/artwork5.webp',
+        fallback:'images/artwork5.png',
+        title:'Mjolnir: Forge of Resilience',
+        medium:'Acrylic on Canvas',
+        date:'2023',
+        description:'Echoing the mythical hammer of Thor, this intricate work embodies resilience, sovereignty, and the raw force of creation. The form of Mjolnir emerges through a labyrinth of linework - part sigil, part circuitry - suggesting the convergence of ancient power and modern symbolic languages. Its uterine silhouette introduces a compelling duality: destruction and creation, war and fertility, chaos and regeneration. This tension reframes the hammer not merely as a weapon of the gods, but as a vessel for rebirth through struggle.'
+    },
+    {
+        file:'images/artwork6.webp',
+        fallback:'images/artwork6.png',
+        title:'Threshold',
+        medium:'Acrylic on Canvas',
+        date:'2012',
+        description:'An evocative abstract meditation on transition and possibility, Threshold captures the moment just before emergence - when the familiar dissolves and the unknown begins to take shape. The central circular form, both portal and boundary, anchors the composition as sweeping lines and fragmented geometric marks swirl around it like remnants of past structures. Gold fields meet deep shadow, suggesting the meeting point between illumination and obscurity, intention and uncertainty. This work embodies the quiet power of liminality: the space where identity, direction, and meaning are actively formed.'
+    },
     {file:'images/artwork7.webp',fallback:'images/artwork7.png',title:'Threshold',medium:'Acrylic on Canvas',date:'2012',description:''}
 ];
 
@@ -230,7 +245,7 @@ const grid = document.getElementById('galleryGrid');
 artworkData.forEach((art, i) => {
     const item = document.createElement('div');
     item.className = 'gallery-item';
-    item.style.animationDelay = `${i * 0.15}s`;
+    item.style.animationDelay = `${i * 0.1}s`;
     item.onclick = () => openLightbox(i);
 
     const img = document.createElement('img');
@@ -320,7 +335,7 @@ const exitBtn = document.getElementById('exitVR');
 const canvas = document.getElementById('vrCanvas');
 
 let scene, camera, renderer, clock;
-let moveF = moveB = moveL = moveR = false;
+let moveF = false, moveB = false, moveL = false, moveR = false;
 let vel = new THREE.Vector3();
 let dir = new THREE.Vector3();
 let isDraggingVR = false, prevX, prevY;
@@ -586,6 +601,19 @@ function setupVREvents() {
         camera.updateProjectionMatrix();
     };
 }
+
+/* ===== SECTION FADE-IN ON SCROLL ===== */
+const fadeSections = document.querySelectorAll('.section-fade');
+const fadeObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.2 });
+
+fadeSections.forEach(section => fadeObserver.observe(section));
 
 /* ===== HELPER: CHECKERBOARD TEXTURE ===== */
 function createCheckerboard() {
