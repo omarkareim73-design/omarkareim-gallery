@@ -9,11 +9,11 @@
 
     <!-- SEO -->
     <title>omar kareim | art gallery</title>
-    <meta name="description" content="Explore the multidimensional artwork of Omar Kareim — a fusion of cultural symbolism, spirituality, and digital-age aesthetics. View mixed-media works, abstraction, portraiture, and immersive visual narratives.">
+    <meta name="description" content="Explore the multidimensional artwork of Omar Kareim – a fusion of cultural symbolism, spirituality, and contemporary aesthetics. View mixed-media works, abstraction, portraiture, and immersive visual narratives.">
 
     <!-- OpenGraph (Social Sharing) -->
     <meta property="og:title" content="Omar Kareim | Virtual Art Gallery">
-    <meta property="og:description" content="Experience the artwork of Omar Kareim — symbolic, culturally layered, and digitally infused. Explore the gallery.">
+    <meta property="og:description" content="Experience the artwork of Omar Kareim – symbolic, culturally layered, and contemporary. Explore the gallery.">
     <meta property="og:image" content="https://omarkareim.art/images/og-image.jpg">
     <meta property="og:url" content="https://omarkareim.art">
     <meta property="og:type" content="website">
@@ -61,7 +61,7 @@
         .auto-scroll-left:hover,.auto-scroll-right:hover{opacity:1;background:rgba(218,165,32,.5)}
         .auto-scroll-left{left:20px}.auto-scroll-right{right:20px}
         .auto-scroll-left::before{content:'<'} .auto-scroll-right::before{content:'>'}
-        .vr-section{padding:100px 5%;text-align:center;background:linear-gradient(180deg,#0a0a0a 0%,#1a1a1a 100%)}
+        .vr-section{padding:60px 5%;text-align:center;background:#0a0a0a}
         .vr-button{display:inline-block;padding:20px 50px;font-size:1.2rem;letter-spacing:.2rem;color:#0a0a0a;background:linear-gradient(135deg,#daa520,#f4e4c1);border:none;border-radius:50px;cursor:pointer;transition:all .3s;font-family:'Georgia',serif;box-shadow:0 10px 30px rgba(218,165,32,.3)}
         .vr-button:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 15px 40px rgba(218,165,32,.5)}
 
@@ -139,7 +139,7 @@
 <!-- LANDING -->
 <section class="landing">
     <h1>OMAR KAREIM</h1>
-    <p class="subtitle">AXIS MUNDI</p>
+    <p class="subtitle">STUDIO OF ART</p>
     <div class="scroll-indicator">SCROLL</div>
 </section>
 
@@ -153,6 +153,11 @@
     </div>
 </section>
 
+<!-- VR SECTION (moved directly below gallery) -->
+<section class="vr-section section-fade">
+    <button class="vr-button" id="enterVR">ENTER VIRTUAL GALLERY</button>
+</section>
+
 <!-- ABOUT SECTION -->
 <section class="about-section section-fade">
     <div class="about-container">
@@ -161,16 +166,11 @@
         </div>
         <div class="about-text">
             <h2>ABOUT</h2>
-            <p>Omar Kareim is a contemporary visual artist whose work brings together cultural symbolism, spirituality, and the quiet logic of the digital world. Raised in the Midwest, his path into art began simply through observation, curiosity, and a desire to understand how things connect. That early sense of wonder still guides his practice today.</p>
-            <p>Kareim’s work is shaped by the idea that meaning often lives in the spaces between things. He uses layered forms, precise detail, and intentional color to explore how traditions, beliefs, and personal histories overlap. His compositions invite viewers to slow down, notice patterns, and consider the relationships woven beneath the surface.</p>
+            <p>Omar Kareim is a contemporary visual artist whose work brings together cultural symbolism, spirituality, and the quiet logic of traditional art-making. Raised in the Midwest, his path into art began simply through observation, curiosity, and a desire to understand how things connect. That early sense of wonder still guides his practice today.</p>
+            <p>Kareim's work is shaped by the idea that meaning often lives in the spaces between things. He uses layered forms, precise detail, and intentional color to explore how traditions, beliefs, and personal histories overlap. His compositions invite viewers to slow down, notice patterns, and consider the relationships woven beneath the surface.</p>
             <p>Although his subjects often reach into big ideas, Kareim approaches his art with humility. Each piece is a study, an attempt to gather thoughts, reconcile influences, and express something honest. His background in technical fields informs his structure and discipline, while his creative instincts bring warmth, symbolism, and humanity to the work. The result is a visual language rooted in stillness and curiosity, connecting the ancient and the contemporary in subtle, thoughtful ways.</p>
         </div>
     </div>
-</section>
-
-<!-- VR SECTION -->
-<section class="vr-section section-fade">
-    <button class="vr-button" id="enterVR">ENTER VIRTUAL GALLERY</button>
 </section>
 
 <!-- LIGHTBOX CAROUSEL -->
@@ -206,10 +206,10 @@ const artworkData = [
     {
         file:'images/artwork1.webp',
         fallback:'images/artwork1.png',
-        title:'Axis Mundi: Codex of Connectedness',
+        title:'Axis Mundi',
         medium:'Acrylic on Canvas',
         date:'2025',
-        description:'A sweeping exploration of human interconnectedness, belief, and belonging, this work unifies diverse spiritual and cultural iconographies within a cosmological framework. Elements of earth, wind, fire, and water serve as anchoring forces, binding the narrative across traditions. At its center stands a rendition of the Shroud of Turin, framed by symbols that span Abrahamic faiths, ancient mythologies, and contemporary metaphysics.\n\nThe figure on the far right, often read as a "Goddess of the Information Age," introduces a striking tension between the ancient and the digital, suggesting a future in which wisdom, technology, and spirituality converge. The result is a visual codex: a map of humanity’s shared search for meaning.'
+        description:'A sweeping exploration of human interconnectedness, belief, and belonging, this work unifies diverse spiritual and cultural iconographies within a cosmological framework. Elements of earth, wind, fire, and water serve as anchoring forces, binding the narrative across traditions. At its center stands a rendition of the Shroud of Turin, framed by symbols that span Abrahamic faiths, ancient mythologies, and contemporary metaphysics.\n\nThe figure on the far right, often read as a "Goddess of the Information Age," introduces a striking tension between the ancient and the modern, suggesting a future in which wisdom, technology, and spirituality converge. The result is a visual codex: a map of humanity's shared search for meaning.'
     },
     {file:'images/artwork2.webp',fallback:'images/artwork2.png',title:'Axis Mundi',medium:'Acrylic on Canvas',date:'2025',description:''},
     {file:'images/artwork3.webp',fallback:'images/artwork3.png',title:'El Dorado',medium:'Acrylic on Canvas',date:'2025',description:''},
@@ -232,12 +232,12 @@ const artworkData = [
     {
         file:'images/artwork6.webp',
         fallback:'images/artwork6.png',
-        title:'Threshold',
+        title:'Stargate',
         medium:'Acrylic on Canvas',
         date:'2012',
-        description:'An evocative abstract meditation on transition and possibility, Threshold captures the moment just before emergence - when the familiar dissolves and the unknown begins to take shape. The central circular form, both portal and boundary, anchors the composition as sweeping lines and fragmented geometric marks swirl around it like remnants of past structures. Gold fields meet deep shadow, suggesting the meeting point between illumination and obscurity, intention and uncertainty. This work embodies the quiet power of liminality: the space where identity, direction, and meaning are actively formed.'
+        description:'An evocative abstract meditation on transition and possibility, Stargate captures the moment just before emergence - when the familiar dissolves and the unknown begins to take shape. The central circular form, both portal and boundary, anchors the composition as sweeping lines and fragmented geometric marks swirl around it like remnants of past structures. Gold fields meet deep shadow, suggesting the meeting point between illumination and obscurity, intention and uncertainty. This work embodies the quiet power of liminality: the space where identity, direction, and meaning are actively formed.'
     },
-    {file:'images/artwork7.webp',fallback:'images/artwork7.png',title:'Threshold',medium:'Acrylic on Canvas',date:'2012',description:''}
+    {file:'images/artwork7.webp',fallback:'images/artwork7.png',title:'Stargate',medium:'Acrylic on Canvas',date:'2012',description:''}
 ];
 
 /* ===== GALLERY BUILDER ===== */
