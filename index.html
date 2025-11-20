@@ -71,9 +71,61 @@
         .about-container{max-width:900px;display:flex;gap:50px;align-items:flex-start}
         .about-photo{flex-shrink:0}
         .about-photo img{width:250px;height:250px;border-radius:50%;object-fit:cover;border:4px solid #daa520;box-shadow:0 10px 30px rgba(218,165,32,.3)}
-        .about-text{flex:1}
-        .about-text h2{font-size:2.5rem;color:#daa520;margin-bottom:30px;letter-spacing:.3rem;font-weight:300;text-align:left}
-        .about-text p{font-size:1.1rem;line-height:1.8;color:#f5f5f5;margin-bottom:20px;text-align:left}
+.about-text{flex:1}
+.about-text h2{
+    font-size:2.5rem;
+    color:#daa520;
+    margin-bottom:30px;
+    letter-spacing:.3rem;
+    font-weight:300;
+    text-align:left;
+}
+
+/* CONTACT SECTION STYLES */
+.contact-section {
+    padding: 80px 5% 100px;
+    background:#0a0a0a;
+    display:flex;
+    justify-content:center;
+}
+.contact-inner {
+    max-width:800px;
+    width:100%;
+    text-align:center;
+    border-top:1px solid #333;
+    padding-top:40px;
+}
+.contact-title {
+    font-size:2rem;
+    color:#daa520;
+    letter-spacing:.3rem;
+    font-weight:300;
+    margin-bottom:20px;
+}
+.contact-text {
+    font-size:1.05rem;
+    line-height:1.8;
+    color:#f5f5f5;
+    margin-bottom:20px;
+}
+.contact-email a {
+    font-size:1.2rem;
+    color:#daa520;
+    text-decoration:none;
+    border-bottom:2px solid #daa520;
+    padding-bottom:3px;
+}
+.contact-email a:hover {
+    opacity:0.85;
+}
+.contact-note {
+    font-size:0.85rem;
+    color:#aaaaaa;
+    margin-top:15px;
+    letter-spacing:.12rem;
+    text-transform:uppercase;
+}  
+.about-text p{font-size:1.1rem;line-height:1.8;color:#f5f5f5;margin-bottom:20px;text-align:left}
         .lightbox{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:3000;justify-content:center;align-items:center;overflow:hidden}
         .lightbox.active{display:flex}
         .lightbox-content{display:flex;max-width:90%;max-height:90vh;gap:40px;align-items:flex-start;flex-wrap:nowrap;position:relative}
@@ -161,6 +213,22 @@
             <p>Kareim’s work is shaped by the idea that meaning often lives in the spaces between things. He uses layered forms, precise detail, and intentional color to explore how traditions, beliefs, and personal histories overlap. His compositions invite viewers to slow down, notice patterns, and consider the relationships woven beneath the surface.</p>
             <p>Although his subjects often reach into big ideas, Kareim approaches his art with humility. Each piece is a study, an attempt to gather thoughts, reconcile influences, and express something honest. His background in technical fields informs his structure and discipline, while his creative instincts bring warmth, symbolism, and humanity to the work. The result is a visual language rooted in stillness and curiosity, connecting the ancient and the contemporary in subtle, thoughtful ways.</p>
         </div>
+    </div>
+</section>
+
+<!-- CONTACT SECTION -->
+<section class="contact-section section-fade">
+    <div class="contact-inner">
+        <h2 class="contact-title">CONTACT</h2>
+        <p class="contact-text">
+            For inquiries about artwork, commissions, or exhibitions, you’re welcome to reach out directly.
+        </p>
+        <p class="contact-email">
+            <a href="mailto:contact@omarkareim.art">contact@omarkareim.art</a>
+        </p>
+        <p class="contact-note">
+            Instagram: coming soon
+        </p>
     </div>
 </section>
 
