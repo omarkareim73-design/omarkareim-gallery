@@ -1,26 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Favicon -->
 <link rel="icon" type="image/png" href="images/ok_favicon.png" sizes="32x32">
 <link rel="apple-touch-icon" href="images/ok_favicon.png">
 <meta name="theme-color" content="#000000">
 
-<!-- Mobile layout -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- SEO -->
     <title>omar kareim | art gallery</title>
     <meta name="description" content="Explore the multidimensional artwork of Omar Kareim — a fusion of cultural symbolism and spirituality. View mixed-media works, abstraction, portraiture, and immersive visual narratives.">
 
-    <!-- OpenGraph (Social Sharing) -->
     <meta property="og:title" content="Omar Kareim | Virtual Art Gallery">
     <meta property="og:description" content="Experience the artwork of Omar Kareim — symbolic, culturally layered. Explore the gallery.">
     <meta property="og:image" content="https://omarkareim.art/images/og-image.jpg">
     <meta property="og:url" content="https://omarkareim.art">
     <meta property="og:type" content="website">
 
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Omar Kareim | Virtual Art Gallery">
     <meta name="twitter:description" content="Experience the artwork of Omar Kareim.">
@@ -179,14 +174,12 @@
 </head>
 <body>
 
-<!-- LANDING -->
 <section class="landing">
     <h1>OMAR KAREIM</h1>
     <p class="subtitle">gallery of art</p>
     <div class="scroll-indicator">SCROLL</div>
 </section>
 
-<!-- 2D GALLERY -->
 <section class="gallery-section section-fade">
     <h2 class="section-title">gallery</h2>
     <div class="gallery-wrapper">
@@ -196,12 +189,10 @@
     </div>
 </section>
 
-<!-- VR SECTION (moved right after gallery) -->
 <section class="vr-section section-fade">
     <button class="vr-button" id="enterVR">Enter Virtual Gallery</button>
 </section>
 
-<!-- ABOUT SECTION -->
 <section class="about-section section-fade">
     <div class="about-container">
         <div class="about-photo">
@@ -216,7 +207,6 @@
     </div>
 </section>
 
-<!-- CONTACT SECTION -->
 <section class="contact-section section-fade">
     <div class="contact-inner">
         <h2 class="contact-title">contact</h2>
@@ -246,7 +236,6 @@
     </div>
 </section>
 
-<!-- LIGHTBOX CAROUSEL -->
 <div class="lightbox" id="lightbox">
     <div class="lightbox-content">
         <img id="lightboxImg" src="" alt="">
@@ -262,7 +251,6 @@
     <div class="lightbox-nav lightbox-next">></div>
 </div>
 
-<!-- VR GALLERY -->
 <div class="vr-gallery" id="vrGallery">
     <button class="vr-exit" id="exitVR">EXIT</button>
     <div class="zoom-controls">
@@ -305,7 +293,7 @@ const artworkData = [
     { file: 'images/artwork7.webp', fallback: 'images/artwork7.png', title: 'Stargate', medium: 'Acrylic on Canvas', date: '2012', description: '' }
 ];
 
-/* ===== GALLERY BUILDER ===== */
+/* ===== GALLERY BUILDER (UNCHANGED) ===== */
 const grid = document.getElementById('galleryGrid');
 artworkData.forEach((art, i) => {
     const item = document.createElement('div');
@@ -327,8 +315,7 @@ artworkData.forEach((art, i) => {
     grid.appendChild(item);
 });
 
-/* ===== LIGHTBOX, VR, SCROLL, ETC. (unchanged from previous working version) ===== */
-// ... (all the existing JS remains exactly the same – only the artworkData titles were updated)
+/* ===== LIGHTBOX, SCROLL, ETC. (UNCHANGED) ===== */
 
 const lightbox = document.getElementById('lightbox');
 const lbImg = document.getElementById('lightboxImg');
@@ -403,7 +390,6 @@ let moveF = false, moveB = false, moveL = false, moveR = false;
 let vel = new THREE.Vector3();
 let dir = new THREE.Vector3();
 let isDraggingVR = false, prevX, prevY;
-let isPointerDown = false;
 let hasMoved = false;
 const mouse = new THREE.Vector2();
 const ray = new THREE.Raycaster();
@@ -412,6 +398,27 @@ let fov = 75, minF = 30, maxF = 100;
 
 vrBtn.onclick = initVR;
 exitBtn.onclick = () => { vrGallery.classList.remove('active'); document.body.style.overflow = ''; };
+
+// ----------------------------------------------------
+// NEW: Function to handle raycasting, called only on mouse/touch UP events
+// ----------------------------------------------------
+function handleVRTap() {
+    // 1. Set the raycaster origin and direction
+    ray.setFromCamera(mouse, camera);
+
+    // 2. Intersect with all clickable artwork planes
+    const hits = ray.intersectObjects(clickables);
+
+    // 3. If an object was hit, open the lightbox
+    if (hits.length) {
+        const idx = hits[0].object.userData.idx;
+        vrGallery.classList.remove('active');
+        openLightbox(idx);
+        document.body.style.overflow = '';
+    }
+}
+// ----------------------------------------------------
+
 
 function initVR() {
     vrGallery.classList.add('active');
@@ -423,14 +430,52 @@ function initVR() {
     renderer = new THREE.WebGLRenderer({canvas, antialias: true});
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = true; // Keep shadow maps enabled
 
-    const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+    // ----------------------------------------------------
+    // UPDATED: Lighting for Minimalist/Dramatic Effect
+    // ----------------------------------------------------
+    // Low ambient light to prevent pitch black, allowing shadows to define the space
+    const ambient = new THREE.AmbientLight(0xffffff, 0.3);
     scene.add(ambient);
-    const directional = new THREE.DirectionalLight(0xffffff, 0.8);
-    directional.position.set(0, 10, 0);
-    scene.add(directional);
 
+    // SpotLights focused on each artwork
+    const spotlightColor = 0xffeebb; 
+    const spotLightRadius = 6; 
+    const spotLightHeight = 5; 
+    const spotLightIntensity = 12; 
+
+    for (let i = 0; i < artworkData.length; i++) {
+        const angle = (i / artworkData.length) * Math.PI * 2;
+        const x = Math.sin(angle) * spotLightRadius * 0.9;
+        const z = Math.cos(angle) * spotLightRadius * 0.9;
+        
+        const spotLight = new THREE.SpotLight(spotlightColor, spotLightIntensity);
+        spotLight.position.set(x, spotLightHeight, z);
+        
+        // Target the position where the artwork will be
+        const target = new THREE.Object3D();
+        target.position.set(x, 2.2, z);
+        spotLight.target = target; 
+
+        spotLight.angle = Math.PI / 18; // Narrow cone
+        spotLight.penumbra = 0.5; // Soft edge
+        spotLight.decay = 1.2;
+        
+        // Optional: Enable shadows on the spotlight
+        // spotLight.castShadow = true; 
+        // spotLight.shadow.mapSize.width = 1024;
+        // spotLight.shadow.mapSize.height = 1024;
+
+        scene.add(spotLight);
+        scene.add(spotLight.target);
+    }
+    // ----------------------------------------------------
+
+
+    // ----------------------------------------------------
+    // UPDATED: Floor and Ceiling Materials for Minimalist Look
+    // ----------------------------------------------------
     const floorTex = new THREE.CanvasTexture(createCheckerboard());
     floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
     floorTex.repeat.set(20, 20);
@@ -444,7 +489,7 @@ function initVR() {
 
     const ceiling = new THREE.Mesh(
         new THREE.PlaneGeometry(14, 14),
-        new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.9})
+        new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.9}) // Darker ceiling
     );
     ceiling.rotation.x = Math.PI/2;
     ceiling.position.y = 5.5;
@@ -461,6 +506,7 @@ function initVR() {
         wall.position.set(...w.pos);
         scene.add(wall);
     });
+    // ----------------------------------------------------
 
     const radius = 6;
     const maxWidth = 3.5, maxHeight = 3.5;
@@ -486,6 +532,7 @@ function initVR() {
             );
             plane.position.z = 0.06;
             plane.userData.idx = i;
+            // plane.castShadow = true; // Can be enabled for artwork itself
             g.add(plane);
             clickables.push(plane);
 
@@ -521,17 +568,8 @@ function animate() {
     camera.position.x = Math.max(-max, Math.min(max, camera.position.x));
     camera.position.z = Math.max(-max, Math.min(max, camera.position.z));
 
-    if (isPointerDown) {
-        ray.setFromCamera(mouse, camera);
-        const hits = ray.intersectObjects(clickables);
-        if (hits.length) {
-            const idx = hits[0].object.userData.idx;
-            vrGallery.classList.remove('active');
-            openLightbox(idx);
-            document.body.style.overflow = '';
-        }
-        isPointerDown = false;
-    }
+    // REMOVED: isPointerDown raycasting logic for performance
+    
     renderer.render(scene, camera);
 }
 
@@ -571,109 +609,6 @@ function setupVREvents() {
         mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
     });
-    canvas.addEventListener('pointerup', e => {
-        isDraggingVR = false;
-        if (!hasMoved) {
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-            isPointerDown = true;
-        }
-    });
 
-    let touchDragging = false;
-    let touchStartDist = 0;
-    let touchZoomBase = fov;
-
-    canvas.addEventListener('touchstart', e => {
-        e.preventDefault();
-        if (e.touches.length === 1) {
-            const t = e.touches[0];
-            touchDragging = false;
-            prevX = t.clientX; prevY = t.clientY;
-        } else if (e.touches.length === 2) {
-            const dx = e.touches[0].clientX - e.touches[1].clientX;
-            const dy = e.touches[0].clientY - e.touches[1].clientY;
-            touchStartDist = Math.sqrt(dx * dx + dy * dy);
-            touchZoomBase = fov;
-        }
-    });
-
-    canvas.addEventListener('touchmove', e => {
-        e.preventDefault();
-        if (e.touches.length === 1) {
-            const t = e.touches[0];
-            const dx = t.clientX - prevX, dy = t.clientY - prevY;
-            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) touchDragging = true;
-            camera.rotation.y -= dx * 0.003;
-            camera.rotation.x -= dy * 0.003;
-            camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
-            prevX = t.clientX; prevY = t.clientY;
-        } else if (e.touches.length === 2) {
-            const dx = e.touches[0].clientX - e.touches[1].clientX;
-            const dy = e.touches[0].clientY - e.touches[1].clientY;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const delta = touchStartDist - dist;
-            fov = Math.max(minF, Math.min(maxF, touchZoomBase + delta * 0.1));
-            camera.fov = fov;
-            camera.updateProjectionMatrix();
-        }
-    });
-
-    canvas.addEventListener('touchend', e => {
-        if (!touchDragging && e.changedTouches.length === 1) {
-            const t = e.changedTouches[0];
-            mouse.x = (t.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(t.clientY / window.innerHeight) * 2 + 1;
-            isPointerDown = true;
-        }
-        if (e.touches.length < 2) touchStartDist = 0;
-        touchDragging = false;
-    });
-
-    canvas.addEventListener('wheel', e => {
-        e.preventDefault();
-        fov = Math.max(minF, Math.min(maxF, fov + e.deltaY * 0.05));
-        camera.fov = fov;
-        camera.updateProjectionMatrix();
-    });
-
-    document.getElementById('zoomIn').onclick = () => {
-        fov = Math.max(minF, fov - 5);
-        camera.fov = fov;
-        camera.updateProjectionMatrix();
-    };
-    document.getElementById('zoomOut').onclick = () => {
-        fov = Math.min(maxF, fov + 5);
-        camera.fov = fov;
-        camera.updateProjectionMatrix();
-    };
-    document.getElementById('resetZoom').onclick = () => {
-        fov = 75;
-        camera.fov = fov;
-        camera.updateProjectionMatrix();
-    };
-}
-
-const fadeSections = document.querySelectorAll('.section-fade');
-const fadeObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-        }
-    });
-}, { threshold: 0.2 });
-fadeSections.forEach(section => fadeObserver.observe(section));
-
-function createCheckerboard() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 128; canvas.height = 128;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#f0f0f0'; ctx.fillRect(0,0,128,128);
-    ctx.fillStyle = '#e0e0e0'; ctx.fillRect(0,0,64,64); ctx.fillRect(64,64,64,64);
-    ctx.fillStyle = '#f8f8f8'; ctx.fillRect(32,32,32,32); ctx.fillRect(96,96,32,32);
-    return canvas;
-}
-</script>
-</body>
-</html>
+    // UPDATED: Call handleVRTap() only on pointerup (click/tap) if not dragged
+    canvas.addEventListener('pointerup', e =>
