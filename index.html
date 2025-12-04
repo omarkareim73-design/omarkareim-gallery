@@ -403,6 +403,9 @@ function animate() {
 
     camera.translateX(vel.x * delta);
     camera.translateZ(vel.z * delta);
+    
+    // FIX 2: Explicitly lock the Z-axis rotation (roll) to keep the camera upright.
+    camera.rotation.z = 0; 
 
     // Wall Collision Logic
     const x = camera.position.x;
@@ -464,7 +467,8 @@ function createRoom(offsetX) {
     // Ceiling
     const ceiling = new THREE.Mesh(
         new THREE.PlaneGeometry(14, 14),
-        new THREE.MeshStandardMaterial({color: 0x111111, side: THREE.DoubleSide})
+        // FIX 3: Changed color from 0x111111 to 0x333333 for better visibility
+        new THREE.MeshStandardMaterial({color: 0x333333, side: THREE.DoubleSide}) 
     );
     ceiling.rotation.x = Math.PI/2;
     ceiling.position.set(offsetX, 5, 0);
@@ -520,6 +524,7 @@ function createDoorway() {
     scene.add(topP);
 }
 
+// FIX 1: New placeArtworks function for equal spacing across all four walls per room
 function placeArtworks() {
     const loader = new THREE.TextureLoader();
     const maxWidth = 3.5;
@@ -531,7 +536,7 @@ function placeArtworks() {
             const imageAspect = tex.image.width / tex.image.height;
             let w = maxWidth;
             let h = maxWidth / imageAspect;
-            if(h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; }
+            if(h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; } // Automatic Scaling logic
 
             const geo = new THREE.PlaneGeometry(w, h);
             const mat = new THREE.MeshBasicMaterial({map: tex}); 
@@ -554,20 +559,98 @@ function placeArtworks() {
         });
     };
 
-    const room1Art = artworkData.filter(a => a.room === 1);
-    const room2Art = artworkData.filter(a => a.room === 2);
+    const roomData = {
+        1: { offset: -7, art: artworkData.filter(a => a.room === 1) },
+        2: { offset: 7, art: artworkData.filter(a => a.room === 2) }
+    };
 
-    // Place Room 1 Art on Far Left Wall
-    room1Art.forEach((art, i) => {
-        const zPos = -4 + (i * 2.5); 
-        createArtMesh(art, -13.8, zPos, Math.PI/2);
-    });
+    for (const roomNum in roomData) {
+        const { offset, art } = roomData[roomNum];
+        
+        // 1. Assign Artworks to 4 Walls in a round-robin fashion
+        const wallAssignments = [[], [], [], []];
+        // 0:Back Wall (Z fixed), 1:Inner Wall (X fixed, Doorway), 2:Front Wall (Z fixed), 3:Outer Wall (X fixed)
+        art.forEach((a, i) => wallAssignments[i % 4].push(a)); 
 
-    // Place Room 2 Art on Far Right Wall
-    room2Art.forEach((art, i) => {
-        const zPos = -4 + (i * 2.5);
-        createArtMesh(art, 13.8, zPos, -Math.PI/2);
-    });
+        // 2. Iterate through walls and place art with equal spacing
+        wallAssignments.forEach((wallArt, wallIndex) => {
+            if (wallArt.length === 0) return;
+
+            // Wall 0 (Back Wall, Z-fixed) - Vary X
+            if (wallIndex === 0) {
+                const wallLength = 14;
+                const startX = offset - 7;
+                const fixedZ = -6.9; 
+                
+                wallArt.forEach((a, i) => {
+                    const xPos = startX + (wallLength / (wallArt.length + 1)) * (i + 1);
+                    createArtMesh(a, xPos, fixedZ, 0); // Rotation 0
+                });
+            } 
+            
+            // Wall 2 (Front Wall, Z-fixed) - Vary X
+            else if (wallIndex === 2) {
+                const wallLength = 14;
+                const startX = offset - 7;
+                const fixedZ = 6.9; 
+
+                wallArt.forEach((a, i) => {
+                    const xPos = startX + (wallLength / (wallArt.length + 1)) * (i + 1);
+                    createArtMesh(a, xPos, fixedZ, Math.PI); // Rotation 180 deg
+                });
+            }
+            
+            // Wall 3 (Outer Wall, X-fixed) - Vary Z
+            else if (wallIndex === 3) { 
+                const wallLength = 14;
+                const startZ = -7;
+                // Determines the exact X-position of the outer wall for this room
+                const fixedX = offset + 6.9 * (offset > 0 ? 1 : -1); 
+                const rotation = offset > 0 ? -Math.PI/2 : Math.PI/2; // -90 deg for Room 2, +90 deg for Room 1
+                
+                wallArt.forEach((a, i) => {
+                    const zPos = startZ + (wallLength / (wallArt.length + 1)) * (i + 1);
+                    createArtMesh(a, fixedX, zPos, rotation);
+                });
+            }
+            
+            // Wall 1 (Inner Wall, X-fixed, Doorway Gap) - Vary Z
+            else if (wallIndex === 1) { 
+                const segment1Length = 5.5; // Z=-7 to Z=-1.5
+                const segment2Length = 5.5; // Z=1.5 to Z=7
+                
+                // Position slightly offset from the dividing wall
+                const fixedX = offset > 0 ? 0.2 : -0.2; 
+                // Rotation: +90 deg for Room 2, -90 deg for Room 1
+                const rotation = offset > 0 ? Math.PI/2 : -Math.PI/2; 
+                
+                // Split art between the two wall segments flanking the door
+                const totalArt = wallArt.length;
+                const segment1Art = Math.ceil(totalArt / 2); // Put slightly more on the first segment if odd number of art
+                
+                const artSeg1 = wallArt.slice(0, segment1Art);
+                const artSeg2 = wallArt.slice(segment1Art);
+                
+                // Place art in Segment 1 (Z=-7 to Z=-1.5)
+                if (artSeg1.length > 0) {
+                    artSeg1.forEach((a, i) => {
+                        // Spacing formula: SegmentStart + (SegmentLength / (N+1)) * (i+1)
+                        const zPos = -7 + (segment1Length / (artSeg1.length + 1)) * (i + 1);
+                        createArtMesh(a, fixedX, zPos, rotation);
+                    });
+                }
+
+                // Place art in Segment 2 (Z=1.5 to Z=7)
+                if (artSeg2.length > 0) {
+                    artSeg2.forEach((a, i) => {
+                        // Spacing formula: SegmentStart + (SegmentLength / (N+1)) * (i+1)
+                        const zPos = 1.5 + (segment2Length / (artSeg2.length + 1)) * (i + 1);
+                        createArtMesh(a, fixedX, zPos, rotation);
+                    });
+                }
+            }
+        });
+    }
 }
 
 function setupVREvents() {
