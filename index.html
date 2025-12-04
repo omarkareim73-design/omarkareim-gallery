@@ -18,8 +18,8 @@
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Omar Kareim | Virtual Art Gallery">
-    <meta name="twitter:description" content="Experience the artwork of Omar Kareim.">
-    <meta name="twitter:image" content="https://omarkareim.art/images/og-image.jpg">
+    <meta property="twitter:description" content="Experience the artwork of Omar Kareim.">
+    <meta property="twitter:image" content="https://omarkareim.art/images/og-image.jpg">
 
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
@@ -102,6 +102,50 @@
         .zoom-controls{position:fixed;top:20px;right:20px;display:flex;gap:10px;z-index:2001}
         .zoom-button{padding:12px 20px;background:rgba(218,165,32,.9);color:#0a0a0a;border:none;border-radius:30px;cursor:pointer;font-size:1rem;letter-spacing:.1rem;transition:all .3s}
         .zoom-button:hover{background:#daa520;transform:scale(1.05)}
+        
+        /* NEW CSS FOR MOBILE CONTROLS */
+        .mobile-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 2001;
+            display: none;
+            /* Only show on touch devices */
+            @media (pointer: coarse) {
+                display: block;
+            }
+        }
+        .control-pad {
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+        .control-button {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(218, 165, 32, 0.7);
+            color: #0a0a0a;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            touch-action: none; /* Crucial for preventing mobile scrolling */
+            user-select: none;
+        }
+        .control-button:active {
+            background: #daa520;
+        }
+        #moveF { top: 0; left: 40px; }
+        #moveB { bottom: 0; left: 40px; }
+        #moveL { top: 40px; left: 0; }
+        #moveR { top: 40px; right: 0; }
+        
+        /* END NEW CSS */
+
+
         @media (max-width: 768px) {
             h1 {font-size:2.5rem; letter-spacing:.2rem;}
             .subtitle {font-size:1rem; letter-spacing:.3rem;}
@@ -209,7 +253,16 @@
         <button class="zoom-button" id="resetZoom">RESET</button>
     </div>
     <canvas id="vrCanvas"></canvas>
-</div>
+    
+    <div class="mobile-controls" id="mobileControls">
+        <div class="control-pad">
+            <div class="control-button" id="moveF">▲</div>
+            <div class="control-button" id="moveB">▼</div>
+            <div class="control-button" id="moveL">◀</div>
+            <div class="control-button" id="moveR">▶</div>
+        </div>
+    </div>
+    </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
 <script>
@@ -343,6 +396,9 @@ function stopVR() {
 function initVR() {
     vrGallery.classList.add('active');
     document.body.style.overflow = 'hidden';
+    
+    // NEW MOBILE CONTROLS: Show the D-Pad when entering VR
+    document.getElementById('mobileControls').style.display = 'block';
 
     // Only init Three.js once
     if (scene) {
@@ -404,7 +460,7 @@ function animate() {
     camera.translateX(vel.x * delta);
     camera.translateZ(vel.z * delta);
     
-    // FIX 2: Explicitly lock the Z-axis rotation (roll) to keep the camera upright.
+    // FIX 2: Explicitly lock the Z-axis rotation (roll) to keep the camera upright. (Carried over from previous fix)
     camera.rotation.z = 0; 
 
     // Wall Collision Logic
@@ -467,7 +523,7 @@ function createRoom(offsetX) {
     // Ceiling
     const ceiling = new THREE.Mesh(
         new THREE.PlaneGeometry(14, 14),
-        // FIX 3: Changed color from 0x111111 to 0x333333 for better visibility
+        // FIX 3: Changed color from 0x111111 to 0x333333 for better visibility (Carried over from previous fix)
         new THREE.MeshStandardMaterial({color: 0x333333, side: THREE.DoubleSide}) 
     );
     ceiling.rotation.x = Math.PI/2;
@@ -524,7 +580,7 @@ function createDoorway() {
     scene.add(topP);
 }
 
-// FIX 1: New placeArtworks function for equal spacing across all four walls per room
+// FIX 1: placeArtworks function updated for Z-Fighting fix and new spacing (Carried over from previous fix)
 function placeArtworks() {
     const loader = new THREE.TextureLoader();
     const maxWidth = 3.5;
@@ -541,6 +597,16 @@ function placeArtworks() {
             const geo = new THREE.PlaneGeometry(w, h);
             const mat = new THREE.MeshBasicMaterial({map: tex}); 
             const mesh = new THREE.Mesh(geo, mat);
+            
+            // NEW FIX: Apply a slight offset to the artwork mesh to prevent Z-fighting with the frame.
+            // When rotated 0 or PI, the wall is on the Z axis, so we offset the Z position.
+            if (rotationY === 0 || rotationY === Math.PI) {
+                 mesh.position.z = 0.05; // Push artwork slightly forward relative to the group origin
+            } else {
+                 // When rotated PI/2 or -PI/2, the wall is on the X axis, so we offset the X position.
+                 mesh.position.x = 0.05; // Push artwork slightly forward relative to the group origin
+            }
+            
             mesh.userData.idx = artworkData.indexOf(art);
             clickables.push(mesh);
 
@@ -548,7 +614,9 @@ function placeArtworks() {
                 new THREE.BoxGeometry(w + 0.2, h + 0.2, 0.1),
                 new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.5})
             );
-            frame.position.z = -0.06;
+            // Original frame position: frame.position.z = -0.06;
+            // The fix is now in the mesh position above, or implicitly by letting the frame rest at 0, 0, 0 
+            // of the group and pushing the mesh slightly in front. Let's rely on the mesh offset.
             
             const group = new THREE.Group();
             group.add(mesh);
@@ -700,6 +768,43 @@ function setupVREvents() {
             isPointerDown = true;
         }
     });
+    
+    // NEW MOBILE CONTROLS LOGIC
+    const mobileControls = document.getElementById('mobileControls');
+    const controls = {
+        'moveF': document.getElementById('moveF'),
+        'moveB': document.getElementById('moveB'),
+        'moveL': document.getElementById('moveL'),
+        'moveR': document.getElementById('moveR')
+    };
+
+    const handlePointerDown = (control, e) => {
+        e.preventDefault(); // Prevent touch from triggering other events
+        // Set the corresponding movement flag to true
+        if (control === 'moveF') moveF = true;
+        if (control === 'moveB') moveB = true;
+        if (control === 'moveL') moveL = true;
+        if (control === 'moveR') moveR = true;
+    };
+
+    const handlePointerUp = (control, e) => {
+        e.preventDefault();
+        // Set the corresponding movement flag to false
+        if (control === 'moveF') moveF = false;
+        if (control === 'moveB') moveB = false;
+        if (control === 'moveL') moveL = false;
+        if (control === 'moveR') moveR = false;
+    };
+    
+    // Attach event listeners for all mobile controls
+    for (const control in controls) {
+        // Use pointer events for cross-device compatibility (mouse/touch)
+        controls[control].addEventListener('pointerdown', handlePointerDown.bind(null, control));
+        controls[control].addEventListener('pointerup', handlePointerUp.bind(null, control));
+        controls[control].addEventListener('pointerleave', handlePointerUp.bind(null, control)); // Stop if finger slides off
+        controls[control].addEventListener('pointercancel', handlePointerUp.bind(null, control)); // Stop if interrupted
+    }
+    // END NEW MOBILE CONTROLS LOGIC
 
     document.getElementById('zoomIn').onclick = () => { fov = Math.max(minF, fov - 5); updateFov(); };
     document.getElementById('zoomOut').onclick = () => { fov = Math.min(maxF, fov + 5); updateFov(); };
