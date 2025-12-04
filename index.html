@@ -595,16 +595,13 @@ function placeArtworks() {
             const geo = new THREE.PlaneGeometry(w, h);
             
             // NEW FIX: Use emissiveMap to make the painting appear lit up
-            const mat = new THREE.MeshStandardMaterial({
-                color: 0xffffff, // Base color white
-                map: tex, // Main texture
-                emissive: 0xffffff, // Full emissive color (white)
-                emissiveMap: tex, // Use the texture itself to define what emits light
-                emissiveIntensity: 0.5, // Brightness of the emission (adjust as needed)
-                roughness: 0.9,
-                metalness: 0.1,
-                side: THREE.FrontSide
-            }); 
+           
+            const mat = new THREE.MeshBasicMaterial({
+                               map: tex,
+                               side: THREE.FrontSide
+                             
+                                });
+ 
             const mesh = new THREE.Mesh(geo, mat);
             
             // Z-Fighting Fix (slight offset)
