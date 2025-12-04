@@ -609,10 +609,10 @@ function placeArtworks() {
             
             // Apply the offset based on rotation (0 for Z-facing walls, PI/2 for X-facing walls)
             if (rotationY === 0 || rotationY === Math.PI) {
-                 // Front/Back Wall: offset on Z-axis
+                 // Front/Back Wall: offset on Z-axis (local Z is depth)
                  mesh.position.z = artworkOffset; 
             } else {
-                 // Side Wall: offset on X-axis (local space Z is now local X due to rotation)
+                 // Side Wall: offset on X-axis (local Z is now local X due to rotation)
                  // This ensures the artwork is visually in front of the wall mesh
                  mesh.position.x = artworkOffset; 
             }
