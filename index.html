@@ -109,9 +109,11 @@
             bottom: 20px;
             left: 20px;
             z-index: 2001;
-            display: none;
-            /* Only show on touch devices */
-            @media (pointer: coarse) {
+            /* Use media query to only show on touch devices */
+            display: none; 
+        }
+        @media (pointer: coarse) {
+            .mobile-controls {
                 display: block;
             }
         }
@@ -132,19 +134,19 @@
             justify-content: center;
             font-size: 1.2rem;
             font-weight: bold;
-            touch-action: none; /* Crucial for preventing mobile scrolling */
+            touch-action: none; 
             user-select: none;
         }
         .control-button:active {
             background: #daa520;
         }
+        /* D-Pad Layout */
         #moveF { top: 0; left: 40px; }
         #moveB { bottom: 0; left: 40px; }
-        #moveL { top: 40px; left: 0; }
-        #moveR { top: 40px; right: 0; }
+        #moveL { top: 40px; left: 0; } /* Left arrow */
+        #moveR { top: 40px; right: 0; } /* Right arrow */
         
         /* END NEW CSS */
-
 
         @media (max-width: 768px) {
             h1 {font-size:2.5rem; letter-spacing:.2rem;}
@@ -262,7 +264,7 @@
             <div class="control-button" id="moveR">▶</div>
         </div>
     </div>
-    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
 <script>
@@ -281,7 +283,7 @@ const artworkData = [
     { file: 'images/artwork7.webp', fallback: 'images/artwork7.png', title: 'Stargate (Detail)', medium: 'Acrylic on Canvas', date: '2012', description: '', room: 2 }
 ];
 
-/* ===== 2D GALLERY BUILDER ===== */
+/* ===== 2D GALLERY BUILDER (UNCHANGED) ===== */
 const grid = document.getElementById('galleryGrid');
 artworkData.forEach((art, i) => {
     const item = document.createElement('div');
@@ -303,7 +305,7 @@ artworkData.forEach((art, i) => {
     grid.appendChild(item);
 });
 
-/* ===== LIGHTBOX ===== */
+/* ===== LIGHTBOX (UNCHANGED) ===== */
 const lightbox = document.getElementById('lightbox');
 const lbImg = document.getElementById('lightboxImg');
 const lbTitle = document.getElementById('lightboxTitle');
@@ -334,7 +336,6 @@ function updateLightbox() {
 
 function closeLightbox() {
     lightbox.classList.remove('active');
-    // Only restore scroll if VR is not active
     if(!document.getElementById('vrGallery').classList.contains('active')) {
         document.body.style.overflow = '';
     }
@@ -352,7 +353,7 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeLightbox();
 });
 
-/* ===== SCROLL ===== */
+/* ===== SCROLL (UNCHANGED) ===== */
 const wrapper = document.querySelector('.gallery-wrapper');
 const leftArrow = document.querySelector('.auto-scroll-left');
 const rightArrow = document.querySelector('.auto-scroll-right');
@@ -370,9 +371,11 @@ const vrBtn = document.getElementById('enterVR');
 const vrGallery = document.getElementById('vrGallery');
 const exitBtn = document.getElementById('exitVR');
 const canvas = document.getElementById('vrCanvas');
+const mobileControls = document.getElementById('mobileControls');
 
 let scene, camera, renderer, clock, requestID;
-let moveF = false, moveB = false, moveL = false, moveR = false;
+let moveF = false, moveB = false; // moveL/moveR are now for rotation
+let rotL = false, rotR = false; // New flags for rotation
 let vel = new THREE.Vector3();
 let dir = new THREE.Vector3();
 let isDraggingVR = false, prevX, prevY;
@@ -389,8 +392,7 @@ exitBtn.onclick = stopVR;
 function stopVR() {
     vrGallery.classList.remove('active');
     document.body.style.overflow = '';
-    // Hide mobile controls when exiting VR
-    document.getElementById('mobileControls').style.display = 'none';
+    mobileControls.style.display = 'none'; // Hide mobile controls
     if (requestID) cancelAnimationFrame(requestID);
     requestID = null;
 }
@@ -398,11 +400,8 @@ function stopVR() {
 function initVR() {
     vrGallery.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
-    // Show mobile controls when entering VR
-    document.getElementById('mobileControls').style.display = 'block';
+    mobileControls.style.display = 'block'; // Show mobile controls
 
-    // Only init Three.js once
     if (scene) {
         clock.start();
         animate();
@@ -414,7 +413,6 @@ function initVR() {
     scene.fog = new THREE.FogExp2(0x050505, 0.03); 
 
     camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 100);
-    // Start in Room 1 (Left Room), facing the door
     camera.position.set(-7, 1.6, 0); 
     camera.rotation.y = -Math.PI / 2;
 
@@ -423,17 +421,17 @@ function initVR() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
 
-    // Lights
-    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    // Lights (Adjusted for better art visibility)
+    const ambient = new THREE.AmbientLight(0xffffff, 0.7); // Increased ambient light
     scene.add(ambient);
-    const p1 = new THREE.PointLight(0xffaa00, 0.8, 20);
+    const p1 = new THREE.PointLight(0xffaa00, 1.0, 20); // Increased intensity
     p1.position.set(-7, 4, 0); 
     scene.add(p1);
-    const p2 = new THREE.PointLight(0xffaa00, 0.8, 20);
+    const p2 = new THREE.PointLight(0xffaa00, 1.0, 20); // Increased intensity
     p2.position.set(7, 4, 0);
     scene.add(p2);
 
-    // Build Rooms: Room 1 (-7) and Room 2 (+7). They meet at 0.
+    // Build Rooms
     createRoom(-7); 
     createRoom(7);  
     createDoorway(); 
@@ -452,20 +450,25 @@ function animate() {
     // Physics / Movement
     vel.x -= vel.x * 10.0 * delta;
     vel.z -= vel.z * 10.0 * delta;
+    
+    // NOTE: dir.x and dir.z are only used for FWD/BWD movement calculation
     dir.z = Number(moveF) - Number(moveB);
-    dir.x = Number(moveR) - Number(moveL);
     dir.normalize();
 
     if (moveF || moveB) vel.z -= dir.z * 50.0 * delta;
-    if (moveL || moveR) vel.x -= dir.x * 50.0 * delta;
 
     camera.translateX(vel.x * delta);
     camera.translateZ(vel.z * delta);
     
-    // Explicitly lock the Z-axis rotation (roll) to keep the camera upright.
+    // NEW FIX: Rotation/Turning
+    const rotationSpeed = 1.0; // Radians per second
+    if (rotL) camera.rotation.y += rotationSpeed * delta;
+    if (rotR) camera.rotation.y -= rotationSpeed * delta;
+    
+    // Always keep roll (z) rotation at 0
     camera.rotation.z = 0; 
 
-    // Wall Collision Logic
+    // Wall Collision Logic (UNCHANGED)
     const x = camera.position.x;
     const z = camera.position.z;
     const wallBuffer = 0.5;
@@ -478,7 +481,6 @@ function animate() {
 
     // Middle Wall (Doorway check)
     if (Math.abs(x) < wallBuffer) {
-        // If not in doorway hole (Z between -1.2 and 1.2), push back
         if (Math.abs(z) > 1.2) {
             camera.position.x = x > 0 ? wallBuffer : -wallBuffer; 
             vel.x = 0;
@@ -525,7 +527,7 @@ function createRoom(offsetX) {
     // Ceiling
     const ceiling = new THREE.Mesh(
         new THREE.PlaneGeometry(14, 14),
-        new THREE.MeshStandardMaterial({color: 0x111111, side: THREE.DoubleSide})
+        new THREE.MeshStandardMaterial({color: 0x333333, side: THREE.DoubleSide}) 
     );
     ceiling.rotation.x = Math.PI/2;
     ceiling.position.set(offsetX, 5, 0);
@@ -585,11 +587,6 @@ function placeArtworks() {
     const loader = new THREE.TextureLoader();
     const maxWidth = 3.5;
     const maxHeight = 3.5;
-    
-    // Z-FIGHTING FIX CONSTANTS
-    const frameThickness = 0.2; // New thickness for visual depth
-    const artworkOffset = 0.01; // Push artwork 0.01 units forward from the group's Z=0
-    const frameOffset = -0.01; // Pull frame 0.01 units back from the group's Z=0
 
     const createArtMesh = (art, x, z, rotationY) => {
         loader.load(art.file, (tex) => {
@@ -600,38 +597,31 @@ function placeArtworks() {
             if(h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; }
 
             const geo = new THREE.PlaneGeometry(w, h);
-            const mat = new THREE.MeshBasicMaterial({map: tex}); 
             
-            // 1. Create Artwork Mesh (Front object)
+            // NEW FIX: Use MeshStandardMaterial and the texture as a lightMap for visibility
+            const mat = new THREE.MeshStandardMaterial({
+                color: 0xffffff, // Set base color to white to use full texture color
+                map: tex, // Main texture
+                emissive: 0x151515, // Slight self-illumination (optional but good for dark scenes)
+                lightMap: tex, // Use the texture itself to simulate light/color
+                side: THREE.FrontSide
+            }); 
             const mesh = new THREE.Mesh(geo, mat);
+            
+            // FIX: Apply a slight offset to the artwork mesh to prevent Z-fighting with the frame.
+            if (rotationY === 0 || rotationY === Math.PI) {
+                 mesh.position.z = 0.01; // Push artwork slightly forward relative to the group origin
+            } else {
+                 mesh.position.x = 0.01; // Push artwork slightly forward relative to the group origin
+            }
+            
             mesh.userData.idx = artworkData.indexOf(art);
             clickables.push(mesh);
-            
-            // Apply the offset based on rotation (0 for Z-facing walls, PI/2 for X-facing walls)
-            if (rotationY === 0 || rotationY === Math.PI) {
-                 // Front/Back Wall: offset on Z-axis (local Z is depth)
-                 mesh.position.z = artworkOffset; 
-            } else {
-                 // Side Wall: offset on X-axis (local Z is now local X due to rotation)
-                 // This ensures the artwork is visually in front of the wall mesh
-                 mesh.position.x = artworkOffset; 
-            }
 
-            // 2. Create the Frame Mesh (Middle object)
             const frame = new THREE.Mesh(
-                new THREE.BoxGeometry(w + 0.2, h + 0.2, frameThickness),
+                new THREE.BoxGeometry(w + 0.2, h + 0.2, 0.1),
                 new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.5})
             );
-            
-            // Apply the frame offset based on rotation
-            if (rotationY === 0 || rotationY === Math.PI) {
-                // Front/Back Wall: offset on Z-axis
-                frame.position.z = frameOffset; 
-            } else {
-                // Side Wall: offset on X-axis
-                frame.position.x = frameOffset; 
-            }
-
             
             const group = new THREE.Group();
             group.add(mesh);
@@ -707,7 +697,6 @@ function placeArtworks() {
                 // Rotation: +90 deg for Room 2, -90 deg for Room 1
                 const rotation = offset > 0 ? Math.PI/2 : -Math.PI/2; 
                 
-                // Split art between the two wall segments flanking the door
                 const totalArt = wallArt.length;
                 const segment1Art = Math.ceil(totalArt / 2); 
                 
@@ -745,16 +734,16 @@ function setupVREvents() {
         switch(e.code) {
             case 'KeyW': case 'ArrowUp': moveF = true; break;
             case 'KeyS': case 'ArrowDown': moveB = true; break;
-            case 'KeyA': case 'ArrowLeft': moveL = true; break;
-            case 'KeyD': case 'ArrowRight': moveR = true; break;
+            case 'KeyA': case 'ArrowLeft': rotL = true; break; // NEW: Set rotation flag
+            case 'KeyD': case 'ArrowRight': rotR = true; break; // NEW: Set rotation flag
         }
     });
     document.addEventListener('keyup', e => {
         switch(e.code) {
             case 'KeyW': case 'ArrowUp': moveF = false; break;
             case 'KeyS': case 'ArrowDown': moveB = false; break;
-            case 'KeyA': case 'ArrowLeft': moveL = false; break;
-            case 'KeyD': case 'ArrowRight': moveR = false; break;
+            case 'KeyA': case 'ArrowLeft': rotL = false; break; // NEW: Clear rotation flag
+            case 'KeyD': case 'ArrowRight': rotR = false; break; // NEW: Clear rotation flag
         }
     });
 
@@ -783,7 +772,6 @@ function setupVREvents() {
     });
     
     // MOBILE CONTROLS LOGIC
-    const mobileControls = document.getElementById('mobileControls');
     const controls = {
         'moveF': document.getElementById('moveF'),
         'moveB': document.getElementById('moveB'),
@@ -795,34 +783,27 @@ function setupVREvents() {
         e.preventDefault(); 
         if (control === 'moveF') moveF = true;
         if (control === 'moveB') moveB = true;
-        if (control === 'moveL') moveL = true;
-        if (control === 'moveR') moveR = true;
+        if (control === 'moveL') rotL = true; // NEW: Use rotL
+        if (control === 'moveR') rotR = true; // NEW: Use rotR
     };
 
     const handlePointerUp = (control, e) => {
         e.preventDefault();
         if (control === 'moveF') moveF = false;
         if (control === 'moveB') moveB = false;
-        if (control === 'moveL') moveL = false;
-        if (control === 'moveR') moveR = false;
+        if (control === 'moveL') rotL = false; // NEW: Clear rotL
+        if (control === 'moveR') rotR = false; // NEW: Clear rotR
     };
     
-    // Attach event listeners for all mobile controls
     for (const control in controls) {
         controls[control].addEventListener('pointerdown', handlePointerDown.bind(null, control));
         controls[control].addEventListener('pointerup', handlePointerUp.bind(null, control));
-        controls[control].addEventListener('pointerleave', handlePointerUp.bind(null, control));
-        controls[control].addEventListener('pointercancel', handlePointerUp.bind(null, control));
+        controls[control].addEventListener('pointerleave', handlePointerUp.bind(null, control)); 
+        controls[control].addEventListener('pointercancel', handlePointerUp.bind(null, control)); 
     }
-    // END MOBILE CONTROLS LOGIC
-
-    document.getElementById('zoomIn').onclick = () => { fov = Math.max(minF, fov - 5); updateFov(); };
-    document.getElementById('zoomOut').onclick = () => { fov = Math.min(maxF, fov + 5); updateFov(); };
-    document.getElementById('resetZoom').onclick = () => { fov = 75; updateFov(); };
-    function updateFov() { camera.fov = fov; camera.updateProjectionMatrix(); }
 }
 
-// Fade in observer
+// Fade in observer (UNCHANGED)
 const fadeObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) entry.target.classList.add('visible');
