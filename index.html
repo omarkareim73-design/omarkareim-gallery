@@ -389,6 +389,8 @@ exitBtn.onclick = stopVR;
 function stopVR() {
     vrGallery.classList.remove('active');
     document.body.style.overflow = '';
+    // Hide mobile controls when exiting VR
+    document.getElementById('mobileControls').style.display = 'none';
     if (requestID) cancelAnimationFrame(requestID);
     requestID = null;
 }
@@ -397,7 +399,7 @@ function initVR() {
     vrGallery.classList.add('active');
     document.body.style.overflow = 'hidden';
     
-    // NEW MOBILE CONTROLS: Show the D-Pad when entering VR
+    // Show mobile controls when entering VR
     document.getElementById('mobileControls').style.display = 'block';
 
     // Only init Three.js once
@@ -460,7 +462,7 @@ function animate() {
     camera.translateX(vel.x * delta);
     camera.translateZ(vel.z * delta);
     
-    // FIX 2: Explicitly lock the Z-axis rotation (roll) to keep the camera upright. (Carried over from previous fix)
+    // Explicitly lock the Z-axis rotation (roll) to keep the camera upright.
     camera.rotation.z = 0; 
 
     // Wall Collision Logic
@@ -523,8 +525,7 @@ function createRoom(offsetX) {
     // Ceiling
     const ceiling = new THREE.Mesh(
         new THREE.PlaneGeometry(14, 14),
-        // FIX 3: Changed color from 0x111111 to 0x333333 for better visibility (Carried over from previous fix)
-        new THREE.MeshStandardMaterial({color: 0x333333, side: THREE.DoubleSide}) 
+        new THREE.MeshStandardMaterial({color: 0x111111, side: THREE.DoubleSide})
     );
     ceiling.rotation.x = Math.PI/2;
     ceiling.position.set(offsetX, 5, 0);
@@ -580,11 +581,15 @@ function createDoorway() {
     scene.add(topP);
 }
 
-// FIX 1: placeArtworks function updated for Z-Fighting fix and new spacing (Carried over from previous fix)
 function placeArtworks() {
     const loader = new THREE.TextureLoader();
     const maxWidth = 3.5;
     const maxHeight = 3.5;
+    
+    // Z-FIGHTING FIX CONSTANTS
+    const frameThickness = 0.2; // New thickness for visual depth
+    const artworkOffset = 0.01; // Push artwork 0.01 units forward from the group's Z=0
+    const frameOffset = -0.01; // Pull frame 0.01 units back from the group's Z=0
 
     const createArtMesh = (art, x, z, rotationY) => {
         loader.load(art.file, (tex) => {
@@ -592,31 +597,41 @@ function placeArtworks() {
             const imageAspect = tex.image.width / tex.image.height;
             let w = maxWidth;
             let h = maxWidth / imageAspect;
-            if(h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; } // Automatic Scaling logic
+            if(h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; }
 
             const geo = new THREE.PlaneGeometry(w, h);
             const mat = new THREE.MeshBasicMaterial({map: tex}); 
+            
+            // 1. Create Artwork Mesh (Front object)
             const mesh = new THREE.Mesh(geo, mat);
-            
-            // NEW FIX: Apply a slight offset to the artwork mesh to prevent Z-fighting with the frame.
-            // When rotated 0 or PI, the wall is on the Z axis, so we offset the Z position.
-            if (rotationY === 0 || rotationY === Math.PI) {
-                 mesh.position.z = 0.05; // Push artwork slightly forward relative to the group origin
-            } else {
-                 // When rotated PI/2 or -PI/2, the wall is on the X axis, so we offset the X position.
-                 mesh.position.x = 0.05; // Push artwork slightly forward relative to the group origin
-            }
-            
             mesh.userData.idx = artworkData.indexOf(art);
             clickables.push(mesh);
+            
+            // Apply the offset based on rotation (0 for Z-facing walls, PI/2 for X-facing walls)
+            if (rotationY === 0 || rotationY === Math.PI) {
+                 // Front/Back Wall: offset on Z-axis
+                 mesh.position.z = artworkOffset; 
+            } else {
+                 // Side Wall: offset on X-axis (local space Z is now local X due to rotation)
+                 // This ensures the artwork is visually in front of the wall mesh
+                 mesh.position.x = artworkOffset; 
+            }
 
+            // 2. Create the Frame Mesh (Middle object)
             const frame = new THREE.Mesh(
-                new THREE.BoxGeometry(w + 0.2, h + 0.2, 0.1),
+                new THREE.BoxGeometry(w + 0.2, h + 0.2, frameThickness),
                 new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.5})
             );
-            // Original frame position: frame.position.z = -0.06;
-            // The fix is now in the mesh position above, or implicitly by letting the frame rest at 0, 0, 0 
-            // of the group and pushing the mesh slightly in front. Let's rely on the mesh offset.
+            
+            // Apply the frame offset based on rotation
+            if (rotationY === 0 || rotationY === Math.PI) {
+                // Front/Back Wall: offset on Z-axis
+                frame.position.z = frameOffset; 
+            } else {
+                // Side Wall: offset on X-axis
+                frame.position.x = frameOffset; 
+            }
+
             
             const group = new THREE.Group();
             group.add(mesh);
@@ -694,7 +709,7 @@ function placeArtworks() {
                 
                 // Split art between the two wall segments flanking the door
                 const totalArt = wallArt.length;
-                const segment1Art = Math.ceil(totalArt / 2); // Put slightly more on the first segment if odd number of art
+                const segment1Art = Math.ceil(totalArt / 2); 
                 
                 const artSeg1 = wallArt.slice(0, segment1Art);
                 const artSeg2 = wallArt.slice(segment1Art);
@@ -702,7 +717,6 @@ function placeArtworks() {
                 // Place art in Segment 1 (Z=-7 to Z=-1.5)
                 if (artSeg1.length > 0) {
                     artSeg1.forEach((a, i) => {
-                        // Spacing formula: SegmentStart + (SegmentLength / (N+1)) * (i+1)
                         const zPos = -7 + (segment1Length / (artSeg1.length + 1)) * (i + 1);
                         createArtMesh(a, fixedX, zPos, rotation);
                     });
@@ -711,7 +725,6 @@ function placeArtworks() {
                 // Place art in Segment 2 (Z=1.5 to Z=7)
                 if (artSeg2.length > 0) {
                     artSeg2.forEach((a, i) => {
-                        // Spacing formula: SegmentStart + (SegmentLength / (N+1)) * (i+1)
                         const zPos = 1.5 + (segment2Length / (artSeg2.length + 1)) * (i + 1);
                         createArtMesh(a, fixedX, zPos, rotation);
                     });
@@ -769,7 +782,7 @@ function setupVREvents() {
         }
     });
     
-    // NEW MOBILE CONTROLS LOGIC
+    // MOBILE CONTROLS LOGIC
     const mobileControls = document.getElementById('mobileControls');
     const controls = {
         'moveF': document.getElementById('moveF'),
@@ -779,8 +792,7 @@ function setupVREvents() {
     };
 
     const handlePointerDown = (control, e) => {
-        e.preventDefault(); // Prevent touch from triggering other events
-        // Set the corresponding movement flag to true
+        e.preventDefault(); 
         if (control === 'moveF') moveF = true;
         if (control === 'moveB') moveB = true;
         if (control === 'moveL') moveL = true;
@@ -789,7 +801,6 @@ function setupVREvents() {
 
     const handlePointerUp = (control, e) => {
         e.preventDefault();
-        // Set the corresponding movement flag to false
         if (control === 'moveF') moveF = false;
         if (control === 'moveB') moveB = false;
         if (control === 'moveL') moveL = false;
@@ -798,13 +809,12 @@ function setupVREvents() {
     
     // Attach event listeners for all mobile controls
     for (const control in controls) {
-        // Use pointer events for cross-device compatibility (mouse/touch)
         controls[control].addEventListener('pointerdown', handlePointerDown.bind(null, control));
         controls[control].addEventListener('pointerup', handlePointerUp.bind(null, control));
-        controls[control].addEventListener('pointerleave', handlePointerUp.bind(null, control)); // Stop if finger slides off
-        controls[control].addEventListener('pointercancel', handlePointerUp.bind(null, control)); // Stop if interrupted
+        controls[control].addEventListener('pointerleave', handlePointerUp.bind(null, control));
+        controls[control].addEventListener('pointercancel', handlePointerUp.bind(null, control));
     }
-    // END NEW MOBILE CONTROLS LOGIC
+    // END MOBILE CONTROLS LOGIC
 
     document.getElementById('zoomIn').onclick = () => { fov = Math.max(minF, fov - 5); updateFov(); };
     document.getElementById('zoomOut').onclick = () => { fov = Math.min(maxF, fov + 5); updateFov(); };
