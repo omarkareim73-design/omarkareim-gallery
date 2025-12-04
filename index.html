@@ -374,8 +374,8 @@ const canvas = document.getElementById('vrCanvas');
 const mobileControls = document.getElementById('mobileControls');
 
 let scene, camera, renderer, clock, requestID;
-let moveF = false, moveB = false; // moveL/moveR are now for rotation
-let rotL = false, rotR = false; // New flags for rotation
+// REVERTED: moveL/moveR now control strafing again
+let moveF = false, moveB = false, moveL = false, moveR = false; 
 let vel = new THREE.Vector3();
 let dir = new THREE.Vector3();
 let isDraggingVR = false, prevX, prevY;
@@ -392,7 +392,7 @@ exitBtn.onclick = stopVR;
 function stopVR() {
     vrGallery.classList.remove('active');
     document.body.style.overflow = '';
-    mobileControls.style.display = 'none'; // Hide mobile controls
+    mobileControls.style.display = 'none';
     if (requestID) cancelAnimationFrame(requestID);
     requestID = null;
 }
@@ -400,7 +400,7 @@ function stopVR() {
 function initVR() {
     vrGallery.classList.add('active');
     document.body.style.overflow = 'hidden';
-    mobileControls.style.display = 'block'; // Show mobile controls
+    mobileControls.style.display = 'block';
 
     if (scene) {
         clock.start();
@@ -421,13 +421,13 @@ function initVR() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
 
-    // Lights (Adjusted for better art visibility)
-    const ambient = new THREE.AmbientLight(0xffffff, 0.7); // Increased ambient light
+    // Lights 
+    const ambient = new THREE.AmbientLight(0xffffff, 0.7); 
     scene.add(ambient);
-    const p1 = new THREE.PointLight(0xffaa00, 1.0, 20); // Increased intensity
+    const p1 = new THREE.PointLight(0xffaa00, 1.0, 20); 
     p1.position.set(-7, 4, 0); 
     scene.add(p1);
-    const p2 = new THREE.PointLight(0xffaa00, 1.0, 20); // Increased intensity
+    const p2 = new THREE.PointLight(0xffaa00, 1.0, 20); 
     p2.position.set(7, 4, 0);
     scene.add(p2);
 
@@ -448,24 +448,20 @@ function animate() {
     const delta = clock.getDelta();
     
     // Physics / Movement
-    vel.x -= vel.x * 10.0 * delta;
+    vel.x -= vel.x * 10.0 * delta; 
     vel.z -= vel.z * 10.0 * delta;
     
-    // NOTE: dir.x and dir.z are only used for FWD/BWD movement calculation
+    // REVERTED: dir.x re-introduced for strafing. R is positive, L is negative (Standard Strafe)
     dir.z = Number(moveF) - Number(moveB);
+    dir.x = Number(moveR) - Number(moveL); 
     dir.normalize();
 
     if (moveF || moveB) vel.z -= dir.z * 50.0 * delta;
+    if (moveL || moveR) vel.x -= dir.x * 50.0 * delta; // Apply strafe velocity
 
     camera.translateX(vel.x * delta);
     camera.translateZ(vel.z * delta);
     
-    // NEW FIX: Rotation/Turning
-    const rotationSpeed = 1.0; // Radians per second
-    if (rotL) camera.rotation.y += rotationSpeed * delta;
-    if (rotR) camera.rotation.y -= rotationSpeed * delta;
-    
-    // Always keep roll (z) rotation at 0
     camera.rotation.z = 0; 
 
     // Wall Collision Logic (UNCHANGED)
@@ -598,21 +594,24 @@ function placeArtworks() {
 
             const geo = new THREE.PlaneGeometry(w, h);
             
-            // NEW FIX: Use MeshStandardMaterial and the texture as a lightMap for visibility
+            // NEW FIX: Use emissiveMap to make the painting appear lit up
             const mat = new THREE.MeshStandardMaterial({
-                color: 0xffffff, // Set base color to white to use full texture color
+                color: 0xffffff, // Base color white
                 map: tex, // Main texture
-                emissive: 0x151515, // Slight self-illumination (optional but good for dark scenes)
-                lightMap: tex, // Use the texture itself to simulate light/color
+                emissive: 0xffffff, // Full emissive color (white)
+                emissiveMap: tex, // Use the texture itself to define what emits light
+                emissiveIntensity: 0.5, // Brightness of the emission (adjust as needed)
+                roughness: 0.9,
+                metalness: 0.1,
                 side: THREE.FrontSide
             }); 
             const mesh = new THREE.Mesh(geo, mat);
             
-            // FIX: Apply a slight offset to the artwork mesh to prevent Z-fighting with the frame.
+            // Z-Fighting Fix (slight offset)
             if (rotationY === 0 || rotationY === Math.PI) {
-                 mesh.position.z = 0.01; // Push artwork slightly forward relative to the group origin
+                 mesh.position.z = 0.01; 
             } else {
-                 mesh.position.x = 0.01; // Push artwork slightly forward relative to the group origin
+                 mesh.position.x = 0.01; 
             }
             
             mesh.userData.idx = artworkData.indexOf(art);
@@ -734,16 +733,18 @@ function setupVREvents() {
         switch(e.code) {
             case 'KeyW': case 'ArrowUp': moveF = true; break;
             case 'KeyS': case 'ArrowDown': moveB = true; break;
-            case 'KeyA': case 'ArrowLeft': rotL = true; break; // NEW: Set rotation flag
-            case 'KeyD': case 'ArrowRight': rotR = true; break; // NEW: Set rotation flag
+            // REVERTED: A/D and Arrows are now for strafing again
+            case 'KeyA': case 'ArrowLeft': moveL = true; break; 
+            case 'KeyD': case 'ArrowRight': moveR = true; break;
         }
     });
     document.addEventListener('keyup', e => {
         switch(e.code) {
             case 'KeyW': case 'ArrowUp': moveF = false; break;
             case 'KeyS': case 'ArrowDown': moveB = false; break;
-            case 'KeyA': case 'ArrowLeft': rotL = false; break; // NEW: Clear rotation flag
-            case 'KeyD': case 'ArrowRight': rotR = false; break; // NEW: Clear rotation flag
+            // REVERTED: A/D and Arrows are now for strafing again
+            case 'KeyA': case 'ArrowLeft': moveL = false; break; 
+            case 'KeyD': case 'ArrowRight': moveR = false; break;
         }
     });
 
@@ -783,16 +784,18 @@ function setupVREvents() {
         e.preventDefault(); 
         if (control === 'moveF') moveF = true;
         if (control === 'moveB') moveB = true;
-        if (control === 'moveL') rotL = true; // NEW: Use rotL
-        if (control === 'moveR') rotR = true; // NEW: Use rotR
+        // REVERTED: Mobile buttons now control strafing again
+        if (control === 'moveL') moveL = true; 
+        if (control === 'moveR') moveR = true; 
     };
 
     const handlePointerUp = (control, e) => {
         e.preventDefault();
         if (control === 'moveF') moveF = false;
         if (control === 'moveB') moveB = false;
-        if (control === 'moveL') rotL = false; // NEW: Clear rotL
-        if (control === 'moveR') rotR = false; // NEW: Clear rotR
+        // REVERTED: Mobile buttons now control strafing again
+        if (control === 'moveL') moveL = false; 
+        if (control === 'moveR') moveR = false; 
     };
     
     for (const control in controls) {
@@ -801,6 +804,11 @@ function setupVREvents() {
         controls[control].addEventListener('pointerleave', handlePointerUp.bind(null, control)); 
         controls[control].addEventListener('pointercancel', handlePointerUp.bind(null, control)); 
     }
+
+    document.getElementById('zoomIn').onclick = () => { fov = Math.max(minF, fov - 5); updateFov(); };
+    document.getElementById('zoomOut').onclick = () => { fov = Math.min(maxF, fov + 5); updateFov(); };
+    document.getElementById('resetZoom').onclick = () => { fov = 75; updateFov(); };
+    function updateFov() { camera.fov = fov; camera.updateProjectionMatrix(); }
 }
 
 // Fade in observer (UNCHANGED)
