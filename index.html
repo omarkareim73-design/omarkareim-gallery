@@ -597,8 +597,7 @@ function placeArtworks() {
 
     const createArtMesh = (art, x, z, rotationY) => {
         loader.load(art.file, (tex) => {
-            // FIX: Removed explicit tex.colorSpace assignment which caused double-gamma correction (black art)
-            // tex.colorSpace = THREE.SRGBColorSpace; 
+            tex.colorSpace = THREE.SRGBColorSpace; 
             
             const imageAspect = tex.image.width / tex.image.height;
             let w = maxWidth;
