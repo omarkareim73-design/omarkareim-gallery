@@ -422,11 +422,12 @@ function initVR() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
     // IMPORTANT: Three.js color management is handled by default now in modern versions
     // If we were using an older version, we might set: renderer.outputEncoding = THREE.sRGBEncoding;
     // but with current THREE.js (v0.152.2), this is usually automatic and setting colorSpace manually conflicts.
-
+    
     // Lights
     const ambient = new THREE.AmbientLight(0xffffff, 1.0); // Increased intensity to ensure base visibility
     scene.add(ambient);
