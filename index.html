@@ -422,6 +422,7 @@ function initVR() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
+    renderer.outputColorSpace = THREE.SRGBColorSpace; // <-- FIX 1: Set output color space for consistent rendering
 
     // Lights
     const ambient = new THREE.AmbientLight(0xffffff, 0.6);
@@ -593,7 +594,9 @@ function placeArtworks() {
 
     const createArtMesh = (art, x, z, rotationY) => {
         loader.load(art.file, (tex) => {
-            tex.colorSpace = THREE.SRGBColorSpace;
+            // tex.colorSpace = THREE.SRGBColorSpace; // This may cause issues if the renderer is already set
+            tex.colorSpace = THREE.NoColorSpace; // <-- FIX 2: Explicitly set to no color space to see if it fixes the black texture issue.
+            
             const imageAspect = tex.image.width / tex.image.height;
             let w = maxWidth;
             let h = maxWidth / imageAspect;
@@ -601,7 +604,7 @@ function placeArtworks() {
 
             const geo = new THREE.PlaneGeometry(w, h);
             
-            // 🎨 CORE FIX: Switched to MeshStandardMaterial and added emissive properties 🎨
+            // CORE FIX: MeshStandardMaterial with emissive properties for self-illumination
             const mat = new THREE.MeshStandardMaterial({
                 color: 0xffffff,          // Base color set to white
                 map: tex,                 // Use texture as the primary map (albedo)
@@ -609,7 +612,6 @@ function placeArtworks() {
                 emissiveMap: tex,         // Use the texture itself for self-illumination (lightMap equivalent)
                 emissiveIntensity: 1.0    // Full brightness
             }); 
-            // --------------------------------------------------------------------------
             
             // 1. Create Artwork Mesh (Front object)
             const mesh = new THREE.Mesh(geo, mat);
