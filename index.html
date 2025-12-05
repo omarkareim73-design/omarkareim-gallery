@@ -109,11 +109,9 @@
             bottom: 20px;
             left: 20px;
             z-index: 2001;
-            /* Use media query to only show on touch devices */
-            display: none; 
-        }
-        @media (pointer: coarse) {
-            .mobile-controls {
+            display: none;
+            /* Only show on touch devices */
+            @media (pointer: coarse) {
                 display: block;
             }
         }
@@ -134,19 +132,19 @@
             justify-content: center;
             font-size: 1.2rem;
             font-weight: bold;
-            touch-action: none; 
+            touch-action: none; /* Crucial for preventing mobile scrolling */
             user-select: none;
         }
         .control-button:active {
             background: #daa520;
         }
-        /* D-Pad Layout */
         #moveF { top: 0; left: 40px; }
         #moveB { bottom: 0; left: 40px; }
         #moveL { top: 40px; left: 0; }
         #moveR { top: 40px; right: 0; }
         
         /* END NEW CSS */
+
 
         @media (max-width: 768px) {
             h1 {font-size:2.5rem; letter-spacing:.2rem;}
@@ -264,635 +262,573 @@
             <div class="control-button" id="moveR">▶</div>
         </div>
     </div>
-</div>
+    </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
 <script>
-    const artworkData = [
-        // ROOM 1: Symbolic & Figurative Works
-        { file: 'images/artwork1.webp', fallback: 'images/artwork1.png', title: 'Axis Mundi', medium: 'Acrylic on Canvas', date: '2025', description: 'A sweeping exploration of human interconnectedness, belief, and belonging, this monumental work unifies diverse spiritual and cultural iconographies within a cosmological framework.', room: 1 },
-        { file: 'images/artwork2.webp', fallback: 'images/artwork2.png', title: 'Axis Mundi (Detail)', medium: 'Acrylic on Canvas', date: '2025', description: '', room: 1 },
-        { file: 'images/artwork3.webp', fallback: 'images/artwork3.png', title: 'El Dorado', medium: 'Acrylic on Canvas', date: '2025', description: '', room: 1 },
-        { file: 'images/artwork4.webp', fallback: 'images/artwork4.png', title: 'El Dorado (Portrait)', medium: 'Acrylic on Canvas', date: '2025', description: 'A dynamic fusion of classical form and contemporary iconography, this portrait reimagines Lionel Messi through a Greco-Roman lens.', room: 1 },
-        { file: 'images/artwork8.webp', fallback: 'images/artwork8.png', title: 'φ', medium: 'Acrylic on Canvas', date: '2025', description: 'φ explores the meeting point between human motion and mathematical harmony.', room: 1 },
+const artworkData = [
+    // ROOM 1: Symbolic & Figurative Works
+    { file: 'images/artwork1.webp', fallback: 'images/artwork1.png', title: 'Axis Mundi', medium: 'Acrylic on Canvas', date: '2025', description: 'A sweeping exploration of human interconnectedness, belief, and belonging, this monumental work unifies diverse spiritual and cultural iconographies within a cosmological framework.', room: 1 },
+    { file: 'images/artwork2.webp', fallback: 'images/artwork2.png', title: 'Axis Mundi (Detail)', medium: 'Acrylic on Canvas', date: '2025', description: '', room: 1 },
+    { file: 'images/artwork3.webp', fallback: 'images/artwork3.png', title: 'El Dorado', medium: 'Acrylic on Canvas', date: '2025', description: '', room: 1 },
+    { file: 'images/artwork4.webp', fallback: 'images/artwork4.png', title: 'El Dorado (Portrait)', medium: 'Acrylic on Canvas', date: '2025', description: 'A dynamic fusion of classical form and contemporary iconography, this portrait reimagines Lionel Messi through a Greco-Roman lens.', room: 1 },
+    { file: 'images/artwork8.webp', fallback: 'images/artwork8.png', title: 'φ', medium: 'Acrylic on Canvas', date: '2025', description: 'φ explores the meeting point between human motion and mathematical harmony.', room: 1 },
 
-        // ROOM 2: Abstract & Geometric Works
-        { file: 'images/artwork5.webp', fallback: 'images/artwork5.png', title: 'Mjolnir: Forge of Resilience', medium: 'Acrylic and Ink on Canvas', date: '2023', description: 'Echoing the mythical hammer of Thor, this intricate work embodies resilience, sovereignty, and the raw force of creation.', room: 2 },
-        { file: 'images/artwork9.webp', fallback: 'images/artwork9.png', title: 'Invocation to Rise', medium: 'Acrylic on Canvas', date: '2025', description: 'In Invocation to Rise, the concentric bands and runic text encircle a gold plane where a faint horizon glimmers.', room: 2 },
-        { file: 'images/artwork6.webp', fallback: 'images/artwork6.png', title: 'Stargate', medium: 'Acrylic on Canvas', date: '2012', description: 'An evocative abstract meditation on transition and possibility.', room: 2 },
-        { file: 'images/artwork7.webp', fallback: 'images/artwork7.png', title: 'Stargate (Detail)', medium: 'Acrylic on Canvas', date: '2012', description: '', room: 2 }
-    ];
+    // ROOM 2: Abstract & Geometric Works
+    { file: 'images/artwork5.webp', fallback: 'images/artwork5.png', title: 'Mjolnir: Forge of Resilience', medium: 'Acrylic and Ink on Canvas', date: '2023', description: 'Echoing the mythical hammer of Thor, this intricate work embodies resilience, sovereignty, and the raw force of creation.', room: 2 },
+    { file: 'images/artwork9.webp', fallback: 'images/artwork9.png', title: 'Invocation to Rise', medium: 'Acrylic on Canvas', date: '2025', description: 'In Invocation to Rise, the concentric bands and runic text encircle a gold plane where a faint horizon glimmers.', room: 2 },
+    { file: 'images/artwork6.webp', fallback: 'images/artwork6.png', title: 'Stargate', medium: 'Acrylic on Canvas', date: '2012', description: 'An evocative abstract meditation on transition and possibility.', room: 2 },
+    { file: 'images/artwork7.webp', fallback: 'images/artwork7.png', title: 'Stargate (Detail)', medium: 'Acrylic on Canvas', date: '2012', description: '', room: 2 }
+];
 
-    /* ===== 2D GALLERY BUILDER (UNCHANGED) ===== */
-    const grid = document.getElementById('galleryGrid');
-    artworkData.forEach((art, i) => {
-        const item = document.createElement('div');
-        item.className = 'gallery-item';
-        item.style.animationDelay = `${i * 0.1}s`;
-        item.onclick = () => openLightbox(i);
+/* ===== 2D GALLERY BUILDER ===== */
+const grid = document.getElementById('galleryGrid');
+artworkData.forEach((art, i) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+    item.style.animationDelay = `${i * 0.1}s`;
+    item.onclick = () => openLightbox(i);
 
-        const img = document.createElement('img');
-        img.src = art.file;
-        img.alt = art.title;
-        img.onerror = () => img.src = art.fallback;
+    const img = document.createElement('img');
+    img.src = art.file;
+    img.alt = art.title;
+    img.onerror = () => img.src = art.fallback;
 
-        const details = document.createElement('div');
-        details.className = 'gallery-details';
-        details.innerHTML = `<h3>${art.title}</h3><p>${art.medium} • ${art.date}</p>`;
+    const details = document.createElement('div');
+    details.className = 'gallery-details';
+    details.innerHTML = `<h3>${art.title}</h3><p>${art.medium} • ${art.date}</p>`;
 
-        item.appendChild(img);
-        item.appendChild(details);
-        grid.appendChild(item);
-    });
+    item.appendChild(img);
+    item.appendChild(details);
+    grid.appendChild(item);
+});
 
-    /* ===== LIGHTBOX (UNCHANGED) ===== */
-    const lightbox = document.getElementById('lightbox');
-    const lbImg = document.getElementById('lightboxImg');
-    const lbTitle = document.getElementById('lightboxTitle');
-    const lbMedium = document.getElementById('lightboxMedium');
-    const lbDate = document.getElementById('lightboxDate');
-    const lbDesc = document.getElementById('lightboxDesc');
-    let currentIdx = 0;
+/* ===== LIGHTBOX ===== */
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lightboxImg');
+const lbTitle = document.getElementById('lightboxTitle');
+const lbMedium = document.getElementById('lightboxMedium');
+const lbDate = document.getElementById('lightboxDate');
+const lbDesc = document.getElementById('lightboxDesc');
+let currentIdx = 0;
 
-    function openLightbox(idx) {
-        currentIdx = idx;
-        updateLightbox();
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
+function openLightbox(idx) {
+    currentIdx = idx;
+    updateLightbox();
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
 
-    function updateLightbox() {
-        const art = artworkData[currentIdx];
-        lbImg.src = art.file;
-        lbImg.onerror = () => lbImg.src = art.fallback;
-        lbTitle.textContent = art.title;
-        lbMedium.textContent = art.medium;
-        lbDate.textContent = art.date;
-        lbDesc.textContent = art.description || '';
-        
-        document.querySelector('.lightbox-prev').style.display = currentIdx > 0 ? 'flex' : 'none';
-        document.querySelector('.lightbox-next').style.display = currentIdx < artworkData.length - 1 ? 'flex' : 'none';
-    }
+function updateLightbox() {
+    const art = artworkData[currentIdx];
+    lbImg.src = art.file;
+    lbImg.onerror = () => lbImg.src = art.fallback;
+    lbTitle.textContent = art.title;
+    lbMedium.textContent = art.medium;
+    lbDate.textContent = art.date;
+    lbDesc.textContent = art.description || '';
+    
+    document.querySelector('.lightbox-prev').style.display = currentIdx > 0 ? 'flex' : 'none';
+    document.querySelector('.lightbox-next').style.display = currentIdx < artworkData.length - 1 ? 'flex' : 'none';
+}
 
-    function closeLightbox() {
-        lightbox.classList.remove('active');
-        if(!document.getElementById('vrGallery').classList.contains('active')) {
-            document.body.style.overflow = '';
-        }
-    }
-
-    document.querySelector('.lightbox-close').onclick = closeLightbox;
-    document.querySelector('.lightbox-prev').onclick = () => { if (currentIdx > 0) openLightbox(currentIdx - 1); };
-    document.querySelector('.lightbox-next').onclick = () => { if (currentIdx < artworkData.length - 1) openLightbox(currentIdx + 1); };
-    lightbox.onclick = e => { if (e.target === lightbox) closeLightbox(); };
-
-    document.addEventListener('keydown', e => {
-        if (!lightbox.classList.contains('active')) return;
-        if (e.key === 'ArrowLeft' && currentIdx > 0) openLightbox(currentIdx - 1);
-        if (e.key === 'ArrowRight' && currentIdx < artworkData.length - 1) openLightbox(currentIdx + 1);
-        if (e.key === 'Escape') closeLightbox();
-    });
-
-    /* ===== SCROLL (UNCHANGED) ===== */
-    const wrapper = document.querySelector('.gallery-wrapper');
-    const leftArrow = document.querySelector('.auto-scroll-left');
-    const rightArrow = document.querySelector('.auto-scroll-right');
-    if(wrapper && leftArrow && rightArrow) {
-        wrapper.addEventListener('scroll', () => {
-            leftArrow.style.opacity = wrapper.scrollLeft > 50 ? '0.9' : '0.7';
-            rightArrow.style.opacity = wrapper.scrollLeft < wrapper.scrollWidth - wrapper.clientWidth - 50 ? '0.9' : '0.7';
-        });
-        leftArrow.onclick = () => wrapper.scrollBy({left: -350, behavior: 'smooth'});
-        rightArrow.onclick = () => wrapper.scrollBy({left: 350, behavior: 'smooth'});
-    }
-
-    /* ===== VR GALLERY LOGIC ===== */
-    const vrBtn = document.getElementById('enterVR');
-    const vrGallery = document.getElementById('vrGallery');
-    const exitBtn = document.getElementById('exitVR');
-    const canvas = document.getElementById('vrCanvas');
-    const mobileControls = document.getElementById('mobileControls');
-
-    let scene, camera, renderer, clock, requestID;
-    let moveF = false, moveB = false, moveL = false, moveR = false; 
-    let vel = new THREE.Vector3();
-    let dir = new THREE.Vector3();
-    let isDraggingVR = false, prevX, prevY;
-    let isPointerDown = false;
-    let hasMoved = false;
-    const mouse = new THREE.Vector2();
-    const ray = new THREE.Raycaster();
-    const clickables = [];
-    let fov = 75, minF = 30, maxF = 100;
-
-    vrBtn.onclick = initVR;
-    exitBtn.onclick = stopVR;
-
-    function stopVR() {
-        vrGallery.classList.remove('active');
+function closeLightbox() {
+    lightbox.classList.remove('active');
+    // Only restore scroll if VR is not active
+    if(!document.getElementById('vrGallery').classList.contains('active')) {
         document.body.style.overflow = '';
-        mobileControls.style.display = 'none';
-        if (requestID) cancelAnimationFrame(requestID);
-        requestID = null;
     }
+}
 
-    function initVR() {
-        vrGallery.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        
-        // Only show mobile controls if we detect a coarse pointer (touch device)
-        if (window.matchMedia('(pointer: coarse)').matches) {
-            mobileControls.style.display = 'block';
-        } else {
-            mobileControls.style.display = 'none';
-        }
+document.querySelector('.lightbox-close').onclick = closeLightbox;
+document.querySelector('.lightbox-prev').onclick = () => { if (currentIdx > 0) openLightbox(currentIdx - 1); };
+document.querySelector('.lightbox-next').onclick = () => { if (currentIdx < artworkData.length - 1) openLightbox(currentIdx + 1); };
+lightbox.onclick = e => { if (e.target === lightbox) closeLightbox(); };
 
-        if (scene) {
-            clock.start();
-            animate();
-            return;
-        }
+document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'ArrowLeft' && currentIdx > 0) openLightbox(currentIdx - 1);
+    if (e.key === 'ArrowRight' && currentIdx < artworkData.length - 1) openLightbox(currentIdx + 1);
+    if (e.key === 'Escape') closeLightbox();
+});
 
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x050505);
-        scene.fog = new THREE.FogExp2(0x050505, 0.03); 
+/* ===== SCROLL ===== */
+const wrapper = document.querySelector('.gallery-wrapper');
+const leftArrow = document.querySelector('.auto-scroll-left');
+const rightArrow = document.querySelector('.auto-scroll-right');
+if(wrapper && leftArrow && rightArrow) {
+    wrapper.addEventListener('scroll', () => {
+        leftArrow.style.opacity = wrapper.scrollLeft > 50 ? '0.9' : '0.7';
+        rightArrow.style.opacity = wrapper.scrollLeft < wrapper.scrollWidth - wrapper.clientWidth - 50 ? '0.9' : '0.7';
+    });
+    leftArrow.onclick = () => wrapper.scrollBy({left: -350, behavior: 'smooth'});
+    rightArrow.onclick = () => wrapper.scrollBy({left: 350, behavior: 'smooth'});
+}
 
-        camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(-7, 1.6, 0); 
-        camera.rotation.y = -Math.PI / 2;
+/* ===== VR GALLERY LOGIC ===== */
+const vrBtn = document.getElementById('enterVR');
+const vrGallery = document.getElementById('vrGallery');
+const exitBtn = document.getElementById('exitVR');
+const canvas = document.getElementById('vrCanvas');
 
-        renderer = new THREE.WebGLRenderer({canvas, antialias: true});
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
+let scene, camera, renderer, clock, requestID;
+let moveF = false, moveB = false, moveL = false, moveR = false;
+let vel = new THREE.Vector3();
+let dir = new THREE.Vector3();
+let isDraggingVR = false, prevX, prevY;
+let isPointerDown = false;
+let hasMoved = false;
+const mouse = new THREE.Vector2();
+const ray = new THREE.Raycaster();
+const clickables = [];
+let fov = 75, minF = 30, maxF = 100;
 
-        // Lights 
-        const ambient = new THREE.AmbientLight(0xffffff, 0.7); 
-        scene.add(ambient);
-        const p1 = new THREE.PointLight(0xffaa00, 1.0, 20); 
-        p1.position.set(-7, 4, 0); 
-        scene.add(p1);
-        const p2 = new THREE.PointLight(0xffaa00, 1.0, 20); 
-        p2.position.set(7, 4, 0);
-        scene.add(p2);
+vrBtn.onclick = initVR;
+exitBtn.onclick = stopVR;
 
-        // Build Rooms
-        createRoom(-7); 
-        createRoom(7);  
-        createDoorway(); 
+function stopVR() {
+    vrGallery.classList.remove('active');
+    document.body.style.overflow = '';
+    // Hide mobile controls when exiting VR
+    document.getElementById('mobileControls').style.display = 'none';
+    if (requestID) cancelAnimationFrame(requestID);
+    requestID = null;
+}
 
-        placeArtworks();
+function initVR() {
+    vrGallery.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Show mobile controls when entering VR
+    document.getElementById('mobileControls').style.display = 'block';
 
-        clock = new THREE.Clock();
-        setupVREvents();
+    // Only init Three.js once
+    if (scene) {
+        clock.start();
         animate();
+        return;
     }
 
-    function animate() {
-        requestID = requestAnimationFrame(animate);
-        const delta = clock.getDelta();
-        
-        // Physics / Movement
-        vel.x -= vel.x * 10.0 * delta; 
-        vel.z -= vel.z * 10.0 * delta;
-        
-        // Movement Direction: dir.x for strafing (Left/Right), dir.z for forward/backward
-        dir.z = Number(moveF) - Number(moveB);
-        dir.x = Number(moveR) - Number(moveL); 
-        dir.normalize();
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x050505);
+    scene.fog = new THREE.FogExp2(0x050505, 0.03); 
 
-        if (moveF || moveB) vel.z -= dir.z * 50.0 * delta;
-        if (moveL || moveR) vel.x -= dir.x * 50.0 * delta; // Strafe velocity
+    camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 100);
+    // Start in Room 1 (Left Room), facing the door
+    camera.position.set(-7, 1.6, 0); 
+    camera.rotation.y = -Math.PI / 2;
 
-        camera.translateX(vel.x * delta);
-        camera.translateZ(vel.z * delta);
-        
-        camera.rotation.z = 0; 
+    renderer = new THREE.WebGLRenderer({canvas, antialias: true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
 
-        // Wall Collision Logic (UNCHANGED)
-        const x = camera.position.x;
-        const z = camera.position.z;
-        const wallBuffer = 0.5;
+    // Lights
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambient);
+    const p1 = new THREE.PointLight(0xffaa00, 0.8, 20);
+    p1.position.set(-7, 4, 0); 
+    scene.add(p1);
+    const p2 = new THREE.PointLight(0xffaa00, 0.8, 20);
+    p2.position.set(7, 4, 0);
+    scene.add(p2);
 
-        // Outer Boundaries
-        if (z < -6) camera.position.z = -6;
-        if (z > 6) camera.position.z = 6;
-        if (x < -13) camera.position.x = -13;
-        if (x > 13) camera.position.x = 13;
+    // Build Rooms: Room 1 (-7) and Room 2 (+7). They meet at 0.
+    createRoom(-7); 
+    createRoom(7);  
+    createDoorway(); 
 
-        // Middle Wall (Doorway check)
-        if (Math.abs(x) < wallBuffer) {
-            if (Math.abs(z) > 1.2) {
-                camera.position.x = x > 0 ? wallBuffer : -wallBuffer; 
-                vel.x = 0;
-            }
+    placeArtworks();
+
+    clock = new THREE.Clock();
+    setupVREvents();
+    animate();
+}
+
+function animate() {
+    requestID = requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+    
+    // Physics / Movement
+    vel.x -= vel.x * 10.0 * delta;
+    vel.z -= vel.z * 10.0 * delta;
+    dir.z = Number(moveF) - Number(moveB);
+    dir.x = Number(moveR) - Number(moveL);
+    dir.normalize();
+
+    if (moveF || moveB) vel.z -= dir.z * 50.0 * delta;
+    if (moveL || moveR) vel.x -= dir.x * 50.0 * delta;
+
+    camera.translateX(vel.x * delta);
+    camera.translateZ(vel.z * delta);
+    
+    // Explicitly lock the Z-axis rotation (roll) to keep the camera upright.
+    camera.rotation.z = 0; 
+
+    // Wall Collision Logic
+    const x = camera.position.x;
+    const z = camera.position.z;
+    const wallBuffer = 0.5;
+
+    // Outer Boundaries
+    if (z < -6) camera.position.z = -6;
+    if (z > 6) camera.position.z = 6;
+    if (x < -13) camera.position.x = -13;
+    if (x > 13) camera.position.x = 13;
+
+    // Middle Wall (Doorway check)
+    if (Math.abs(x) < wallBuffer) {
+        // If not in doorway hole (Z between -1.2 and 1.2), push back
+        if (Math.abs(z) > 1.2) {
+            camera.position.x = x > 0 ? wallBuffer : -wallBuffer; 
+            vel.x = 0;
         }
+    }
 
-        // Raycaster (Clicking Art)
-        if (isPointerDown) {
-            ray.setFromCamera(mouse, camera);
-            const hits = ray.intersectObjects(clickables);
-            if (hits.length > 0) {
-                const target = hits[0].object;
-                const idx = target.userData.idx;
-                if(idx !== undefined) openLightbox(idx);
-            }
-            isPointerDown = false;
+    // Raycaster (Clicking Art)
+    if (isPointerDown) {
+        ray.setFromCamera(mouse, camera);
+        const hits = ray.intersectObjects(clickables);
+        if (hits.length > 0) {
+            const target = hits[0].object;
+            const idx = target.userData.idx;
+            if(idx !== undefined) openLightbox(idx);
         }
-        renderer.render(scene, camera);
+        isPointerDown = false;
     }
+    renderer.render(scene, camera);
+}
 
-    function createCheckerboard() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 512; canvas.height = 512;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0,0,512,512);
-        ctx.fillStyle = '#222222'; ctx.fillRect(0,0,256,256); ctx.fillRect(256,256,256,256);
-        return canvas;
-    }
+function createCheckerboard() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512; canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0,0,512,512);
+    ctx.fillStyle = '#222222'; ctx.fillRect(0,0,256,256); ctx.fillRect(256,256,256,256);
+    return canvas;
+}
 
-    function createRoom(offsetX) {
-        const floorTex = new THREE.CanvasTexture(createCheckerboard());
-        floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
-        floorTex.repeat.set(4, 4);
-        
-        // Floor
-        const floor = new THREE.Mesh(
-            new THREE.PlaneGeometry(14, 14),
-            new THREE.MeshStandardMaterial({map: floorTex, roughness: 0.8, metalness: 0.2})
-        );
-        floor.rotation.x = -Math.PI/2;
-        floor.position.set(offsetX, 0, 0);
-        scene.add(floor);
+function createRoom(offsetX) {
+    const floorTex = new THREE.CanvasTexture(createCheckerboard());
+    floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
+    floorTex.repeat.set(4, 4);
+    
+    // Floor
+    const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(14, 14),
+        new THREE.MeshStandardMaterial({map: floorTex, roughness: 0.8, metalness: 0.2})
+    );
+    floor.rotation.x = -Math.PI/2;
+    floor.position.set(offsetX, 0, 0);
+    scene.add(floor);
 
-        // Ceiling
-        const ceiling = new THREE.Mesh(
-            new THREE.PlaneGeometry(14, 14),
-            new THREE.MeshStandardMaterial({color: 0x333333, side: THREE.DoubleSide}) 
-        );
-        ceiling.rotation.x = Math.PI/2;
-        ceiling.position.set(offsetX, 5, 0);
-        scene.add(ceiling);
+    // Ceiling
+    const ceiling = new THREE.Mesh(
+        new THREE.PlaneGeometry(14, 14),
+        new THREE.MeshStandardMaterial({color: 0x111111, side: THREE.DoubleSide})
+    );
+    ceiling.rotation.x = Math.PI/2;
+    ceiling.position.set(offsetX, 5, 0);
+    scene.add(ceiling);
 
-        const wallMat = new THREE.MeshStandardMaterial({color: 0x0a0a0a, roughness: 0.9});
-        
-        // Back & Front Walls
-        const backWall = new THREE.Mesh(new THREE.BoxGeometry(14, 5, 0.2), wallMat);
-        backWall.position.set(offsetX, 2.5, -7); 
-        scene.add(backWall);
+    const wallMat = new THREE.MeshStandardMaterial({color: 0x0a0a0a, roughness: 0.9});
+    
+    // Back & Front Walls
+    const backWall = new THREE.Mesh(new THREE.BoxGeometry(14, 5, 0.2), wallMat);
+    backWall.position.set(offsetX, 2.5, -7); 
+    scene.add(backWall);
 
-        const frontWall = new THREE.Mesh(new THREE.BoxGeometry(14, 5, 0.2), wallMat);
-        frontWall.position.set(offsetX, 2.5, 7);
-        scene.add(frontWall);
+    const frontWall = new THREE.Mesh(new THREE.BoxGeometry(14, 5, 0.2), wallMat);
+    frontWall.position.set(offsetX, 2.5, 7);
+    scene.add(frontWall);
 
-        // Outer Side Wall (Left for room 1, Right for room 2)
-        const outerWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 5, 14), wallMat);
-        const outerX = offsetX < 0 ? offsetX - 7 : offsetX + 7; 
-        outerWall.position.set(outerX, 2.5, 0);
-        scene.add(outerWall);
-    }
+    // Outer Side Wall (Left for room 1, Right for room 2)
+    const outerWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 5, 14), wallMat);
+    const outerX = offsetX < 0 ? offsetX - 7 : offsetX + 7; 
+    outerWall.position.set(outerX, 2.5, 0);
+    scene.add(outerWall);
+}
 
-    function createDoorway() {
-        const wallMat = new THREE.MeshStandardMaterial({color: 0x0a0a0a, roughness: 0.9});
-        const trimMat = new THREE.MeshStandardMaterial({color: 0xdaa520, roughness: 0.4, metalness: 0.6});
+function createDoorway() {
+    const wallMat = new THREE.MeshStandardMaterial({color: 0x0a0a0a, roughness: 0.9});
+    const trimMat = new THREE.MeshStandardMaterial({color: 0xdaa520, roughness: 0.4, metalness: 0.6});
 
-        // Dividing Wall Parts
-        const w1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5, 5.5), wallMat);
-        w1.position.set(0, 2.5, -4.25);
-        scene.add(w1);
+    // Dividing Wall Parts
+    const w1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5, 5.5), wallMat);
+    w1.position.set(0, 2.5, -4.25);
+    scene.add(w1);
 
-        const w2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5, 5.5), wallMat);
-        w2.position.set(0, 2.5, 4.25);
-        scene.add(w2);
+    const w2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5, 5.5), wallMat);
+    w2.position.set(0, 2.5, 4.25);
+    scene.add(w2);
 
-        const header = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.5, 3), wallMat);
-        header.position.set(0, 4.25, 0);
-        scene.add(header);
+    const header = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.5, 3), wallMat);
+    header.position.set(0, 4.25, 0);
+    scene.add(header);
 
-        // Gold Trim
-        const pillarGeo = new THREE.BoxGeometry(0.5, 3.5, 0.2);
-        const leftP = new THREE.Mesh(pillarGeo, trimMat);
-        leftP.position.set(0, 1.75, -1.5);
-        scene.add(leftP);
+    // Gold Trim
+    const pillarGeo = new THREE.BoxGeometry(0.5, 3.5, 0.2);
+    const leftP = new THREE.Mesh(pillarGeo, trimMat);
+    leftP.position.set(0, 1.75, -1.5);
+    scene.add(leftP);
 
-        const rightP = new THREE.Mesh(pillarGeo, trimMat);
-        rightP.position.set(0, 1.75, 1.5);
-        scene.add(rightP);
-        
-        const topP = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 3.2), trimMat);
-        topP.position.set(0, 3.5, 0);
-        scene.add(topP);
-    }
+    const rightP = new THREE.Mesh(pillarGeo, trimMat);
+    rightP.position.set(0, 1.75, 1.5);
+    scene.add(rightP);
+    
+    const topP = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 3.2), trimMat);
+    topP.position.set(0, 3.5, 0);
+    scene.add(topP);
+}
 
-    function placeArtworks() {
-        const loader = new THREE.TextureLoader();
-        const maxWidth = 3.5;
-        const maxHeight = 3.5;
+function placeArtworks() {
+    const loader = new THREE.TextureLoader();
+    const maxWidth = 3.5;
+    const maxHeight = 3.5;
+    
+    // Z-FIGHTING FIX CONSTANTS
+    const frameThickness = 0.2; // New thickness for visual depth
+    const artworkOffset = 0.01; // Push artwork 0.01 units forward from the group's Z=0
+    const frameOffset = -0.01; // Pull frame 0.01 units back from the group's Z=0
 
-        const createArtMesh = (art, x, z, rotationY) => {
-            loader.load(
-                art.file,
-                // Success callback
-                (tex) => {
-                    tex.colorSpace = THREE.SRGBColorSpace;
-                    
-                    const imageAspect = tex.image.width / tex.image.height;
-                    let w = maxWidth;
-                    let h = maxWidth / imageAspect;
-                    if (h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; }
+    const createArtMesh = (art, x, z, rotationY) => {
+        loader.load(art.file, (tex) => {
+            tex.colorSpace = THREE.SRGBColorSpace;
+            const imageAspect = tex.image.width / tex.image.height;
+            let w = maxWidth;
+            let h = maxWidth / imageAspect;
+            if(h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; }
 
-                    const geo = new THREE.PlaneGeometry(w, h);
-
-                    // FIX: Use MeshStandardMaterial with emissive properties for visibility
-                    const mat = new THREE.MeshStandardMaterial({
-                        color: 0xffffff,        // Base color (usually white for texture mapping)
-                        map: tex,               // Main texture
-                        emissive: 0xffffff,     // Set full white emissive color
-                        emissiveMap: tex,       // Use the texture itself to emit light
-                        emissiveIntensity: 0.8, // Adjust brightness (0.8 works well for dark rooms)
-                        roughness: 0.9,
-                        metalness: 0.1,
-                        side: THREE.FrontSide
-                    }); 
-                    
-                    const mesh = new THREE.Mesh(geo, mat);
-                    mesh.userData.idx = artworkData.indexOf(art);
-                    clickables.push(mesh);
-
-                    // Frame
-                    const frame = new THREE.Mesh(
-                        new THREE.BoxGeometry(w + 0.2, h + 0.2, 0.1),
-                        new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.5})
-                    );
-                    frame.position.z = -0.06;
-                    
-                    const group = new THREE.Group();
-                    group.add(mesh);
-                    group.add(frame);
-                    group.position.set(x, 2.5, z);
-                    group.rotation.y = rotationY;
-                    
-                    // Z-fighting fix: slight offset from the wall
-                    const offset = 0.05; 
-                    if (rotationY === 0) {
-                        group.position.z -= offset;
-                    } else if (rotationY === Math.PI) {
-                        group.position.z += offset;
-                    } else if (Math.abs(rotationY - Math.PI/2) < 0.01) {
-                        group.position.x += offset;
-                    } else if (Math.abs(rotationY + Math.PI/2) < 0.01) {
-                        group.position.x -= offset;
-                    }
-                    
-                    scene.add(group);
-                },
-                // Progress callback (optional)
-                undefined,
-                // Error callback (fallback)
-                (err) => {
-                    // Attempt to load the fallback image if the primary failed
-                    loader.load(art.fallback, (tex) => {
-                        // Re-run the success logic with the fallback texture
-                        tex.colorSpace = THREE.SRGBColorSpace;
-                        const imageAspect = tex.image.width / tex.image.height;
-                        let w = maxWidth;
-                        let h = maxWidth / imageAspect;
-                        if (h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; }
-
-                        const geo = new THREE.PlaneGeometry(w, h);
-                        const mat = new THREE.MeshStandardMaterial({
-                            color: 0xffffff,
-                            map: tex,
-                            emissive: 0xffffff,
-                            emissiveMap: tex,
-                            emissiveIntensity: 0.8,
-                            roughness: 0.9,
-                            metalness: 0.1,
-                            side: THREE.FrontSide
-                        });
-                        
-                        const mesh = new THREE.Mesh(geo, mat);
-                        mesh.userData.idx = artworkData.indexOf(art);
-                        clickables.push(mesh);
-
-                        // Frame
-                        const frame = new THREE.Mesh(
-                            new THREE.BoxGeometry(w + 0.2, h + 0.2, 0.1),
-                            new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.5})
-                        );
-                        frame.position.z = -0.06;
-                        
-                        const group = new THREE.Group();
-                        group.add(mesh);
-                        group.add(frame);
-                        group.position.set(x, 2.5, z);
-                        group.rotation.y = rotationY;
-                        
-                        // Z-fighting fix: slight offset from the wall
-                        const offset = 0.05; 
-                        if (rotationY === 0) {
-                            group.position.z -= offset;
-                        } else if (rotationY === Math.PI) {
-                            group.position.z += offset;
-                        } else if (Math.abs(rotationY - Math.PI/2) < 0.01) {
-                            group.position.x += offset;
-                        } else if (Math.abs(rotationY + Math.PI/2) < 0.01) {
-                            group.position.x -= offset;
-                        }
-                        
-                        scene.add(group);
-                    }, undefined, (err2) => {
-                        console.error('✗ Fallback also failed:', art.fallback, err2);
-                    });
-                }
-            );
-        };
-        
-        const roomData = {
-            1: { offset: -7, art: artworkData.filter(a => a.room === 1) },
-            2: { offset: 7, art: artworkData.filter(a => a.room === 2) }
-        };
-
-        for (const roomNum in roomData) {
-            const { offset, art } = roomData[roomNum];
+            const geo = new THREE.PlaneGeometry(w, h);
+            const mat = new THREE.MeshBasicMaterial({map: tex}); 
             
-            // 1. Assign Artworks to 4 Walls in a round-robin fashion
-            const wallAssignments = [[], [], [], []];
-            // 0:Back Wall (Z fixed), 1:Inner Wall (X fixed, Doorway), 2:Front Wall (Z fixed), 3:Outer Wall (X fixed)
-            art.forEach((a, i) => wallAssignments[i % 4].push(a)); 
+            // 1. Create Artwork Mesh (Front object)
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.userData.idx = artworkData.indexOf(art);
+            clickables.push(mesh);
+            
+            // Apply the offset based on rotation (0 for Z-facing walls, PI/2 for X-facing walls)
+            if (rotationY === 0 || rotationY === Math.PI) {
+                 // Front/Back Wall: offset on Z-axis (local Z is depth)
+                 mesh.position.z = artworkOffset; 
+            } else {
+                 // Side Wall: offset on X-axis (local Z is now local X due to rotation)
+                 // This ensures the artwork is visually in front of the wall mesh
+                 mesh.position.x = artworkOffset; 
+            }
 
-            // 2. Iterate through walls and place art with equal spacing
-            wallAssignments.forEach((wallArt, wallIndex) => {
-                if (wallArt.length === 0) return;
+            // 2. Create the Frame Mesh (Middle object)
+            const frame = new THREE.Mesh(
+                new THREE.BoxGeometry(w + 0.2, h + 0.2, frameThickness),
+                new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.5})
+            );
+            
+            // Apply the frame offset based on rotation
+            if (rotationY === 0 || rotationY === Math.PI) {
+                // Front/Back Wall: offset on Z-axis
+                frame.position.z = frameOffset; 
+            } else {
+                // Side Wall: offset on X-axis
+                frame.position.x = frameOffset; 
+            }
 
-                // Wall 0 (Back Wall, Z-fixed) - Vary X
-                if (wallIndex === 0) {
-                    const wallLength = 14;
-                    const startX = offset - 7;
-                    const fixedZ = -7; 
-                    
-                    wallArt.forEach((a, i) => {
-                        const xPos = startX + (wallLength / (wallArt.length + 1)) * (i + 1);
-                        createArtMesh(a, xPos, fixedZ, 0); // Rotation 0
-                    });
-                } 
+            
+            const group = new THREE.Group();
+            group.add(mesh);
+            group.add(frame);
+            group.position.set(x, 2.5, z);
+            group.rotation.y = rotationY;
+            scene.add(group);
+        });
+    };
+
+    const roomData = {
+        1: { offset: -7, art: artworkData.filter(a => a.room === 1) },
+        2: { offset: 7, art: artworkData.filter(a => a.room === 2) }
+    };
+
+    for (const roomNum in roomData) {
+        const { offset, art } = roomData[roomNum];
+        
+        // 1. Assign Artworks to 4 Walls in a round-robin fashion
+        const wallAssignments = [[], [], [], []];
+        // 0:Back Wall (Z fixed), 1:Inner Wall (X fixed, Doorway), 2:Front Wall (Z fixed), 3:Outer Wall (X fixed)
+        art.forEach((a, i) => wallAssignments[i % 4].push(a)); 
+
+        // 2. Iterate through walls and place art with equal spacing
+        wallAssignments.forEach((wallArt, wallIndex) => {
+            if (wallArt.length === 0) return;
+
+            // Wall 0 (Back Wall, Z-fixed) - Vary X
+            if (wallIndex === 0) {
+                const wallLength = 14;
+                const startX = offset - 7;
+                const fixedZ = -6.9; 
                 
-                // Wall 2 (Front Wall, Z-fixed) - Vary X
-                else if (wallIndex === 2) {
-                    const wallLength = 14;
-                    const startX = offset - 7;
-                    const fixedZ = 7; 
+                wallArt.forEach((a, i) => {
+                    const xPos = startX + (wallLength / (wallArt.length + 1)) * (i + 1);
+                    createArtMesh(a, xPos, fixedZ, 0); // Rotation 0
+                });
+            } 
+            
+            // Wall 2 (Front Wall, Z-fixed) - Vary X
+            else if (wallIndex === 2) {
+                const wallLength = 14;
+                const startX = offset - 7;
+                const fixedZ = 6.9; 
 
-                    wallArt.forEach((a, i) => {
-                        const xPos = startX + (wallLength / (wallArt.length + 1)) * (i + 1);
-                        createArtMesh(a, xPos, fixedZ, Math.PI); // Rotation 180 deg
-                    });
-                }
+                wallArt.forEach((a, i) => {
+                    const xPos = startX + (wallLength / (wallArt.length + 1)) * (i + 1);
+                    createArtMesh(a, xPos, fixedZ, Math.PI); // Rotation 180 deg
+                });
+            }
+            
+            // Wall 3 (Outer Wall, X-fixed) - Vary Z
+            else if (wallIndex === 3) { 
+                const wallLength = 14;
+                const startZ = -7;
+                // Determines the exact X-position of the outer wall for this room
+                const fixedX = offset + 6.9 * (offset > 0 ? 1 : -1); 
+                const rotation = offset > 0 ? -Math.PI/2 : Math.PI/2; // -90 deg for Room 2, +90 deg for Room 1
                 
-                // Wall 3 (Outer Wall, X-fixed) - Vary Z
-                else if (wallIndex === 3) { 
-                    const wallLength = 14;
-                    const startZ = -7;
-                    // Determines the exact X-position of the outer wall for this room
-                    const fixedX = offset + 7 * (offset > 0 ? 1 : -1); 
-                    const rotation = offset > 0 ? -Math.PI/2 : Math.PI/2; // -90 deg for Room 2, +90 deg for Room 1
-                    
-                    wallArt.forEach((a, i) => {
-                        const zPos = startZ + (wallLength / (wallArt.length + 1)) * (i + 1);
+                wallArt.forEach((a, i) => {
+                    const zPos = startZ + (wallLength / (wallArt.length + 1)) * (i + 1);
+                    createArtMesh(a, fixedX, zPos, rotation);
+                });
+            }
+            
+            // Wall 1 (Inner Wall, X-fixed, Doorway Gap) - Vary Z
+            else if (wallIndex === 1) { 
+                const segment1Length = 5.5; // Z=-7 to Z=-1.5
+                const segment2Length = 5.5; // Z=1.5 to Z=7
+                
+                // Position slightly offset from the dividing wall
+                const fixedX = offset > 0 ? 0.2 : -0.2; 
+                // Rotation: +90 deg for Room 2, -90 deg for Room 1
+                const rotation = offset > 0 ? Math.PI/2 : -Math.PI/2; 
+                
+                // Split art between the two wall segments flanking the door
+                const totalArt = wallArt.length;
+                const segment1Art = Math.ceil(totalArt / 2); 
+                
+                const artSeg1 = wallArt.slice(0, segment1Art);
+                const artSeg2 = wallArt.slice(segment1Art);
+                
+                // Place art in Segment 1 (Z=-7 to Z=-1.5)
+                if (artSeg1.length > 0) {
+                    artSeg1.forEach((a, i) => {
+                        const zPos = -7 + (segment1Length / (artSeg1.length + 1)) * (i + 1);
                         createArtMesh(a, fixedX, zPos, rotation);
                     });
                 }
-                
-                // Wall 1 (Inner Wall, X-fixed, Doorway Gap) - Vary Z
-                else if (wallIndex === 1) { 
-                    const segment1Length = 5.5; // Z=-7 to Z=-1.5
-                    const segment2Length = 5.5; // Z=1.5 to Z=7
-                    
-                    // Position slightly offset from the dividing wall
-                    const fixedX = 0; 
-                    // Rotation: +90 deg for Room 2, -90 deg for Room 1
-                    const rotation = offset > 0 ? Math.PI/2 : -Math.PI/2; 
-                    
-                    const totalArt = wallArt.length;
-                    const segment1Art = Math.ceil(totalArt / 2); 
-                    
-                    const artSeg1 = wallArt.slice(0, segment1Art);
-                    const artSeg2 = wallArt.slice(segment1Art);
-                    
-                    // Place art in Segment 1 (Z=-7 to Z=-1.5)
-                    if (artSeg1.length > 0) {
-                        artSeg1.forEach((a, i) => {
-                            const zPos = -7 + (segment1Length / (artSeg1.length + 1)) * (i + 1);
-                            createArtMesh(a, fixedX, zPos, rotation);
-                        });
-                    }
 
-                    // Place art in Segment 2 (Z=1.5 to Z=7)
-                    if (artSeg2.length > 0) {
-                        artSeg2.forEach((a, i) => {
-                            const zPos = 1.5 + (segment2Length / (artSeg2.length + 1)) * (i + 1);
-                            createArtMesh(a, fixedX, zPos, rotation);
-                        });
-                    }
+                // Place art in Segment 2 (Z=1.5 to Z=7)
+                if (artSeg2.length > 0) {
+                    artSeg2.forEach((a, i) => {
+                        const zPos = 1.5 + (segment2Length / (artSeg2.length + 1)) * (i + 1);
+                        createArtMesh(a, fixedX, zPos, rotation);
+                    });
                 }
-            });
-        }
+            }
+        });
     }
+}
 
-    function setupVREvents() {
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+function setupVREvents() {
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
 
-        document.addEventListener('keydown', e => {
-            switch(e.code) {
-                case 'KeyW': case 'ArrowUp': moveF = true; break;
-                case 'KeyS': case 'ArrowDown': moveB = true; break;
-                // Corrected Strafe Mapping
-                case 'KeyA': case 'ArrowLeft': moveL = true; break; 
-                case 'KeyD': case 'ArrowRight': moveR = true; break;
-            }
-        });
-        document.addEventListener('keyup', e => {
-            switch(e.code) {
-                case 'KeyW': case 'ArrowUp': moveF = false; break;
-                case 'KeyS': case 'ArrowDown': moveB = false; break;
-                // Corrected Strafe Mapping
-                case 'KeyA': case 'ArrowLeft': moveL = false; break; 
-                case 'KeyD': case 'ArrowRight': moveR = false; break;
-            }
-        });
-
-        canvas.addEventListener('pointerdown', e => {
-            isDraggingVR = true;
-            hasMoved = false;
-            prevX = e.clientX; prevY = e.clientY;
-        });
-        canvas.addEventListener('pointermove', e => {
-            if (!isDraggingVR) return;
-            const dx = e.clientX - prevX;
-            const dy = e.clientY - prevY;
-            if (Math.abs(dx) > 2 || Math.abs(dy) > 2) hasMoved = true;
-            camera.rotation.y -= dx * 0.002;
-            camera.rotation.x -= dy * 0.002;
-            camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
-            prevX = e.clientX; prevY = e.clientY;
-        });
-        canvas.addEventListener('pointerup', e => {
-            isDraggingVR = false;
-            if (!hasMoved) {
-                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-                isPointerDown = true;
-            }
-        });
-        
-        // MOBILE CONTROLS LOGIC
-        const controls = {
-            'moveF': document.getElementById('moveF'),
-            'moveB': document.getElementById('moveB'),
-            'moveL': document.getElementById('moveL'),
-            'moveR': document.getElementById('moveR')
-        };
-
-        const handlePointerDown = (control, e) => {
-            e.preventDefault(); 
-            if (control === 'moveF') moveF = true;
-            if (control === 'moveB') moveB = true;
-            if (control === 'moveL') moveL = true; 
-            if (control === 'moveR') moveR = true; 
-        };
-
-        const handlePointerUp = (control, e) => {
-            e.preventDefault();
-            if (control === 'moveF') moveF = false;
-            if (control === 'moveB') moveB = false;
-            if (control === 'moveL') moveL = false; 
-            if (control === 'moveR') moveR = false; 
-        };
-        
-        for (const control in controls) {
-            controls[control].addEventListener('pointerdown', handlePointerDown.bind(null, control));
-            controls[control].addEventListener('pointerup', handlePointerUp.bind(null, control));
-            controls[control].addEventListener('pointerleave', handlePointerUp.bind(null, control)); 
-            controls[control].addEventListener('pointercancel', handlePointerUp.bind(null, control)); 
+    document.addEventListener('keydown', e => {
+        switch(e.code) {
+            case 'KeyW': case 'ArrowUp': moveF = true; break;
+            case 'KeyS': case 'ArrowDown': moveB = true; break;
+            case 'KeyA': case 'ArrowLeft': moveL = true; break;
+            case 'KeyD': case 'ArrowRight': moveR = true; break;
         }
+    });
+    document.addEventListener('keyup', e => {
+        switch(e.code) {
+            case 'KeyW': case 'ArrowUp': moveF = false; break;
+            case 'KeyS': case 'ArrowDown': moveB = false; break;
+            case 'KeyA': case 'ArrowLeft': moveL = false; break;
+            case 'KeyD': case 'ArrowRight': moveR = false; break;
+        }
+    });
 
-        document.getElementById('zoomIn').onclick = () => { fov = Math.max(minF, fov - 5); updateFov(); };
-        document.getElementById('zoomOut').onclick = () => { fov = Math.min(maxF, fov + 5); updateFov(); };
-        document.getElementById('resetZoom').onclick = () => { fov = 75; updateFov(); };
-        function updateFov() { camera.fov = fov; camera.updateProjectionMatrix(); }
+    canvas.addEventListener('pointerdown', e => {
+        isDraggingVR = true;
+        hasMoved = false;
+        prevX = e.clientX; prevY = e.clientY;
+    });
+    canvas.addEventListener('pointermove', e => {
+        if (!isDraggingVR) return;
+        const dx = e.clientX - prevX;
+        const dy = e.clientY - prevY;
+        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) hasMoved = true;
+        camera.rotation.y -= dx * 0.002;
+        camera.rotation.x -= dy * 0.002;
+        camera.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, camera.rotation.x));
+        prevX = e.clientX; prevY = e.clientY;
+    });
+    canvas.addEventListener('pointerup', e => {
+        isDraggingVR = false;
+        if (!hasMoved) {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            isPointerDown = true;
+        }
+    });
+    
+    // MOBILE CONTROLS LOGIC
+    const mobileControls = document.getElementById('mobileControls');
+    const controls = {
+        'moveF': document.getElementById('moveF'),
+        'moveB': document.getElementById('moveB'),
+        'moveL': document.getElementById('moveL'),
+        'moveR': document.getElementById('moveR')
+    };
+
+    const handlePointerDown = (control, e) => {
+        e.preventDefault(); 
+        if (control === 'moveF') moveF = true;
+        if (control === 'moveB') moveB = true;
+        if (control === 'moveL') moveL = true;
+        if (control === 'moveR') moveR = true;
+    };
+
+    const handlePointerUp = (control, e) => {
+        e.preventDefault();
+        if (control === 'moveF') moveF = false;
+        if (control === 'moveB') moveB = false;
+        if (control === 'moveL') moveL = false;
+        if (control === 'moveR') moveR = false;
+    };
+    
+    // Attach event listeners for all mobile controls
+    for (const control in controls) {
+        controls[control].addEventListener('pointerdown', handlePointerDown.bind(null, control));
+        controls[control].addEventListener('pointerup', handlePointerUp.bind(null, control));
+        controls[control].addEventListener('pointerleave', handlePointerUp.bind(null, control));
+        controls[control].addEventListener('pointercancel', handlePointerUp.bind(null, control));
     }
+    // END MOBILE CONTROLS LOGIC
 
-    // Fade in observer (UNCHANGED)
-    const fadeObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) entry.target.classList.add('visible');
-        });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.section-fade').forEach(s => fadeObserver.observe(s));
+    document.getElementById('zoomIn').onclick = () => { fov = Math.max(minF, fov - 5); updateFov(); };
+    document.getElementById('zoomOut').onclick = () => { fov = Math.min(maxF, fov + 5); updateFov(); };
+    document.getElementById('resetZoom').onclick = () => { fov = 75; updateFov(); };
+    function updateFov() { camera.fov = fov; camera.updateProjectionMatrix(); }
+}
+
+// Fade in observer
+const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.section-fade').forEach(s => fadeObserver.observe(s));
 </script>
 </body>
 </html>
