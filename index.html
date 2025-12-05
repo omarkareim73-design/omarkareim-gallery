@@ -422,9 +422,13 @@ function initVR() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
+    
+    // IMPORTANT: Three.js color management is handled by default now in modern versions
+    // If we were using an older version, we might set: renderer.outputEncoding = THREE.sRGBEncoding;
+    // but with current THREE.js (v0.152.2), this is usually automatic and setting colorSpace manually conflicts.
 
     // Lights
-    const ambient = new THREE.AmbientLight(0xffffff, 1.0); // FIX: Increased intensity
+    const ambient = new THREE.AmbientLight(0xffffff, 1.0); // Increased intensity to ensure base visibility
     scene.add(ambient);
     const p1 = new THREE.PointLight(0xffaa00, 0.8, 20);
     p1.position.set(-7, 4, 0); 
@@ -593,7 +597,8 @@ function placeArtworks() {
 
     const createArtMesh = (art, x, z, rotationY) => {
         loader.load(art.file, (tex) => {
-            // FIX: Removed explicit tex.colorSpace = THREE.SRGBColorSpace to prevent double-gamma correction.
+            // FIX: Removed explicit tex.colorSpace assignment which caused double-gamma correction (black art)
+            // tex.colorSpace = THREE.SRGBColorSpace; 
             
             const imageAspect = tex.image.width / tex.image.height;
             let w = maxWidth;
@@ -605,11 +610,11 @@ function placeArtworks() {
             // FIX: Using MeshStandardMaterial with emissiveMap for self-illumination
             const mat = new THREE.MeshStandardMaterial({
                 color: 0xffffff,
-                map: tex,
+                map: tex, 
                 emissive: 0xffffff,
-                emissiveMap: tex,
+                emissiveMap: tex, 
                 emissiveIntensity: 1.0
-            }); 
+            });
             
             // 1. Create Artwork Mesh (Front object)
             const mesh = new THREE.Mesh(geo, mat);
