@@ -579,58 +579,92 @@ function createDoorway() {
     scene.add(topP);
 }
 
-function placeArtworks() {
-    const loader = new THREE.TextureLoader();
-    const maxWidth = 3.5;
-    const maxHeight = 3.5;
-
-    const createArtMesh = (art, x, z, rotationY) => {
-    loader.load(art.file, (tex) => {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        tex.flipY = false;
-        tex.needsUpdate = true;
-
-        const imageAspect = tex.image.width / tex.image.height;
-        let w = maxWidth;
-        let h = maxWidth / imageAspect;
-        if (h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; }
-
-        const geo = new THREE.PlaneGeometry(w, h);
-
-        const mat = new THREE.MeshBasicMaterial({
-            map: tex,
-            side: THREE.DoubleSide,
-            toneMapped: false
-        });
-
-        const mesh = new THREE.Mesh(geo, mat);
-
-        // Z-Fighting Fix
-        if (rotationY === 0 || rotationY === Math.PI) {
-            mesh.position.z = 0.01;
-        } else {
-            mesh.position.x = 0.01;
-        }
-
-        mesh.userData.idx = artworkData.indexOf(art);
-        clickables.push(mesh);
-
-        // frame stays the same …
-        const frame = new THREE.Mesh(
-            new THREE.BoxGeometry(w + 0.2, h + 0.2, 0.1),
-            new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.5})
-        );
+const createArtMesh = (art, x, z, rotationY) => {
+        console.log('Attempting to load:', art.file, 'at position', x, z, 'rotation', rotationY);
         
-        const group = new THREE.Group();
-        group.add(mesh);
-        group.add(frame);
-        group.position.set(x, 2.5, z);
-        group.rotation.y = rotationY;
-        scene.add(group);
-    });
-};
+        loader.load(
+            art.file,
+            // Success callback
+            (tex) => {
+                console.log('✓ Texture loaded successfully:', art.file, 'Size:', tex.image.width, 'x', tex.image.height);
+                
+                // Force texture settings
+                tex.colorSpace = THREE.SRGBColorSpace;
+                tex.minFilter = THREE.LinearFilter;
+                tex.magFilter = THREE.LinearFilter;
+                tex.generateMipmaps = false;
+                tex.needsUpdate = true;
 
-    const roomData = {
+                const imageAspect = tex.image.width / tex.image.height;
+                let w = maxWidth;
+                let h = maxWidth / imageAspect;
+                if (h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; }
+
+                console.log('Creating plane:', w, 'x', h);
+
+                const geo = new THREE.PlaneGeometry(w, h);
+
+                const mat = new THREE.MeshBasicMaterial({
+                    map: tex,
+                    side: THREE.DoubleSide,
+                    toneMapped: false,
+                    transparent: false,
+                    opacity: 1
+                });
+                
+                // Debug: Log material info
+                console.log('Material created with map:', mat.map !== null, 'Map image:', tex.image);
+
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.userData.idx = artworkData.indexOf(art);
+                clickables.push(mesh);
+
+                const frame = new THREE.Mesh(
+                    new THREE.BoxGeometry(w + 0.2, h + 0.2, 0.1),
+                    new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.5})
+                );
+                frame.position.z = -0.06;
+                
+                const group = new THREE.Group();
+                group.add(mesh);
+                group.add(frame);
+                group.position.set(x, 2.5, z);
+                group.rotation.y = rotationY;
+                
+                // CRITICAL: Push group MUCH further from wall to prevent z-fighting
+                // Your walls are at ±6.9 or ±7, so we need significant offset
+                const offset = 0.5; // Increased from 0.1 to 0.5
+                if (rotationY === 0) {
+                    // Back wall facing +Z
+                    group.position.z += offset;
+                } else if (rotationY === Math.PI) {
+                    // Front wall facing -Z
+                    group.position.z -= offset;
+                } else if (Math.abs(rotationY - Math.PI/2) < 0.01) {
+                    // Right wall facing -X
+                    group.position.x -= offset;
+                } else if (Math.abs(rotationY + Math.PI/2) < 0.01) {
+                    // Left wall facing +X
+                    group.position.x += offset;
+                }
+                
+                scene.add(group);
+                console.log('✓ Artwork added to scene:', art.title);
+            },
+            // Progress callback
+            undefined,
+            // Error callback
+            (err) => {
+                console.error('✗ Failed to load texture:', art.file, err);
+                console.log('Trying fallback:', art.fallback);
+                loader.load(art.fallback, (tex) => {
+                    console.log('✓ Fallback loaded:', art.fallback);
+                }, undefined, (err2) => {
+                    console.error('✗ Fallback also failed:', art.fallback, err2);
+                });
+            }
+        );
+    };
         1: { offset: -7, art: artworkData.filter(a => a.room === 1) },
         2: { offset: 7, art: artworkData.filter(a => a.room === 2) }
     };
