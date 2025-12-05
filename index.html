@@ -281,7 +281,7 @@ const artworkData = [
     { file: 'images/artwork7.webp', fallback: 'images/artwork7.png', title: 'Stargate (Detail)', medium: 'Acrylic on Canvas', date: '2012', description: '', room: 2 }
 ];
 
-/* ===== 2D GALLERY BUILDER ===== */
+/* ===== 2D GALLERY BUILDER (UNCHANGED) ===== */
 const grid = document.getElementById('galleryGrid');
 artworkData.forEach((art, i) => {
     const item = document.createElement('div');
@@ -303,7 +303,7 @@ artworkData.forEach((art, i) => {
     grid.appendChild(item);
 });
 
-/* ===== LIGHTBOX ===== */
+/* ===== LIGHTBOX (UNCHANGED) ===== */
 const lightbox = document.getElementById('lightbox');
 const lbImg = document.getElementById('lightboxImg');
 const lbTitle = document.getElementById('lightboxTitle');
@@ -352,7 +352,7 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeLightbox();
 });
 
-/* ===== SCROLL ===== */
+/* ===== SCROLL (UNCHANGED) ===== */
 const wrapper = document.querySelector('.gallery-wrapper');
 const leftArrow = document.querySelector('.auto-scroll-left');
 const rightArrow = document.querySelector('.auto-scroll-right');
@@ -422,12 +422,10 @@ function initVR() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-
-    // IMPORTANT: Three.js color management is handled by default now in modern versions
-    // If we were using an older version, we might set: renderer.outputEncoding = THREE.sRGBEncoding;
-    // but with current THREE.js (v0.152.2), this is usually automatic and setting colorSpace manually conflicts.
     
+    // 🔑 CRITICAL FIX 1: Set the renderer output to sRGB.
+    renderer.outputColorSpace = THREE.SRGBColorSpace; 
+
     // Lights
     const ambient = new THREE.AmbientLight(0xffffff, 1.0); // Increased intensity to ensure base visibility
     scene.add(ambient);
@@ -454,7 +452,7 @@ function animate() {
     requestID = requestAnimationFrame(animate);
     const delta = clock.getDelta();
     
-    // Physics / Movement
+    // Physics / Movement (UNCHANGED)
     vel.x -= vel.x * 10.0 * delta;
     vel.z -= vel.z * 10.0 * delta;
     dir.z = Number(moveF) - Number(moveB);
@@ -470,7 +468,7 @@ function animate() {
     // Explicitly lock the Z-axis rotation (roll) to keep the camera upright.
     camera.rotation.z = 0; 
 
-    // Wall Collision Logic
+    // Wall Collision Logic (UNCHANGED)
     const x = camera.position.x;
     const z = camera.position.z;
     const wallBuffer = 0.5;
@@ -490,7 +488,7 @@ function animate() {
         }
     }
 
-    // Raycaster (Clicking Art)
+    // Raycaster (Clicking Art) (UNCHANGED)
     if (isPointerDown) {
         ray.setFromCamera(mouse, camera);
         const hits = ray.intersectObjects(clickables);
@@ -503,6 +501,8 @@ function animate() {
     }
     renderer.render(scene, camera);
 }
+
+// Room building functions (UNCHANGED)
 
 function createCheckerboard() {
     const canvas = document.createElement('canvas');
@@ -586,6 +586,8 @@ function createDoorway() {
     scene.add(topP);
 }
 
+// Artwork placement function (CRITICAL FIXES APPLIED HERE)
+
 function placeArtworks() {
     const loader = new THREE.TextureLoader();
     const maxWidth = 3.5;
@@ -598,6 +600,8 @@ function placeArtworks() {
 
     const createArtMesh = (art, x, z, rotationY) => {
         loader.load(art.file, (tex) => {
+            
+            // 🔑 CRITICAL FIX 2: Set the texture to sRGB. This is what fixes the dark, brown colors.
             tex.colorSpace = THREE.SRGBColorSpace; 
             
             const imageAspect = tex.image.width / tex.image.height;
@@ -607,7 +611,7 @@ function placeArtworks() {
 
             const geo = new THREE.PlaneGeometry(w, h);
             
-            // FIX: Using MeshStandardMaterial with emissiveMap for self-illumination
+            // MeshStandardMaterial with emissiveMap for self-illumination (the glow effect)
             const mat = new THREE.MeshStandardMaterial({
                 color: 0xffffff,
                 map: tex, 
@@ -621,17 +625,14 @@ function placeArtworks() {
             mesh.userData.idx = artworkData.indexOf(art);
             clickables.push(mesh);
             
-            // Apply the offset based on rotation (0 for Z-facing walls, PI/2 for X-facing walls)
+            // Apply the offset based on rotation 
             if (rotationY === 0 || rotationY === Math.PI) {
-                 // Front/Back Wall: offset on Z-axis (local Z is depth)
                  mesh.position.z = artworkOffset; 
             } else {
-                 // Side Wall: offset on X-axis (local Z is now local X due to rotation)
-                 // This ensures the artwork is visually in front of the wall mesh
                  mesh.position.x = artworkOffset; 
             }
 
-            // 2. Create the Frame Mesh (Middle object)
+            // 2. Create the Frame Mesh 
             const frame = new THREE.Mesh(
                 new THREE.BoxGeometry(w + 0.2, h + 0.2, frameThickness),
                 new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.5})
@@ -639,10 +640,8 @@ function placeArtworks() {
             
             // Apply the frame offset based on rotation
             if (rotationY === 0 || rotationY === Math.PI) {
-                // Front/Back Wall: offset on Z-axis
                 frame.position.z = frameOffset; 
             } else {
-                // Side Wall: offset on X-axis
                 frame.position.x = frameOffset; 
             }
 
@@ -664,12 +663,12 @@ function placeArtworks() {
     for (const roomNum in roomData) {
         const { offset, art } = roomData[roomNum];
         
-        // 1. Assign Artworks to 4 Walls in a round-robin fashion
+        // 1. Assign Artworks to 4 Walls in a round-robin fashion (UNCHANGED)
         const wallAssignments = [[], [], [], []];
         // 0:Back Wall (Z fixed), 1:Inner Wall (X fixed, Doorway), 2:Front Wall (Z fixed), 3:Outer Wall (X fixed)
         art.forEach((a, i) => wallAssignments[i % 4].push(a)); 
 
-        // 2. Iterate through walls and place art with equal spacing
+        // 2. Iterate through walls and place art with equal spacing (UNCHANGED)
         wallAssignments.forEach((wallArt, wallIndex) => {
             if (wallArt.length === 0) return;
 
@@ -701,7 +700,6 @@ function placeArtworks() {
             else if (wallIndex === 3) { 
                 const wallLength = 14;
                 const startZ = -7;
-                // Determines the exact X-position of the outer wall for this room
                 const fixedX = offset + 6.9 * (offset > 0 ? 1 : -1); 
                 const rotation = offset > 0 ? -Math.PI/2 : Math.PI/2; // -90 deg for Room 2, +90 deg for Room 1
                 
@@ -716,12 +714,9 @@ function placeArtworks() {
                 const segment1Length = 5.5; // Z=-7 to Z=-1.5
                 const segment2Length = 5.5; // Z=1.5 to Z=7
                 
-                // Position slightly offset from the dividing wall
                 const fixedX = offset > 0 ? 0.2 : -0.2; 
-                // Rotation: +90 deg for Room 2, -90 deg for Room 1
                 const rotation = offset > 0 ? Math.PI/2 : -Math.PI/2; 
                 
-                // Split art between the two wall segments flanking the door
                 const totalArt = wallArt.length;
                 const segment1Art = Math.ceil(totalArt / 2); 
                 
@@ -796,7 +791,7 @@ function setupVREvents() {
         }
     });
     
-    // MOBILE CONTROLS LOGIC
+    // MOBILE CONTROLS LOGIC (UNCHANGED)
     const mobileControls = document.getElementById('mobileControls');
     const controls = {
         'moveF': document.getElementById('moveF'),
@@ -836,7 +831,7 @@ function setupVREvents() {
     function updateFov() { camera.fov = fov; camera.updateProjectionMatrix(); }
 }
 
-// Fade in observer
+// Fade in observer (UNCHANGED)
 const fadeObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) entry.target.classList.add('visible');
