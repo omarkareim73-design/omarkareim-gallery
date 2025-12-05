@@ -587,6 +587,9 @@ function placeArtworks() {
     const createArtMesh = (art, x, z, rotationY) => {
         loader.load(art.file, (tex) => {
             tex.colorSpace = THREE.SRGBColorSpace;
+            tex.flipY = false;           
+                                tex.needsUpdate = true;      
+
             const imageAspect = tex.image.width / tex.image.height;
             let w = maxWidth;
             let h = maxWidth / imageAspect;
