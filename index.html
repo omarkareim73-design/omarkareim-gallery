@@ -422,10 +422,9 @@ function initVR() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    renderer.outputColorSpace = THREE.SRGBColorSpace; // <-- FIX 1: Set output color space for consistent rendering
 
     // Lights
-    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambient = new THREE.AmbientLight(0xffffff, 1.0); // FIX: Increased intensity
     scene.add(ambient);
     const p1 = new THREE.PointLight(0xffaa00, 0.8, 20);
     p1.position.set(-7, 4, 0); 
@@ -594,8 +593,7 @@ function placeArtworks() {
 
     const createArtMesh = (art, x, z, rotationY) => {
         loader.load(art.file, (tex) => {
-            // tex.colorSpace = THREE.SRGBColorSpace; // This may cause issues if the renderer is already set
-            tex.colorSpace = THREE.NoColorSpace; // <-- FIX 2: Explicitly set to no color space to see if it fixes the black texture issue.
+            // FIX: Removed explicit tex.colorSpace = THREE.SRGBColorSpace to prevent double-gamma correction.
             
             const imageAspect = tex.image.width / tex.image.height;
             let w = maxWidth;
@@ -604,13 +602,13 @@ function placeArtworks() {
 
             const geo = new THREE.PlaneGeometry(w, h);
             
-            // CORE FIX: MeshStandardMaterial with emissive properties for self-illumination
+            // FIX: Using MeshStandardMaterial with emissiveMap for self-illumination
             const mat = new THREE.MeshStandardMaterial({
-                color: 0xffffff,          // Base color set to white
-                map: tex,                 // Use texture as the primary map (albedo)
-                emissive: 0xffffff,       // Emissive color set to white
-                emissiveMap: tex,         // Use the texture itself for self-illumination (lightMap equivalent)
-                emissiveIntensity: 1.0    // Full brightness
+                color: 0xffffff,
+                map: tex,
+                emissive: 0xffffff,
+                emissiveMap: tex,
+                emissiveIntensity: 1.0
             }); 
             
             // 1. Create Artwork Mesh (Front object)
