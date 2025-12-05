@@ -600,7 +600,16 @@ function placeArtworks() {
             if(h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; }
 
             const geo = new THREE.PlaneGeometry(w, h);
-            const mat = new THREE.MeshBasicMaterial({map: tex}); 
+            
+            // 🎨 CORE FIX: Switched to MeshStandardMaterial and added emissive properties 🎨
+            const mat = new THREE.MeshStandardMaterial({
+                color: 0xffffff,          // Base color set to white
+                map: tex,                 // Use texture as the primary map (albedo)
+                emissive: 0xffffff,       // Emissive color set to white
+                emissiveMap: tex,         // Use the texture itself for self-illumination (lightMap equivalent)
+                emissiveIntensity: 1.0    // Full brightness
+            }); 
+            // --------------------------------------------------------------------------
             
             // 1. Create Artwork Mesh (Front object)
             const mesh = new THREE.Mesh(geo, mat);
