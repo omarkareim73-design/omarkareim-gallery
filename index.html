@@ -585,52 +585,50 @@ function placeArtworks() {
     const maxHeight = 3.5;
 
     const createArtMesh = (art, x, z, rotationY) => {
-                
-loader.load(art.file, (tex) => {
-            tex.colorSpace = THREE.SRGBColorSpace;
-            tex.flipY = false;
-            tex.needsUpdate = true;
+    loader.load(art.file, (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.flipY = false;
+        tex.needsUpdate = true;
 
-            const imageAspect = tex.image.width / tex.image.height;
-            let w = maxWidth;
-            let h = maxWidth / imageAspect;
-            if (h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; }
+        const imageAspect = tex.image.width / tex.image.height;
+        let w = maxWidth;
+        let h = maxWidth / imageAspect;
+        if (h > maxHeight) { h = maxHeight; w = maxHeight * imageAspect; }
 
-            const geo = new THREE.PlaneGeometry(w, h);
+        const geo = new THREE.PlaneGeometry(w, h);
 
-            const mat = new THREE.MeshBasicMaterial({
-                map: tex,
-                side: THREE.DoubleSide,
-                toneMapped: false
-            });
-
-            const mesh = new THREE.Mesh(geo, mat);
-
-            // Z-Fighting Fix
-            if (rotationY === 0 || rotationY === Math.PI) {
-                mesh.position.z = 0.01;
-            } else {
-                mesh.position.x = 0.01;
-            }
-
-            mesh.userData.idx = artworkData.indexOf(art);
-            clickables.push(mesh);
-
-            // frame stays the same …
-
-            const frame = new THREE.Mesh(
-                new THREE.BoxGeometry(w + 0.2, h + 0.2, 0.1),
-                new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.5})
-            );
-            
-            const group = new THREE.Group();
-            group.add(mesh);
-            group.add(frame);
-            group.position.set(x, 2.5, z);
-            group.rotation.y = rotationY;
-            scene.add(group);
+        const mat = new THREE.MeshBasicMaterial({
+            map: tex,
+            side: THREE.DoubleSide,
+            toneMapped: false
         });
-    };
+
+        const mesh = new THREE.Mesh(geo, mat);
+
+        // Z-Fighting Fix
+        if (rotationY === 0 || rotationY === Math.PI) {
+            mesh.position.z = 0.01;
+        } else {
+            mesh.position.x = 0.01;
+        }
+
+        mesh.userData.idx = artworkData.indexOf(art);
+        clickables.push(mesh);
+
+        // frame stays the same …
+        const frame = new THREE.Mesh(
+            new THREE.BoxGeometry(w + 0.2, h + 0.2, 0.1),
+            new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.5})
+        );
+        
+        const group = new THREE.Group();
+        group.add(mesh);
+        group.add(frame);
+        group.position.set(x, 2.5, z);
+        group.rotation.y = rotationY;
+        scene.add(group);
+    });
+};
 
     const roomData = {
         1: { offset: -7, art: artworkData.filter(a => a.room === 1) },
