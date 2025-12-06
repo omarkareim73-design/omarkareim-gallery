@@ -215,6 +215,13 @@ const artworkData = [
     { file: 'images/artwork8.webp', fallback: 'images/artwork8.png', title: 'φ (Phi)', medium: 'Acrylic on Canvas', date: '2025', description: 'φ explores the meeting point between human motion and mathematical harmony.' },
     { file: 'images/artwork9.webp', fallback: 'images/artwork9.png', title: 'Invocation to Rise', medium: 'Acrylic on Canvas', date: '2025', description: 'Concentric bands and runic text encircle a gold plane.' },
     { file: 'images/artwork10.webp', fallback: 'images/artwork10.png', title: 'Faded', medium: 'Acrylic on Canvas', date: '2025', description: 'Beneath the surface of Faded lies the ghost of a biomechanical figure.' },
+    
+    // --- FEATURE ART (Index 10) ---
+    { file: 'images/artwork11.webp', fallback: 'images/artwork11.png', title: 'Cosmic Descent', medium: 'Acrylic on Canvas', date: '2025', description: 'A large-scale work exploring themes of life, death, and futuristic decay, featuring stacked skulls against a red and purple horizon.' },
+
+    // --- FUTURE ARTWORK PLACEHOLDER ---
+    // Uncomment the line below, update the image path and details, and ensure the trailing comma is present if adding another entry
+    // { file: 'images/artwork12.webp', fallback: 'images/artwork12.png', title: 'NEW ARTWORK TITLE', medium: 'MEDIUM', date: 'YEAR', description: 'DESCRIPTION' },
 ];
 
 // Stores the start position for each room
@@ -227,9 +234,10 @@ const roomPositions = {
 const portals = [];
 
 // The index range of artwork for each room (must match artworkData indices)
+// If adding a new piece, remember to update this map or the piece's location logic if it's placed in the VR gallery
 const roomArtworkMap = {
     'room1': [0, 1, 2, 3, 4], // First 5 artworks in room 1
-    'room2': [5, 6, 7, 8, 9]  // Last 5 artworks in room 2
+    'room2': [5, 6, 7, 8, 9]  // Next 5 artworks in room 2
 }
 
 
@@ -434,6 +442,74 @@ function clearSceneMeshes() {
 }
 
 
+function createFeatureDisplay(centerZ, artIndex) {
+    // Center of the display is (0, 2.75, centerZ)
+    const center = new THREE.Vector3(0, 2.75, centerZ);
+    const goldMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1 });
+    
+    // 1. Create the U-shaped Arch Frame
+    const width = 3.5, height = 4.0;
+    const depth = 0.5;
+    const frameWidth = 0.5;
+
+    // Vertical Left Pillar
+    const leftPillar = new THREE.Mesh(new THREE.BoxGeometry(frameWidth, height, depth), goldMat);
+    leftPillar.position.set(center.x - width/2 + frameWidth/2, center.y, center.z);
+    scene.add(leftPillar);
+
+    // Vertical Right Pillar
+    const rightPillar = new THREE.Mesh(new THREE.BoxGeometry(frameWidth, height, depth), goldMat);
+    rightPillar.position.set(center.x + width/2 - frameWidth/2, center.y, center.z);
+    scene.add(rightPillar);
+
+    // Horizontal Top Beam
+    const topBeam = new THREE.Mesh(new THREE.BoxGeometry(width - frameWidth, frameWidth, depth), goldMat);
+    topBeam.position.set(center.x, center.y + height/2 - frameWidth/2, center.z);
+    scene.add(topBeam);
+    
+    // 2. Place Artwork (Index 10) in the middle
+    const art = artworkData[artIndex];
+    const loader = new THREE.TextureLoader();
+
+    loader.load(
+        art.file,
+        (tex) => {
+            tex.colorSpace = THREE.SRGBColorSpace;
+            const img = tex.image;
+            const aspect = img.width / img.height;
+            let planeWidth = width - frameWidth * 2 - 0.2; // fit inside U
+            let planeHeight = planeWidth / aspect;
+            
+            // Adjust for tall portrait orientation (common for this piece)
+            if (planeHeight > height - frameWidth - 0.5) { 
+                planeHeight = height - frameWidth - 0.5;
+                planeWidth = planeHeight * aspect;
+            }
+
+            const artMat = new THREE.MeshStandardMaterial({
+                map: tex, roughness: 0.4, metalness: 0,
+                emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.2 
+            });
+            
+            const plane = new THREE.Mesh(new THREE.PlaneGeometry(planeWidth, planeHeight), artMat);
+            plane.position.set(center.x, center.y - 0.25, center.z + depth/2 + 0.01); 
+            plane.userData.idx = artIndex; 
+            plane.userData.clickable = true;
+            clickables.push(plane); 
+            scene.add(plane);
+
+            // Add a small light to highlight the feature piece
+            const pointLight = new THREE.PointLight(0xffffff, 2, 5);
+            pointLight.position.set(center.x, center.y + 1, center.z + 1);
+            scene.add(pointLight);
+        },
+        undefined, 
+        (err) => {
+            console.error(`Error loading texture for feature art ${artIndex}:`, art.file, err);
+        }
+    );
+}
+
 function buildGallery() {
     const wallMat = new THREE.MeshStandardMaterial({color: 0x222222, roughness: 0.9});
     const floorTex = createTexture('floor');
@@ -446,25 +522,37 @@ function buildGallery() {
     spotlight.position.set(0, 5, 0);
     scene.add(spotlight);
 
+    const roomSize = 14; // Constant for room width/depth
+    
     // --- ROOM 1 (Circular Layout at Z=0) ---
     const room1Center = new THREE.Vector3(0, 2.75, 0);
     createRoom(room1Center, wallMat, floorMat, ceilingMat, roomArtworkMap['room1'], 6, 1);
     
-    // Portal to Room 2
+    // Portal to Room 2 (Placed at the Z=-7 wall of Room 1)
     createPortal(
-        new THREE.Vector3(0, 0, -6), 
+        new THREE.Vector3(0, 0, -7), // Corrected Z position
         'Room 2',
         'room2',
         0 // Rotation
     );
-
+    
+    // --- HALLWAY FLOOR (Z=-7 to Z=-13) ---
+    const hallwayFloor = new THREE.Mesh(new THREE.PlaneGeometry(roomSize/3, 6), floorMat);
+    hallwayFloor.rotation.x = -Math.PI/2;
+    hallwayFloor.position.set(0, 0, -10); // Y=0 for floor level (camera is at Y=1.6)
+    hallwayFloor.receiveShadow = true;
+    scene.add(hallwayFloor);
+    
+    // FEATURE DISPLAY (Placed at Z=-10 in the Hallway)
+    createFeatureDisplay(-10, 10); // Artwork Index 10
+    
     // --- ROOM 2 (Circular Layout at Z=-20) ---
     const room2Center = new THREE.Vector3(0, 2.75, -20);
     createRoom(room2Center, wallMat, floorMat, ceilingMat, roomArtworkMap['room2'], 6, 2);
 
-    // Portal back to Room 1
+    // Portal back to Room 1 (Placed at the Z=-13 wall of Room 2)
     createPortal(
-        new THREE.Vector3(0, 0, -14), 
+        new THREE.Vector3(0, 0, -13), // Corrected Z position
         'Room 1',
         'room1',
         Math.PI // 180 degree rotation
@@ -475,8 +563,6 @@ function buildGallery() {
 function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radius, roomID) {
     const size = 14;
     const height = 5.5;
-
-    // Floor, Ceiling, and Walls creation remains here... (omitted for brevity, assume unchanged)
 
     // Floor
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(size, size), floorMat);
@@ -821,10 +907,12 @@ function animate() {
             Math.pow(camPos.z - portalPos.z, 2)
         );
 
-        if (distance < 1.5) {
+        // Adjust for the portal trigger box depth
+        if (distance < 1.0) { 
             const targetRoom = portal.userData.targetRoom;
             const targetPos = roomPositions[targetRoom];
             
+            // Offset the camera position to place the user inside the target room
             const offset = (targetRoom === 'room1') ? 2 : -2;
             camera.position.set(targetPos.x, targetPos.y, targetPos.z + offset);
         }
