@@ -234,10 +234,42 @@ const roomPositions = {
 const portals = [];
 
 // The index range of artwork for each room (must match artworkData indices)
-// If adding a new piece, remember to update this map or the piece's location logic if it's placed in the VR gallery
 const roomArtworkMap = {
     'room1': [0, 1, 2, 3, 4], // First 5 artworks in room 1
     'room2': [5, 6, 7, 8, 9]  // Next 5 artworks in room 2
+}
+
+// ===========================================
+// FIX: TEXTURE PRELOADING LOGIC
+// ===========================================
+let preloadedTextures = {};
+
+function preloadAllTextures() {
+    console.log("Starting texture preload...");
+    const loader = new THREE.TextureLoader();
+    let promises = [];
+
+    artworkData.forEach((art) => {
+        const promise = new Promise((resolve) => {
+            loader.load(
+                art.file,
+                (tex) => {
+                    tex.colorSpace = THREE.SRGBColorSpace;
+                    preloadedTextures[art.file] = tex;
+                    resolve();
+                },
+                undefined,
+                (err) => {
+                    // Log error but resolve the promise so others can load
+                    console.error(`Preload Error for ${art.file}:`, err);
+                    resolve(); 
+                }
+            );
+        });
+        promises.push(promise);
+    });
+
+    return Promise.all(promises);
 }
 
 
@@ -277,7 +309,7 @@ const closeBtn = document.querySelector('.lightbox-close');
 const prevBtn = document.getElementById('lightboxPrev');
 const nextBtn = document.getElementById('lightboxNext');
 
-let vrGalleryWasActive = false; // NEW FLAG
+let vrGalleryWasActive = false; 
 
 function updateLightboxContent(idx) {
     currentLightboxIndex = idx;
@@ -306,16 +338,15 @@ function navigateLightbox(direction) {
     updateLightboxContent(newIndex);
 }
 
-// MODIFIED EXIT LOGIC
 closeBtn.onclick = () => {
     lightbox.classList.remove('active');
     if (vrGalleryWasActive) {
         // Restore the VR gallery state if it was active
         vrGallery.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Keep VR's overflow setting
-        vrGalleryWasActive = false; // Reset the flag
+        document.body.style.overflow = 'hidden'; 
+        vrGalleryWasActive = false; 
     } else {
-        document.body.style.overflow = ''; // Restore standard scrolling
+        document.body.style.overflow = ''; 
     }
 };
 
@@ -379,7 +410,21 @@ const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 
 
-vrBtn.onclick = () => initVR('room1'); 
+// FIX: Wait for preloading before calling initVR
+vrBtn.onclick = () => {
+    vrBtn.textContent = 'Loading...';
+    vrBtn.disabled = true;
+    
+    preloadAllTextures().then(() => {
+        vrBtn.textContent = 'Enter Virtual Gallery';
+        vrBtn.disabled = false;
+        initVR('room1');
+    }).catch(err => {
+        console.error("Failed to preload textures:", err);
+        vrBtn.textContent = 'Error Loading Gallery';
+    });
+}; 
+
 exitBtn.onclick = () => {
     vrGallery.classList.remove('active');
     document.body.style.overflow = '';
@@ -441,77 +486,63 @@ function clearSceneMeshes() {
     clickables.length = 0; 
 }
 
-// *** MODIFIED FUNCTION: CREATE FEATURE DISPLAY ***
+// *** MODIFIED FUNCTION: CREATE FEATURE DISPLAY (Uses preloadedTextures) ***
 function createFeatureDisplay(centerZ, artIndex) {
-    // Center of the display is (0, 2.75, centerZ)
     const center = new THREE.Vector3(0, 2.75, centerZ);
     const goldMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1 });
     
-    // 1. Create the U-shaped Arch Frame
     const width = 3.5, height = 4.0;
     const depth = 0.5;
     const frameWidth = 0.5;
 
-    // Vertical Left Pillar
+    // Arch Frame Geometry (unchanged)
     const leftPillar = new THREE.Mesh(new THREE.BoxGeometry(frameWidth, height, depth), goldMat);
     leftPillar.position.set(center.x - width/2 + frameWidth/2, center.y, center.z);
     scene.add(leftPillar);
-
-    // Vertical Right Pillar
     const rightPillar = new THREE.Mesh(new THREE.BoxGeometry(frameWidth, height, depth), goldMat);
     rightPillar.position.set(center.x + width/2 - frameWidth/2, center.y, center.z);
     scene.add(rightPillar);
-
-    // Horizontal Top Beam
     const topBeam = new THREE.Mesh(new THREE.BoxGeometry(width - frameWidth, frameWidth, depth), goldMat);
     topBeam.position.set(center.x, center.y + height/2 - frameWidth/2, center.z);
     scene.add(topBeam);
     
     // 2. Place Artwork (Index 10) in the middle
     const art = artworkData[artIndex];
-    const loader = new THREE.TextureLoader();
+    // FIX: Use preloaded texture
+    const tex = preloadedTextures[art.file];
 
-    loader.load(
-        art.file,
-        (tex) => {
-            tex.colorSpace = THREE.SRGBColorSpace;
-            const img = tex.image;
-            const aspect = img.width / img.height;
-            let planeWidth = width - frameWidth * 2 - 0.2; // fit inside U
-            let planeHeight = planeWidth / aspect;
-            
-            // Adjust for tall portrait orientation (common for this piece)
-            if (planeHeight > height - frameWidth - 0.5) { 
-                planeHeight = height - frameWidth - 0.5;
-                planeWidth = planeHeight * aspect;
-            }
-
-            // SOLUTION: Increased emissive intensity for brighter art
-            const artMat = new THREE.MeshStandardMaterial({
-                map: tex, roughness: 0.4, metalness: 0,
-                emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 1.0 // Increased to 1.0
-            });
-            
-            const plane = new THREE.Mesh(new THREE.PlaneGeometry(planeWidth, planeHeight), artMat);
-            plane.position.set(center.x, center.y - 0.25, center.z + depth/2 + 0.01); 
-            plane.userData.idx = artIndex; 
-            plane.userData.clickable = true;
-            clickables.push(plane); 
-            scene.add(plane);
-
-            // Add a small light to highlight the feature piece
-            const pointLight = new THREE.PointLight(0xffffff, 2, 5);
-            pointLight.position.set(center.x, center.y + 1, center.z + 1);
-            scene.add(pointLight);
-        },
-        undefined, 
-        (err) => {
-            console.error(`Error loading texture for feature art ${artIndex}:`, art.file, err);
+    if (tex) {
+        const img = tex.image;
+        const aspect = img.width / img.height;
+        let planeWidth = width - frameWidth * 2 - 0.2; 
+        let planeHeight = planeWidth / aspect;
+        
+        if (planeHeight > height - frameWidth - 0.5) { 
+            planeHeight = height - frameWidth - 0.5;
+            planeWidth = planeHeight * aspect;
         }
-    );
+
+        const artMat = new THREE.MeshStandardMaterial({
+            map: tex, roughness: 0.4, metalness: 0,
+            emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 1.0 
+        });
+        
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(planeWidth, planeHeight), artMat);
+        plane.position.set(center.x, center.y - 0.25, center.z + depth/2 + 0.01); 
+        plane.userData.idx = artIndex; 
+        plane.userData.clickable = true;
+        clickables.push(plane); 
+        scene.add(plane);
+
+        const pointLight = new THREE.PointLight(0xffffff, 2, 5);
+        pointLight.position.set(center.x, center.y + 1, center.z + 1);
+        scene.add(pointLight);
+    } else {
+        console.error(`Feature texture for ${art.title} not found in preloaded list.`);
+    }
 }
 
-// *** MODIFIED FUNCTION: BUILD GALLERY ***
+// *** MODIFIED FUNCTION: BUILD GALLERY (Unchanged structure) ***
 function buildGallery() {
     const wallMat = new THREE.MeshStandardMaterial({color: 0x222222, roughness: 0.9});
     const floorTex = createTexture('floor');
@@ -520,12 +551,11 @@ function buildGallery() {
     const floorMat = new THREE.MeshStandardMaterial({map: floorTex, roughness: 0.8, color: 0x111111});
     const ceilingMat = new THREE.MeshStandardMaterial({color: 0x333333, roughness: 0.9});
     
-    // Added a global spotlight back in
     const spotlight = new THREE.SpotLight(0xffffff, 4, 15, Math.PI/4, 0.5, 2);
     spotlight.position.set(0, 5, 0);
     scene.add(spotlight);
 
-    const roomSize = 14; // Constant for room width/depth
+    const roomSize = 14; 
     
     // --- ROOM 1 (Circular Layout at Z=0) ---
     const room1Center = new THREE.Vector3(0, 2.75, 0);
@@ -536,14 +566,14 @@ function buildGallery() {
         new THREE.Vector3(0, 0, -7), 
         'Room 2',
         'room2',
-        0 // Rotation
+        0 
     );
     
     // --- HALLWAY STRUCTURE (Z=-7 to Z=-23) ---
     const hallwayLength = 16;
     const hallwayWidth = 4;
     const hallwayHeight = 5.5;
-    const hallwayCenterZ = -7 - (hallwayLength / 2); // Center is at Z = -7 - 8 = -15
+    const hallwayCenterZ = -7 - (hallwayLength / 2); // Center is at Z = -15
 
     // Hallway Floor 
     const hallwayFloor = new THREE.Mesh(new THREE.PlaneGeometry(hallwayWidth, hallwayLength), floorMat);
@@ -561,8 +591,8 @@ function buildGallery() {
     // Hallway Walls (Left and Right)
     const wallDepth = 0.3;
     const hallWalls = [
-        {pos: [-hallwayWidth/2 + wallDepth/2, hallwayHeight/2, hallwayCenterZ], size: [wallDepth, hallwayHeight, hallwayLength]}, // Left Wall
-        {pos: [hallwayWidth/2 - wallDepth/2, hallwayHeight/2, hallwayCenterZ], size: [wallDepth, hallwayHeight, hallwayLength]}  // Right Wall
+        {pos: [-hallwayWidth/2 + wallDepth/2, hallwayHeight/2, hallwayCenterZ], size: [wallDepth, hallwayHeight, hallwayLength]}, 
+        {pos: [hallwayWidth/2 - wallDepth/2, hallwayHeight/2, hallwayCenterZ], size: [wallDepth, hallwayHeight, hallwayLength]}  
     ];
     hallWalls.forEach(w => {
         const wall = new THREE.Mesh(new THREE.BoxGeometry(...w.size), wallMat);
@@ -570,11 +600,11 @@ function buildGallery() {
         scene.add(wall);
     });
 
-    // FEATURE DISPLAY (Placed at Z=-15 in the Hallway)
-    createFeatureDisplay(hallwayCenterZ, 10); // Artwork Index 10 is centered in the hallway
+    // FEATURE DISPLAY 
+    createFeatureDisplay(hallwayCenterZ, 10); 
     
     // --- ROOM 2 (Circular Layout at Z=-25) ---
-    const room2Center = new THREE.Vector3(0, 2.75, -25); // Center adjusted for hallway length
+    const room2Center = new THREE.Vector3(0, 2.75, -25); 
     createRoom(room2Center, wallMat, floorMat, ceilingMat, roomArtworkMap['room2'], 6, 2);
 
     // Portal from Hallway/Room 2 back to Room 1 (Placed at the Z=-23 wall of Room 2)
@@ -582,35 +612,31 @@ function buildGallery() {
         new THREE.Vector3(0, 0, -23), 
         'Room 1',
         'room1',
-        Math.PI // 180 degree rotation
+        Math.PI 
     );
 }
 
-// Reusable function to create a room and its artwork
+// *** MODIFIED FUNCTION: createRoom (Uses preloadedTextures) ***
 function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radius, roomID) {
     const size = 14;
     const height = 5.5;
 
-    // Floor
+    // Floor/Ceiling/Walls (unchanged)
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(size, size), floorMat);
     floor.rotation.x = -Math.PI/2;
     floor.position.set(center.x, center.y - 2.75, center.z);
     floor.receiveShadow = true;
     scene.add(floor);
-
-    // Ceiling
     const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(size, size), ceilingMat);
     ceiling.rotation.x = Math.PI/2;
     ceiling.position.set(center.x, center.y + 2.75, center.z);
     scene.add(ceiling);
-
-    // Walls (Only side walls are created in this circular room implementation)
     const wallDepth = 0.3;
     const walls = [
-        {pos: [center.x, center.y, center.z - size/2 + wallDepth/2], size: [size, height, wallDepth]}, // Front Wall
-        {pos: [center.x, center.y, center.z + size/2 - wallDepth/2], size: [size, height, wallDepth]}, // Back Wall
-        {pos: [center.x - size/2 + wallDepth/2, center.y, center.z], size: [wallDepth, height, size]}, // Left Wall
-        {pos: [center.x + size/2 - wallDepth/2, center.y, center.z], size: [wallDepth, height, size]}  // Right Wall
+        {pos: [center.x, center.y, center.z - size/2 + wallDepth/2], size: [size, height, wallDepth]}, 
+        {pos: [center.x, center.y, center.z + size/2 - wallDepth/2], size: [size, height, wallDepth]}, 
+        {pos: [center.x - size/2 + wallDepth/2, center.y, center.z], size: [wallDepth, height, size]}, 
+        {pos: [center.x + size/2 - wallDepth/2, center.y, center.z], size: [wallDepth, height, size]}  
     ];
     walls.forEach(w => {
         const wall = new THREE.Mesh(new THREE.BoxGeometry(...w.size), wallMat);
@@ -621,8 +647,7 @@ function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radiu
     // Artwork Placement
     const count = artworkIndices.length;
     const maxWidth = 3.5, maxHeight = 3.5;
-    const loader = new THREE.TextureLoader();
-
+    
     artworkIndices.forEach((artIndex, i) => {
         const art = artworkData[artIndex];
         const angle = (i / count) * Math.PI * 2;
@@ -630,54 +655,45 @@ function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radiu
         const z = Math.cos(angle) * radius;
         const g = new THREE.Group();
 
-        loader.load(
-            art.file,
-            (tex) => {
-                tex.colorSpace = THREE.SRGBColorSpace;
-                
-                const img = tex.image;
-                const aspect = img.width / img.height;
-                let planeWidth = maxWidth;
-                let planeHeight = maxWidth / aspect;
-                
-                if (planeHeight > maxHeight) { planeHeight = maxHeight; planeWidth = maxHeight * aspect; }
+        // FIX: Use preloaded texture instead of loader.load()
+        const tex = preloadedTextures[art.file];
 
-                // SOLUTION: Increased emissive intensity for brighter art
-                const artMat = new THREE.MeshStandardMaterial({
-                    map: tex, roughness: 0.4, metalness: 0,
-                    emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 1.0 // Increased to 1.0
-                });
-                
-                // 1. Artwork Plane
-                const plane = new THREE.Mesh(new THREE.PlaneGeometry(planeWidth, planeHeight), artMat);
-                // FIX: Make art flush by placing it almost at the center of the group (which is against the wall)
-                plane.position.z = 0.001; 
-                plane.userData.idx = artIndex; 
-                plane.userData.clickable = true;
-                g.add(plane);
-                clickables.push(plane); 
+        if (tex) {
+            const img = tex.image;
+            const aspect = img.width / img.height;
+            let planeWidth = maxWidth;
+            let planeHeight = maxWidth / aspect;
+            
+            if (planeHeight > maxHeight) { planeHeight = maxHeight; planeWidth = maxHeight * aspect; }
 
-                // 2. Frame
-                const frame = new THREE.Mesh(
-                    new THREE.BoxGeometry(planeWidth + 0.2, planeHeight + 0.2, 0.1),
-                    new THREE.MeshStandardMaterial({color: 0x000000})
-                );
-                // Push the frame forward slightly so the painting sits *behind* the front rim
-                frame.position.z = 0.05; 
-                g.add(frame);
-                
-                // 3. Spotlight for the art
-                const spot = new THREE.SpotLight(0xffffff, 1.5, 5, 0.6, 0.5, 1);
-                spot.position.set(0, 1, 0); // Above the artwork
-                spot.target = plane;
-                g.add(spot);
-                g.add(spot.target);
-            },
-            undefined, 
-            (err) => {
-                console.error(`Error loading texture for art ${i}:`, art.file, err);
-            }
-        );
+            const artMat = new THREE.MeshStandardMaterial({
+                map: tex, roughness: 0.4, metalness: 0,
+                emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 1.0 
+            });
+            
+            // 1. Artwork Plane
+            const plane = new THREE.Mesh(new THREE.PlaneGeometry(planeWidth, planeHeight), artMat);
+            plane.position.z = 0.001; 
+            plane.userData.idx = artIndex; 
+            plane.userData.clickable = true;
+            g.add(plane);
+            clickables.push(plane); 
+
+            // 2. Frame
+            const frame = new THREE.Mesh(
+                new THREE.BoxGeometry(planeWidth + 0.2, planeHeight + 0.2, 0.1),
+                new THREE.MeshStandardMaterial({color: 0x000000})
+            );
+            frame.position.z = 0.05; 
+            g.add(frame);
+            
+            // 3. Spotlight for the art
+            const spot = new THREE.SpotLight(0xffffff, 1.5, 5, 0.6, 0.5, 1);
+            spot.position.set(0, 1, 0); 
+            spot.target = plane;
+            g.add(spot);
+            g.add(spot.target);
+        }
 
         // Position artwork group relative to room center
         g.position.set(center.x + x, center.y - 0.5, center.z + z);
@@ -724,7 +740,7 @@ function createPortal(position, targetName, targetRoom, rotationY) {
     // 2. Portal Trigger (Invisible Box)
     const portalGeo = new THREE.BoxGeometry(width, height, 0.5); 
     const portalMesh = new THREE.Mesh(portalGeo, new THREE.MeshBasicMaterial({
-        transparent: true, opacity: 0 // Invisible trigger box
+        transparent: true, opacity: 0 
     }));
     
     portalMesh.position.set(position.x, position.y + height/2, position.z);
@@ -738,7 +754,6 @@ function createPortal(position, targetName, targetRoom, rotationY) {
     // Position Archway
     archMesh.position.copy(portalMesh.position);
     archMesh.rotation.copy(portalMesh.rotation);
-    // archMesh.position.z -= frameDepth / 2; // Keep arch centered on the trigger box
     scene.add(archMesh);
 
     // 3. "ENTER" Text Indicator
@@ -752,13 +767,12 @@ function createPortal(position, targetName, targetRoom, rotationY) {
     
     const textTex = new THREE.CanvasTexture(canvas);
     const textMat = new THREE.MeshBasicMaterial({ map: textTex, transparent: true });
-    const textPlane = new THREE.Mesh(new THREE.PlaneGeometry(width - 1, 1), textMat); // Size the plane to fit the arch
+    const textPlane = new THREE.Mesh(new THREE.PlaneGeometry(width - 1, 1), textMat); 
     
-    // Position the text above the arch opening
     textPlane.position.set(
         portalMesh.position.x, 
         portalMesh.position.y + 1.5, 
-        portalMesh.position.z + 0.1 // Z-offset to make it visible
+        portalMesh.position.z + 0.1 
     );
     textPlane.rotation.y = rotationY;
     scene.add(textPlane);
@@ -935,20 +949,14 @@ function animate() {
             Math.pow(camPos.z - portalPos.z, 2)
         );
 
-        // SOLUTION: Reduced the distance threshold for the portal trigger
         if (distance < 0.7) { 
             const targetRoom = portal.userData.targetRoom;
-            const targetPos = roomPositions[targetRoom];
             
             // Offset the camera position to place the user inside the target room/hallway
-            // The position is now calculated based on the position of the arch, moving slightly through it.
-            const offset = (portalPos.z < camera.position.z) ? -1.0 : 1.0; 
-            
-            // For room 1 start: Z=5. For room 2 start: Z=-25.
             if (portalPos.z === -7) { // Exit Room 1 (to hallway)
-                camera.position.set(0, 1.6, -6.5); // Move to start of hallway
+                camera.position.set(0, 1.6, -6.5); 
             } else if (portalPos.z === -23) { // Exit Room 2 (to hallway)
-                camera.position.set(0, 1.6, -23.5); // Move to start of hallway
+                camera.position.set(0, 1.6, -23.5); 
             }
         }
     });
@@ -961,10 +969,7 @@ function animate() {
         if (artHits.length && artHits[0].object.userData.clickable) {
             const idx = artHits[0].object.userData.idx;
             
-            // FIX: Set flag that VR was active before opening lightbox
             vrGalleryWasActive = vrGallery.classList.contains('active'); 
-            
-            // NOTE: Do NOT remove the 'active' class here. The lightbox overlay will hide it.
             openLightbox(idx);
         }
         
