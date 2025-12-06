@@ -217,7 +217,7 @@ const artworkData = [
     { file: 'images/artwork10.webp', fallback: 'images/artwork10.png', title: 'Faded', medium: 'Acrylic on Canvas', date: '2025', description: 'Beneath the surface of Faded lies the ghost of a biomechanical figure.' },
     
     // --- FEATURE ART (Index 10) ---
-    { file: 'images/artwork11.webp', fallback: 'images/artwork11.png', title: 'Cosmic Descent', medium: 'Acrylic on Canvas', date: '2025', description: 'A large-scale work exploring themes of life, death, and futuristic decay, featuring stacked skulls against a red and purple horizon.' },
+    { file: 'images/14894.jpg', fallback: 'images/14894.jpg', title: 'Cosmic Descent', medium: 'Acrylic on Canvas', date: '2025', description: 'A large-scale work exploring themes of life, death, and futuristic decay, featuring stacked skulls against a red and purple horizon.' },
 
     // --- FUTURE ARTWORK PLACEHOLDER ---
     // Uncomment the line below, update the image path and details, and ensure the trailing comma is present if adding another entry
@@ -227,7 +227,7 @@ const artworkData = [
 // Stores the start position for each room
 const roomPositions = {
     'room1': {x: 0, y: 1.6, z: 5},
-    'room2': {x: 0, y: 1.6, z: -15} // Z-axis offset for the second room
+    'room2': {x: 0, y: 1.6, z: -25} // Z-axis offset for the second room center
 };
 
 // Data for portals (clickable objects for room transition)
@@ -441,7 +441,7 @@ function clearSceneMeshes() {
     clickables.length = 0; 
 }
 
-
+// *** MODIFIED FUNCTION: CREATE FEATURE DISPLAY ***
 function createFeatureDisplay(centerZ, artIndex) {
     // Center of the display is (0, 2.75, centerZ)
     const center = new THREE.Vector3(0, 2.75, centerZ);
@@ -486,9 +486,10 @@ function createFeatureDisplay(centerZ, artIndex) {
                 planeWidth = planeHeight * aspect;
             }
 
+            // SOLUTION: Increased emissive intensity for brighter art
             const artMat = new THREE.MeshStandardMaterial({
                 map: tex, roughness: 0.4, metalness: 0,
-                emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.2 
+                emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 1.0 // Increased to 1.0
             });
             
             const plane = new THREE.Mesh(new THREE.PlaneGeometry(planeWidth, planeHeight), artMat);
@@ -510,6 +511,7 @@ function createFeatureDisplay(centerZ, artIndex) {
     );
 }
 
+// *** MODIFIED FUNCTION: BUILD GALLERY ***
 function buildGallery() {
     const wallMat = new THREE.MeshStandardMaterial({color: 0x222222, roughness: 0.9});
     const floorTex = createTexture('floor');
@@ -518,6 +520,7 @@ function buildGallery() {
     const floorMat = new THREE.MeshStandardMaterial({map: floorTex, roughness: 0.8, color: 0x111111});
     const ceilingMat = new THREE.MeshStandardMaterial({color: 0x333333, roughness: 0.9});
     
+    // Added a global spotlight back in
     const spotlight = new THREE.SpotLight(0xffffff, 4, 15, Math.PI/4, 0.5, 2);
     spotlight.position.set(0, 5, 0);
     scene.add(spotlight);
@@ -528,31 +531,55 @@ function buildGallery() {
     const room1Center = new THREE.Vector3(0, 2.75, 0);
     createRoom(room1Center, wallMat, floorMat, ceilingMat, roomArtworkMap['room1'], 6, 1);
     
-    // Portal to Room 2 (Placed at the Z=-7 wall of Room 1)
+    // Portal from Room 1 to Hallway/Room 2 (Placed at the Z=-7 wall of Room 1)
     createPortal(
-        new THREE.Vector3(0, 0, -7), // Corrected Z position
+        new THREE.Vector3(0, 0, -7), 
         'Room 2',
         'room2',
         0 // Rotation
     );
     
-    // --- HALLWAY FLOOR (Z=-7 to Z=-13) ---
-    const hallwayFloor = new THREE.Mesh(new THREE.PlaneGeometry(roomSize/3, 6), floorMat);
+    // --- HALLWAY STRUCTURE (Z=-7 to Z=-23) ---
+    const hallwayLength = 16;
+    const hallwayWidth = 4;
+    const hallwayHeight = 5.5;
+    const hallwayCenterZ = -7 - (hallwayLength / 2); // Center is at Z = -7 - 8 = -15
+
+    // Hallway Floor 
+    const hallwayFloor = new THREE.Mesh(new THREE.PlaneGeometry(hallwayWidth, hallwayLength), floorMat);
     hallwayFloor.rotation.x = -Math.PI/2;
-    hallwayFloor.position.set(0, 0, -10); // Y=0 for floor level (camera is at Y=1.6)
+    hallwayFloor.position.set(0, 0, hallwayCenterZ); 
     hallwayFloor.receiveShadow = true;
     scene.add(hallwayFloor);
+
+    // Hallway Ceiling
+    const hallwayCeiling = new THREE.Mesh(new THREE.PlaneGeometry(hallwayWidth, hallwayLength), ceilingMat);
+    hallwayCeiling.rotation.x = Math.PI/2;
+    hallwayCeiling.position.set(0, hallwayHeight, hallwayCenterZ);
+    scene.add(hallwayCeiling);
+
+    // Hallway Walls (Left and Right)
+    const wallDepth = 0.3;
+    const hallWalls = [
+        {pos: [-hallwayWidth/2 + wallDepth/2, hallwayHeight/2, hallwayCenterZ], size: [wallDepth, hallwayHeight, hallwayLength]}, // Left Wall
+        {pos: [hallwayWidth/2 - wallDepth/2, hallwayHeight/2, hallwayCenterZ], size: [wallDepth, hallwayHeight, hallwayLength]}  // Right Wall
+    ];
+    hallWalls.forEach(w => {
+        const wall = new THREE.Mesh(new THREE.BoxGeometry(...w.size), wallMat);
+        wall.position.set(...w.pos);
+        scene.add(wall);
+    });
+
+    // FEATURE DISPLAY (Placed at Z=-15 in the Hallway)
+    createFeatureDisplay(hallwayCenterZ, 10); // Artwork Index 10 is centered in the hallway
     
-    // FEATURE DISPLAY (Placed at Z=-10 in the Hallway)
-    createFeatureDisplay(-10, 10); // Artwork Index 10
-    
-    // --- ROOM 2 (Circular Layout at Z=-20) ---
-    const room2Center = new THREE.Vector3(0, 2.75, -20);
+    // --- ROOM 2 (Circular Layout at Z=-25) ---
+    const room2Center = new THREE.Vector3(0, 2.75, -25); // Center adjusted for hallway length
     createRoom(room2Center, wallMat, floorMat, ceilingMat, roomArtworkMap['room2'], 6, 2);
 
-    // Portal back to Room 1 (Placed at the Z=-13 wall of Room 2)
+    // Portal from Hallway/Room 2 back to Room 1 (Placed at the Z=-23 wall of Room 2)
     createPortal(
-        new THREE.Vector3(0, 0, -13), // Corrected Z position
+        new THREE.Vector3(0, 0, -23), 
         'Room 1',
         'room1',
         Math.PI // 180 degree rotation
@@ -577,13 +604,13 @@ function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radiu
     ceiling.position.set(center.x, center.y + 2.75, center.z);
     scene.add(ceiling);
 
-    // Walls
+    // Walls (Only side walls are created in this circular room implementation)
     const wallDepth = 0.3;
     const walls = [
-        {pos: [center.x, center.y, center.z - size/2 + wallDepth/2], size: [size, height, wallDepth]},
-        {pos: [center.x, center.y, center.z + size/2 - wallDepth/2], size: [size, height, wallDepth]},
-        {pos: [center.x - size/2 + wallDepth/2, center.y, center.z], size: [wallDepth, height, size]},
-        {pos: [center.x + size/2 - wallDepth/2, center.y, center.z], size: [wallDepth, height, size]}
+        {pos: [center.x, center.y, center.z - size/2 + wallDepth/2], size: [size, height, wallDepth]}, // Front Wall
+        {pos: [center.x, center.y, center.z + size/2 - wallDepth/2], size: [size, height, wallDepth]}, // Back Wall
+        {pos: [center.x - size/2 + wallDepth/2, center.y, center.z], size: [wallDepth, height, size]}, // Left Wall
+        {pos: [center.x + size/2 - wallDepth/2, center.y, center.z], size: [wallDepth, height, size]}  // Right Wall
     ];
     walls.forEach(w => {
         const wall = new THREE.Mesh(new THREE.BoxGeometry(...w.size), wallMat);
@@ -615,9 +642,10 @@ function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radiu
                 
                 if (planeHeight > maxHeight) { planeHeight = maxHeight; planeWidth = maxHeight * aspect; }
 
+                // SOLUTION: Increased emissive intensity for brighter art
                 const artMat = new THREE.MeshStandardMaterial({
                     map: tex, roughness: 0.4, metalness: 0,
-                    emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.2 
+                    emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 1.0 // Increased to 1.0
                 });
                 
                 // 1. Artwork Plane
@@ -710,7 +738,7 @@ function createPortal(position, targetName, targetRoom, rotationY) {
     // Position Archway
     archMesh.position.copy(portalMesh.position);
     archMesh.rotation.copy(portalMesh.rotation);
-    archMesh.position.z -= frameDepth / 2; // Adjust position so it's centered with the trigger
+    // archMesh.position.z -= frameDepth / 2; // Keep arch centered on the trigger box
     scene.add(archMesh);
 
     // 3. "ENTER" Text Indicator
@@ -907,14 +935,21 @@ function animate() {
             Math.pow(camPos.z - portalPos.z, 2)
         );
 
-        // Adjust for the portal trigger box depth
-        if (distance < 1.0) { 
+        // SOLUTION: Reduced the distance threshold for the portal trigger
+        if (distance < 0.7) { 
             const targetRoom = portal.userData.targetRoom;
             const targetPos = roomPositions[targetRoom];
             
-            // Offset the camera position to place the user inside the target room
-            const offset = (targetRoom === 'room1') ? 2 : -2;
-            camera.position.set(targetPos.x, targetPos.y, targetPos.z + offset);
+            // Offset the camera position to place the user inside the target room/hallway
+            // The position is now calculated based on the position of the arch, moving slightly through it.
+            const offset = (portalPos.z < camera.position.z) ? -1.0 : 1.0; 
+            
+            // For room 1 start: Z=5. For room 2 start: Z=-25.
+            if (portalPos.z === -7) { // Exit Room 1 (to hallway)
+                camera.position.set(0, 1.6, -6.5); // Move to start of hallway
+            } else if (portalPos.z === -23) { // Exit Room 2 (to hallway)
+                camera.position.set(0, 1.6, -23.5); // Move to start of hallway
+            }
         }
     });
 
