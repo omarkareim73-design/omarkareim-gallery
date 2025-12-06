@@ -370,10 +370,8 @@ let joystickVector = { x: 0, y: 0 };
 const numRooms = 3;
 const ROOM_WIDTH = 10;
 const ROOM_HEIGHT = 6;
-const ROOM_DEPTH = 15; // Shorter rooms
-const GAP_SIZE = 5;    // Space between rooms (where the arch is)
-const WALL_THICKNESS = 0.5;
-
+const ART_SPACING = 6; // Distance between artwork placements
+const DOOR_WIDTH = 4; // Width of the Archway opening
 
 vrBtn.onclick = initVR;
 exitBtn.onclick = () => {
@@ -391,8 +389,9 @@ function initVR() {
     scene.fog = new THREE.FogExp2(0x050505, 0.03); 
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-    // Start position (front of room 1)
-    camera.position.set(0, 1.7, (ROOM_DEPTH / 2) + WALL_THICKNESS + 0.5); 
+    // Start position: in Room 1, just past the entrance wall
+    camera.position.set(0, 1.7, 9); 
+    camera.position.y = 1.7; // FIX: Ensure height is fixed
 
     renderer = new THREE.WebGLRenderer({canvas, antialias: true});
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -414,10 +413,35 @@ function initVR() {
         color: 0xffd700, metalness: 0.8, roughness: 0.2, envMapIntensity: 1
     });
 
-    // 3. Build Rooms (Now uses open chambers)
-    for (let r = 0; r < numRooms; r++) {
-        createRoom(r, wallMat, floorMat, goldMat);
+    // 3. Build Rooms (Using a consistent Z-length for the gallery path)
+    const galleryLength = ART_SPACING * (artworkData.length + 1); // Total length needed for all art + spacing
+    
+    // Create the entire gallery structure as a long corridor
+    createCorridor(galleryLength, wallMat, floorMat);
+    
+    // Add archways at specific points (where art is not placed)
+    const totalArtPositions = artworkData.length;
+    const artPerRoom = Math.ceil(totalArtPositions / numRooms);
+    
+    for (let r = 0; r < numRooms - 1; r++) {
+        // Find the Z position that separates the rooms
+        const separationIndex = (r + 1) * artPerRoom;
+        const archZ = 9 - (separationIndex * ART_SPACING); // Start Z (9) minus total offset
+        createArchway(archZ + ART_SPACING/2, goldMat);
     }
+    
+    // Add entrance wall
+    const entranceWallGeo = new THREE.BoxGeometry(ROOM_WIDTH, ROOM_HEIGHT, 0.5);
+    const entranceWall = new THREE.Mesh(entranceWallGeo, wallMat);
+    entranceWall.position.set(0, ROOM_HEIGHT/2, 9.5); 
+    scene.add(entranceWall);
+    
+    // Add end wall
+    const endZ = 9 - galleryLength - 0.5;
+    const endWall = new THREE.Mesh(entranceWallGeo, wallMat);
+    endWall.position.set(0, ROOM_HEIGHT/2, endZ); 
+    scene.add(endWall);
+
 
     // 4. Lighting
     const ambient = new THREE.AmbientLight(0xffffff, 0.3);
@@ -435,105 +459,94 @@ function initVR() {
 
 // --- Procedural Geometry Functions ---
 
-function createRoom(r, wallMat, floorMat, goldMat) {
-    const zCenter = -r * (ROOM_DEPTH + GAP_SIZE); 
-    const zFront = zCenter + ROOM_DEPTH/2; 
-    const zBack = zCenter - ROOM_DEPTH/2;  
-
+function createCorridor(length, wallMat, floorMat) {
+    const centerZ = 9 - length/2;
+    
     // --- 1. Floor and Ceiling ---
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_WIDTH, ROOM_DEPTH), floorMat);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_WIDTH, length), floorMat);
     floor.rotation.x = -Math.PI / 2;
-    floor.position.set(0, 0, zCenter);
+    floor.position.set(0, 0, centerZ);
     floor.receiveShadow = true;
     scene.add(floor);
 
-    const ceil = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_WIDTH, ROOM_DEPTH), wallMat);
+    const ceil = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_WIDTH, length), wallMat);
     ceil.rotation.x = Math.PI / 2;
-    ceil.position.set(0, ROOM_HEIGHT, zCenter);
+    ceil.position.set(0, ROOM_HEIGHT, centerZ);
     scene.add(ceil);
 
     // --- 2. Side Walls ---
-    const sideWallGeo = new THREE.BoxGeometry(WALL_THICKNESS, ROOM_HEIGHT, ROOM_DEPTH);
+    const sideWallGeo = new THREE.BoxGeometry(0.5, ROOM_HEIGHT, length);
     
     const leftWall = new THREE.Mesh(sideWallGeo, wallMat);
-    leftWall.position.set(-(ROOM_WIDTH/2), ROOM_HEIGHT/2, zCenter);
+    leftWall.position.set(-(ROOM_WIDTH/2), ROOM_HEIGHT/2, centerZ);
     leftWall.castShadow = true; leftWall.receiveShadow = true;
     scene.add(leftWall);
 
     const rightWall = new THREE.Mesh(sideWallGeo, wallMat);
-    rightWall.position.set((ROOM_WIDTH/2), ROOM_HEIGHT/2, zCenter);
+    rightWall.position.set((ROOM_WIDTH/2), ROOM_HEIGHT/2, centerZ);
     rightWall.castShadow = true; rightWall.receiveShadow = true;
     scene.add(rightWall);
-    
-    // --- 3. Doorways (Walls between rooms) ---
-    if (r < numRooms - 1) {
-        // Create the dividing wall space in the gap
-        const dividerZ = zBack - GAP_SIZE/2;
-        const wallDepth = 0.5; // Thin wall
-
-        // Create two solid blocks on the left and right sides of the arch opening
-        const sideBlockW = (ROOM_WIDTH - 4) / 2; // Opening is 4m wide
-        const blockGeo = new THREE.BoxGeometry(sideBlockW, ROOM_HEIGHT, wallDepth);
-
-        const leftBlock = new THREE.Mesh(blockGeo, wallMat);
-        leftBlock.position.set(-(ROOM_WIDTH/2 - sideBlockW/2), ROOM_HEIGHT/2, dividerZ);
-        scene.add(leftBlock);
-
-        const rightBlock = new THREE.Mesh(blockGeo, wallMat);
-        rightBlock.position.set((ROOM_WIDTH/2 - sideBlockW/2), ROOM_HEIGHT/2, dividerZ);
-        scene.add(rightBlock);
-        
-        // Add Archway
-        createArchway(dividerZ + wallDepth/2, goldMat); 
-    } 
-    
-    // --- 4. End Wall (Only for the very last room) ---
-    if (r === numRooms - 1) { 
-         const endGeo = new THREE.BoxGeometry(ROOM_WIDTH, ROOM_HEIGHT, WALL_THICKNESS);
-         const endWall = new THREE.Mesh(endGeo, wallMat);
-         endWall.position.set(0, ROOM_HEIGHT/2, zBack - WALL_THICKNESS/2);
-         scene.add(endWall);
-    }
 }
+
 
 function createArchway(zPos, goldMat) {
     const archHeight = 4.5; 
-    const archWidth = 4;   
-    const archDepth = 0.3; // Thickness of the decorative arch frame
+    const archWidth = DOOR_WIDTH;   
+    const archDepth = 0.3; 
+    const wallDepth = 0.5; // Thickness of the full dividing wall
+    
+    // --- 1. Full Dividing Wall Geometry (without hole yet) ---
+    // This is needed for collision and context
+    const dividerWallGeo = new THREE.BoxGeometry(ROOM_WIDTH, ROOM_HEIGHT, wallDepth);
+    const dividerWall = new THREE.Mesh(dividerWallGeo, goldMat);
+    dividerWall.position.set(0, ROOM_HEIGHT/2, zPos);
+    
+    // Using CSG library for subtraction is more reliable, but for simplicity here, we'll use solid frame walls:
+    
+    // Side blocks next to arch
+    const sideBlockW = (ROOM_WIDTH - archWidth) / 2;
+    const blockGeo = new THREE.BoxGeometry(sideBlockW, ROOM_HEIGHT, wallDepth + 0.1);
 
-    // --- 1. Main Arch Geometry (Ornate Pointed Shape) ---
+    const leftBlock = new THREE.Mesh(blockGeo, goldMat);
+    leftBlock.position.set(-(ROOM_WIDTH/2) + sideBlockW/2, ROOM_HEIGHT/2, zPos);
+    scene.add(leftBlock);
+
+    const rightBlock = new THREE.Mesh(blockGeo, goldMat);
+    rightBlock.position.set((ROOM_WIDTH/2) - sideBlockW/2, ROOM_HEIGHT/2, zPos);
+    scene.add(rightBlock);
+    
+    // --- 2. Decorative Arch Frame (on top) ---
     const shape = new THREE.Shape();
     
-    const outerPointHeight = archHeight + 1.8;
-    const outerPointWidth = (archWidth / 2) + 1.2;
-    const pillarWidth = 0.6;
+    const outerPointHeight = archHeight + 0.8;
+    const outerPointWidth = (archWidth / 2) + 0.5;
     
-    // Outer boundary (complex shape)
-    shape.moveTo(-outerPointWidth, 0); // Start bottom left
-    shape.lineTo(-outerPointWidth, archHeight); // Side up to arch base
+    // Outer boundary 
+    shape.moveTo(-outerPointWidth, 0); 
+    shape.lineTo(-outerPointWidth, archHeight); 
     
     // Left side curve (approximates the point)
     shape.bezierCurveTo(
-        -outerPointWidth, archHeight + 1.0, 
-        -pillarWidth * 1.5, outerPointHeight - 0.5, 
-        0, outerPointHeight // The sharp point
+        -outerPointWidth, archHeight + 0.5, 
+        -0.5, outerPointHeight - 0.2, 
+        0, outerPointHeight 
     );
     
     // Right side curve
     shape.bezierCurveTo(
-        pillarWidth * 1.5, outerPointHeight - 0.5, 
-        outerPointWidth, archHeight + 1.0, 
-        outerPointWidth, archHeight // Side down to arch base
+        0.5, outerPointHeight - 0.2, 
+        outerPointWidth, archHeight + 0.5, 
+        outerPointWidth, archHeight 
     );
 
-    shape.lineTo(outerPointWidth, 0); // Bottom right
+    shape.lineTo(outerPointWidth, 0); 
     
-    // Inner Hole
+    // Inner Hole (the empty space for the door)
     const holePath = new THREE.Path();
     holePath.moveTo(-archWidth/2, 0);
-    holePath.lineTo(archWidth/2, 0);
-    holePath.lineTo(archWidth/2, archHeight);
     holePath.lineTo(-archWidth/2, archHeight);
+    holePath.lineTo(archWidth/2, archHeight);
+    holePath.lineTo(archWidth/2, 0);
     shape.holes.push(holePath);
 
     const extrudeSettings = { depth: archDepth, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.08, bevelThickness: 0.1 };
@@ -541,21 +554,9 @@ function createArchway(zPos, goldMat) {
     const archGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
     const archMesh = new THREE.Mesh(archGeo, goldMat);
     
-    archMesh.position.set(0, 0, zPos - archDepth/2); 
+    archMesh.position.set(0, 0, zPos + wallDepth/2 - archDepth/2); 
     archMesh.castShadow = true;
     scene.add(archMesh);
-    
-    // --- 2. Simplified Decorative Base Pillars ---
-    const pillarGeo = new THREE.BoxGeometry(pillarWidth, 1.5, archDepth + 0.1);
-    const pillarZ = zPos - archDepth/2; 
-
-    const leftPillar = new THREE.Mesh(pillarGeo, goldMat);
-    leftPillar.position.set(-archWidth/2 - pillarWidth, 0.75, pillarZ);
-    scene.add(leftPillar);
-    
-    const rightPillar = new THREE.Mesh(pillarGeo, goldMat);
-    rightPillar.position.set(archWidth/2 + pillarWidth, 0.75, pillarZ);
-    scene.add(rightPillar);
 }
 
 function placeArtworksAndSconces() {
@@ -565,40 +566,30 @@ function placeArtworksAndSconces() {
     const stickMat = new THREE.MeshStandardMaterial({color: 0x333333});
     const bulbMat = new THREE.MeshBasicMaterial({color: 0xffaa00});
 
-    const artCount = artworkData.length;
-    const artPerRoom = Math.ceil(artCount / numRooms);
-    const artSpacing = ROOM_DEPTH / (artPerRoom + 1); 
-    
-    let currentArtInRoom = 0;
+    let currentZ = 6; // Start position Z (9 - ART_SPACING/2)
 
     artworkData.forEach((art, i) => {
-        const roomIndex = Math.floor(i / artPerRoom); 
-        
-        const roomStart = -roomIndex * (ROOM_DEPTH + GAP_SIZE); 
-
-        if (i > 0 && i % artPerRoom === 0) {
-            currentArtInRoom = 0;
-        }
-
-        const zOffset = ROOM_DEPTH/2 - (artSpacing * (currentArtInRoom + 1));
-        const zPos = roomStart + zOffset; 
-        
-        currentArtInRoom++;
-
+        // Determine side: Even = Left, Odd = Right
         const isLeft = i % 2 === 0;
         const xPos = isLeft ? -ROOM_WIDTH/2 + 0.2 : ROOM_WIDTH/2 - 0.2;
         
+        const zPos = currentZ;
+
         // 1. The Painting
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.src = art.file;
-        img.onerror = () => img.src = art.fallback;
+        img.onerror = () => {
+             // Use fallback if main image fails
+             img.src = art.fallback; 
+        };
         img.onload = () => {
             const aspect = img.width / img.height;
             const h = 2.5; 
             const w = h * aspect;
             
-            const tex = new THREE.TextureLoader().load(art.file);
+            // Texture loading MUST be inside onload or use TextureLoader
+            const tex = new THREE.TextureLoader().load(img.src); 
             tex.colorSpace = THREE.SRGBColorSpace;
             
             const artMat = new THREE.MeshStandardMaterial({
@@ -611,7 +602,7 @@ function placeArtworksAndSconces() {
             plane.rotation.y = isLeft ? Math.PI/2 : -Math.PI/2;
             plane.userData = { idx: i, clickable: true };
             scene.add(plane);
-            clickables.push(plane);
+            clickables.push(plane); // Add to raycast list
 
             // Frame
             const frame = new THREE.Mesh(
@@ -646,6 +637,9 @@ function placeArtworksAndSconces() {
         const light = new THREE.PointLight(0xffaa00, 1, 8);
         light.position.set(0, 0.5, 0);
         bulb.add(light);
+        
+        // Advance Z for next artwork placement
+        currentZ -= ART_SPACING; 
     });
 }
 
@@ -674,8 +668,8 @@ function createTexture(type) {
     
     const tex = new THREE.CanvasTexture(cvs);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    if(type === 'stone') tex.repeat.set(4, 3);
-    if(type === 'floor') tex.repeat.set(4, 4);
+    if(type === 'stone') tex.repeat.set(4, 20); // Longer texture repeat for the long corridor
+    if(type === 'floor') tex.repeat.set(4, 20); // Longer texture repeat for the long corridor
     return tex;
 }
 
@@ -720,18 +714,19 @@ function setupControls() {
         }
     });
 
-    // Art Click / Raycasting (Clicking works even if mouse is down, but we only want a single click)
+    // Art Click / Raycasting (Clicking works even if mouse is down)
     canvas.addEventListener('click', (e) => {
-        // Only run raycast if we didn't just move the camera a lot
-        const ray = new THREE.Raycaster();
-        // Use normalized device coordinates for the click position (center of screen for simple gallery)
-        ray.setFromCamera({x:0, y:0}, camera); 
+        if (!isMouseDown) { // Only raycast if the mouse wasn't just used to look (to prevent accidental clicks)
+            const ray = new THREE.Raycaster();
+            // Use normalized device coordinates for the click position (center of screen for simple gallery)
+            ray.setFromCamera({x:0, y:0}, camera); 
 
-        const hits = ray.intersectObjects(clickables);
-        if(hits.length > 0 && hits[0].object.userData.clickable) {
-            const idx = hits[0].object.userData.idx;
-            vrGallery.classList.remove('active');
-            openLightbox(idx);
+            const hits = ray.intersectObjects(clickables);
+            if(hits.length > 0 && hits[0].object.userData.clickable) {
+                const idx = hits[0].object.userData.idx;
+                vrGallery.classList.remove('active');
+                openLightbox(idx);
+            }
         }
     });
     
@@ -825,12 +820,13 @@ function animate() {
     camera.translateZ(-velocity.z * delta);
 
     // Collision (Bounding Box)
-    const maxZ = (ROOM_DEPTH / 2) + WALL_THICKNESS + 0.5;
-    const minZ = -((ROOM_DEPTH + GAP_SIZE) * numRooms) + (ROOM_DEPTH / 2) - WALL_THICKNESS - 0.5;
+    const maxZ = 9; 
+    const minZ = 9 - (ART_SPACING * artworkData.length) - 3; // Approx length
+    const maxR = ROOM_WIDTH/2 - 1; // 1m buffer from side walls
 
     // Side Bounds
-    if(camera.position.x < -(ROOM_WIDTH/2 - 1)) camera.position.x = -(ROOM_WIDTH/2 - 1);
-    if(camera.position.x > (ROOM_WIDTH/2 - 1)) camera.position.x = (ROOM_WIDTH/2 - 1);
+    if(camera.position.x < -maxR) camera.position.x = -maxR;
+    if(camera.position.x > maxR) camera.position.x = maxR;
     
     // Front/Back Bounds
     if(camera.position.z > maxZ) camera.position.z = maxZ;
