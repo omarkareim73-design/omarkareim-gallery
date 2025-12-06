@@ -185,7 +185,7 @@
 
 <div class="vr-gallery" id="vrGallery">
     <button class="vr-exit" id="exitVR">EXIT GALLERY</button>
-    <div class="vr-instructions">PC: WASD to Walk, **Hold Left Click to Look**<br>Mobile: Left Joystick to Walk, Swipe Right side to Look</div>
+    <div class="vr-instructions">PC: WASD to Walk, **Hold Left Click to Look**. Click Art to Expand.<br>Mobile: Left Joystick to Walk, Swipe Right side to Look. Tap Art to Expand.</div>
     
     <div id="joystick-zone">
         <div class="joystick-base">
@@ -199,51 +199,42 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
 <script>
 /* =========================================
-   ARTWORK DATA (Expandable up to 30)
+   ARTWORK DATA 
    ========================================= */
 const artworkData = [
-    // --- ROOM 1 ---
+    // --- ROOM 1 ART (Indices 0-4) ---
     { file: 'images/artwork1.webp', fallback: 'images/artwork1.png', title: 'Axis Mundi', medium: 'Acrylic on Canvas', date: '2025', description: 'A sweeping exploration of human interconnectedness, belief, and belonging.' },
     { file: 'images/artwork2.webp', fallback: 'images/artwork2.png', title: 'Axis Mundi (Detail)', medium: 'Acrylic on Canvas', date: '2025', description: '' },
     { file: 'images/artwork3.webp', fallback: 'images/artwork3.png', title: 'El Dorado', medium: 'Acrylic on Canvas', date: '2025', description: '' },
     { file: 'images/artwork4.webp', fallback: 'images/artwork4.png', title: 'El Dorado (Portrait)', medium: 'Acrylic on Canvas', date: '2025', description: 'A dynamic fusion of classical form and contemporary iconography, reimagining Lionel Messi.' },
-    
-    // --- ROOM 2 ---
     { file: 'images/artwork5.webp', fallback: 'images/artwork5.png', title: 'Mjolnir: Forge of Resilience', medium: 'Acrylic and Ink', date: '2023', description: 'Echoing the mythical hammer of Thor, this intricate work embodies resilience.' },
+    
+    // --- ROOM 2 ART (Indices 5-9) ---
+    { file: 'images/artwork6.webp', fallback: 'images/artwork6.png', title: 'Stargate', medium: 'Acrylic on Canvas', date: '2012', description: 'An evocative abstract meditation on transition and possibility.' },
+    { file: 'images/artwork7.webp', fallback: 'images/artwork7.png', title: 'Stargate (Detail)', medium: 'Acrylic on Canvas', date: '2012', description: '' },
     { file: 'images/artwork8.webp', fallback: 'images/artwork8.png', title: 'φ (Phi)', medium: 'Acrylic on Canvas', date: '2025', description: 'φ explores the meeting point between human motion and mathematical harmony.' },
     { file: 'images/artwork9.webp', fallback: 'images/artwork9.png', title: 'Invocation to Rise', medium: 'Acrylic on Canvas', date: '2025', description: 'Concentric bands and runic text encircle a gold plane.' },
-    { file: 'images/artwork6.webp', fallback: 'images/artwork6.png', title: 'Stargate', medium: 'Acrylic on Canvas', date: '2012', description: 'An evocative abstract meditation on transition and possibility.' },
-    
-    // --- ROOM 3 ---
-    { file: 'images/artwork7.webp', fallback: 'images/artwork7.png', title: 'Stargate (Detail)', medium: 'Acrylic on Canvas', date: '2012', description: '' },
     { file: 'images/artwork10.webp', fallback: 'images/artwork10.png', title: 'Faded', medium: 'Acrylic on Canvas', date: '2025', description: 'Beneath the surface of Faded lies the ghost of a biomechanical figure.' },
-
-    /* FUTURE ADDITIONS (Uncomment to use)
-    // { file: 'images/artwork11.webp', fallback: 'images/artwork11.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork12.webp', fallback: 'images/artwork12.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork13.webp', fallback: 'images/artwork13.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork14.webp', fallback: 'images/artwork14.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork15.webp', fallback: 'images/artwork15.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork16.webp', fallback: 'images/artwork16.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork17.webp', fallback: 'images/artwork17.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork18.webp', fallback: 'images/artwork18.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork19.webp', fallback: 'images/artwork19.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork20.webp', fallback: 'images/artwork20.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork21.webp', fallback: 'images/artwork21.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork22.webp', fallback: 'images/artwork22.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork23.webp', fallback: 'images/artwork23.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork24.webp', fallback: 'images/artwork24.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork25.webp', fallback: 'images/artwork25.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork26.webp', fallback: 'images/artwork26.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork27.webp', fallback: 'images/artwork27.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork28.webp', fallback: 'images/artwork28.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork29.webp', fallback: 'images/artwork29.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    // { file: 'images/artwork30.webp', fallback: 'images/artwork30.png', title: 'Title', medium: 'Medium', date: '2025', description: '...' },
-    */
 ];
 
+// Stores the start position for each room
+const roomPositions = {
+    'room1': {x: 0, y: 1.6, z: 5},
+    'room2': {x: 0, y: 1.6, z: -15} // Z-axis offset for the second room
+};
+
+// Data for portals (clickable objects for room transition)
+const portals = [];
+
+// The index range of artwork for each room (must match artworkData indices)
+const roomArtworkMap = {
+    'room1': [0, 1, 2, 3, 4], // First 5 artworks in room 1
+    'room2': [5, 6, 7, 8, 9]  // Last 5 artworks in room 2
+}
+
+
 /* =========================================
-   2D GALLERY BUILDER
+   2D GALLERY & LIGHTBOX (Functions)
    ========================================= */
 const grid = document.getElementById('galleryGrid');
 artworkData.forEach((art, i) => {
@@ -266,9 +257,7 @@ artworkData.forEach((art, i) => {
     grid.appendChild(item);
 });
 
-/* =========================================
-   LIGHTBOX LOGIC (Updated to include navigation)
-   ========================================= */
+
 let currentLightboxIndex = 0;
 const lightbox = document.getElementById('lightbox');
 const lbImg = document.getElementById('lightboxImg');
@@ -337,7 +326,7 @@ lightbox.addEventListener('touchend', e => {
 });
 
 /* =========================================
-   SCROLL INTERACTION
+   SCROLL INTERACTION (Unchanged)
    ========================================= */
 const fadeSections = document.querySelectorAll('.section-fade');
 const fadeObserver = new IntersectionObserver((entries) => {
@@ -350,6 +339,7 @@ const fadeObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.2 });
 fadeSections.forEach(s => fadeObserver.observe(s));
 
+
 /* =========================================
    VR GALLERY (THREE.JS)
    ========================================= */
@@ -361,322 +351,293 @@ const canvas = document.getElementById('vrCanvas');
 let scene, camera, renderer, clock;
 let clickables = []; 
 let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
-let isMouseDown = false; // New flag for click-to-look
+let isMouseDown = false; 
 let velocity = new THREE.Vector3();
 let direction = new THREE.Vector3();
 let joystickVector = { x: 0, y: 0 };
+let isPointerDown = false; // NEW FLAG for raycasting on click
+const mouse = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
 
-// Config for Rooms
-const numRooms = 3;
-const ROOM_WIDTH = 10;
-const ROOM_HEIGHT = 6;
-const ART_SPACING = 6; // Distance between artwork placements
-const DOOR_WIDTH = 4; // Width of the Archway opening
 
-vrBtn.onclick = initVR;
+vrBtn.onclick = () => initVR('room1'); // Start in Room 1
 exitBtn.onclick = () => {
     vrGallery.classList.remove('active');
     document.body.style.overflow = '';
 };
 
-function initVR() {
+function initVR(startRoom) {
     vrGallery.classList.add('active');
     document.body.style.overflow = 'hidden';
+    clickables.length = 0; // Clear clickables list
 
-    // 1. Setup
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x050505);
-    scene.fog = new THREE.FogExp2(0x050505, 0.03); 
+    // 1. Setup (Only once)
+    if (!scene) {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050505);
+        scene.fog = new THREE.FogExp2(0x050505, 0.03); 
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-    // Start position: in Room 1, just past the entrance wall
-    camera.position.set(0, 1.7, 9); 
-    camera.position.y = 1.7; // FIX: Ensure height is fixed
-
-    renderer = new THREE.WebGLRenderer({canvas, antialias: true});
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    // 2. Textures (Procedural)
-    const stoneTex = createTexture('stone');
-    const goldTex = createTexture('gold');
-    const floorTex = createTexture('floor');
-
-    const wallMat = new THREE.MeshStandardMaterial({
-        map: stoneTex, roughness: 0.9, bumpMap: stoneTex, bumpScale: 0.2, color: 0x444444
-    });
-    const floorMat = new THREE.MeshStandardMaterial({
-        map: floorTex, roughness: 0.8, color: 0x222222
-    });
-    const goldMat = new THREE.MeshStandardMaterial({
-        color: 0xffd700, metalness: 0.8, roughness: 0.2, envMapIntensity: 1
-    });
-
-    // 3. Build Rooms (Using a consistent Z-length for the gallery path)
-    const galleryLength = ART_SPACING * (artworkData.length + 1); // Total length needed for all art + spacing
-    
-    // Create the entire gallery structure as a long corridor
-    createCorridor(galleryLength, wallMat, floorMat);
-    
-    // Add archways at specific points (where art is not placed)
-    const totalArtPositions = artworkData.length;
-    const artPerRoom = Math.ceil(totalArtPositions / numRooms);
-    
-    for (let r = 0; r < numRooms - 1; r++) {
-        // Find the Z position that separates the rooms
-        const separationIndex = (r + 1) * artPerRoom;
-        const archZ = 9 - (separationIndex * ART_SPACING); // Start Z (9) minus total offset
-        createArchway(archZ + ART_SPACING/2, goldMat);
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        
+        renderer = new THREE.WebGLRenderer({canvas, antialias: true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        
+        // Add basic lighting (These are global and stay)
+        const ambient = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambient);
+        
+        setupControls();
+        setupJoystick();
+        clock = new THREE.Clock();
+        animate();
     }
     
-    // Add entrance wall
-    const entranceWallGeo = new THREE.BoxGeometry(ROOM_WIDTH, ROOM_HEIGHT, 0.5);
-    const entranceWall = new THREE.Mesh(entranceWallGeo, wallMat);
-    entranceWall.position.set(0, ROOM_HEIGHT/2, 9.5); 
-    scene.add(entranceWall);
-    
-    // Add end wall
-    const endZ = 9 - galleryLength - 0.5;
-    const endWall = new THREE.Mesh(entranceWallGeo, wallMat);
-    endWall.position.set(0, ROOM_HEIGHT/2, endZ); 
-    scene.add(endWall);
+    clearSceneMeshes(); // Remove previous rooms/portals
+    buildGallery();
 
-
-    // 4. Lighting
-    const ambient = new THREE.AmbientLight(0xffffff, 0.3);
-    scene.add(ambient);
-
-    // 5. Place Artworks & Sconces
-    placeArtworksAndSconces();
-
-    // 6. Controls
-    clock = new THREE.Clock();
-    setupControls();
-    setupJoystick();
-    animate();
+    // Set camera start position
+    const startPos = roomPositions[startRoom];
+    camera.position.set(startPos.x, startPos.y, startPos.z); 
+    camera.rotation.y = 0; // Reset rotation for fresh start
 }
 
-// --- Procedural Geometry Functions ---
+function clearSceneMeshes() {
+    // Collect all objects *except* the camera and the initial ambient light
+    const objectsToRemove = scene.children.filter(obj => 
+        obj !== camera && !(obj instanceof THREE.AmbientLight)
+    );
+    objectsToRemove.forEach(obj => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+            if (Array.isArray(obj.material)) {
+                obj.material.forEach(m => m.dispose());
+            } else {
+                obj.material.dispose();
+            }
+        }
+        scene.remove(obj);
+    });
+    // Clear dynamic arrays
+    portals.length = 0; 
+    clickables.length = 0; 
+}
 
-function createCorridor(length, wallMat, floorMat) {
-    const centerZ = 9 - length/2;
+
+function buildGallery() {
+    // --- Shared Materials/Geometries ---
+    const wallMat = new THREE.MeshStandardMaterial({color: 0x222222, roughness: 0.9});
     
-    // --- 1. Floor and Ceiling ---
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_WIDTH, length), floorMat);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.set(0, 0, centerZ);
+    const floorTex = createTexture('floor');
+    floorTex.repeat.set(4, 4); // Smaller repeat for floor
+
+    const floorMat = new THREE.MeshStandardMaterial({map: floorTex, roughness: 0.8, color: 0x111111});
+    const ceilingMat = new THREE.MeshStandardMaterial({color: 0x333333, roughness: 0.9});
+    const portalMat = new THREE.MeshBasicMaterial({color: 0xDAB832, transparent: true, opacity: 0.7}); 
+    
+    const spotlight = new THREE.SpotLight(0xffffff, 4, 15, Math.PI/4, 0.5, 2);
+    spotlight.position.set(0, 5, 0);
+    scene.add(spotlight);
+
+    // --- ROOM 1 (Circular Layout at Z=0) ---
+    const room1Center = new THREE.Vector3(0, 2.75, 0);
+    createRoom(room1Center, wallMat, floorMat, ceilingMat, roomArtworkMap['room1'], 6, 1);
+    
+    // Portal to Room 2
+    createPortal(
+        new THREE.Vector3(0, 0, -6), 
+        portalMat,
+        'room2',
+        0 // Rotation
+    );
+
+    // --- ROOM 2 (Circular Layout at Z=-20) ---
+    const room2Center = new THREE.Vector3(0, 2.75, -20);
+    createRoom(room2Center, wallMat, floorMat, ceilingMat, roomArtworkMap['room2'], 6, 2);
+
+    // Portal back to Room 1
+    createPortal(
+        new THREE.Vector3(0, 0, -14), 
+        portalMat,
+        'room1',
+        Math.PI // 180 degree rotation
+    );
+}
+
+// Reusable function to create a room and its artwork
+function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radius, roomID) {
+    const size = 14;
+    const height = 5.5;
+
+    // Floor
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(size, size), floorMat);
+    floor.rotation.x = -Math.PI/2;
+    floor.position.set(center.x, center.y - 2.75, center.z);
     floor.receiveShadow = true;
     scene.add(floor);
 
-    const ceil = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_WIDTH, length), wallMat);
-    ceil.rotation.x = Math.PI / 2;
-    ceil.position.set(0, ROOM_HEIGHT, centerZ);
-    scene.add(ceil);
+    // Ceiling
+    const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(size, size), ceilingMat);
+    ceiling.rotation.x = Math.PI/2;
+    ceiling.position.set(center.x, center.y + 2.75, center.z);
+    scene.add(ceiling);
 
-    // --- 2. Side Walls ---
-    const sideWallGeo = new THREE.BoxGeometry(0.5, ROOM_HEIGHT, length);
-    
-    const leftWall = new THREE.Mesh(sideWallGeo, wallMat);
-    leftWall.position.set(-(ROOM_WIDTH/2), ROOM_HEIGHT/2, centerZ);
-    leftWall.castShadow = true; leftWall.receiveShadow = true;
-    scene.add(leftWall);
+    // Walls
+    const wallDepth = 0.3;
+    const walls = [
+        // Back Wall
+        {pos: [center.x, center.y, center.z - size/2 + wallDepth/2], size: [size, height, wallDepth]},
+        // Front Wall (for entrance/exit)
+        {pos: [center.x, center.y, center.z + size/2 - wallDepth/2], size: [size, height, wallDepth]},
+        // Left Wall
+        {pos: [center.x - size/2 + wallDepth/2, center.y, center.z], size: [wallDepth, height, size]},
+        // Right Wall
+        {pos: [center.x + size/2 - wallDepth/2, center.y, center.z], size: [wallDepth, height, size]}
+    ];
+    walls.forEach(w => {
+        const wall = new THREE.Mesh(new THREE.BoxGeometry(...w.size), wallMat);
+        wall.position.set(...w.pos);
+        scene.add(wall);
+    });
 
-    const rightWall = new THREE.Mesh(sideWallGeo, wallMat);
-    rightWall.position.set((ROOM_WIDTH/2), ROOM_HEIGHT/2, centerZ);
-    rightWall.castShadow = true; rightWall.receiveShadow = true;
-    scene.add(rightWall);
-}
+    // Artwork Placement (Circular layout, relative to room center)
+    const count = artworkIndices.length;
+    const maxWidth = 3.5, maxHeight = 3.5;
+    const loader = new THREE.TextureLoader();
 
+    artworkIndices.forEach((artIndex, i) => {
+        const art = artworkData[artIndex];
+        const angle = (i / count) * Math.PI * 2;
+        const x = Math.sin(angle) * radius;
+        const z = Math.cos(angle) * radius;
+        const g = new THREE.Group();
 
-function createArchway(zPos, goldMat) {
-    const archHeight = 4.5; 
-    const archWidth = DOOR_WIDTH;   
-    const archDepth = 0.3; 
-    const wallDepth = 0.5; // Thickness of the full dividing wall
-    
-    // --- 1. Full Dividing Wall Geometry (without hole yet) ---
-    // This is needed for collision and context
-    const dividerWallGeo = new THREE.BoxGeometry(ROOM_WIDTH, ROOM_HEIGHT, wallDepth);
-    const dividerWall = new THREE.Mesh(dividerWallGeo, goldMat);
-    dividerWall.position.set(0, ROOM_HEIGHT/2, zPos);
-    
-    // Using CSG library for subtraction is more reliable, but for simplicity here, we'll use solid frame walls:
-    
-    // Side blocks next to arch
-    const sideBlockW = (ROOM_WIDTH - archWidth) / 2;
-    const blockGeo = new THREE.BoxGeometry(sideBlockW, ROOM_HEIGHT, wallDepth + 0.1);
+        // 1. Load the Texture
+        loader.load(
+            art.file,
+            // On Load success
+            (tex) => {
+                tex.colorSpace = THREE.SRGBColorSpace;
+                
+                // Calculate dimensions based on image aspect ratio
+                const img = tex.image;
+                const aspect = img.width / img.height;
+                let planeWidth = maxWidth;
+                let planeHeight = maxWidth / aspect;
+                
+                // Constraint to max height if needed
+                if (planeHeight > maxHeight) { planeHeight = maxHeight; planeWidth = maxHeight * aspect; }
 
-    const leftBlock = new THREE.Mesh(blockGeo, goldMat);
-    leftBlock.position.set(-(ROOM_WIDTH/2) + sideBlockW/2, ROOM_HEIGHT/2, zPos);
-    scene.add(leftBlock);
+                const artMat = new THREE.MeshStandardMaterial({
+                    map: tex, roughness: 0.4, metalness: 0,
+                    emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.2 
+                });
 
-    const rightBlock = new THREE.Mesh(blockGeo, goldMat);
-    rightBlock.position.set((ROOM_WIDTH/2) - sideBlockW/2, ROOM_HEIGHT/2, zPos);
-    scene.add(rightBlock);
-    
-    // --- 2. Decorative Arch Frame (on top) ---
-    const shape = new THREE.Shape();
-    
-    const outerPointHeight = archHeight + 0.8;
-    const outerPointWidth = (archWidth / 2) + 0.5;
-    
-    // Outer boundary 
-    shape.moveTo(-outerPointWidth, 0); 
-    shape.lineTo(-outerPointWidth, archHeight); 
-    
-    // Left side curve (approximates the point)
-    shape.bezierCurveTo(
-        -outerPointWidth, archHeight + 0.5, 
-        -0.5, outerPointHeight - 0.2, 
-        0, outerPointHeight 
-    );
-    
-    // Right side curve
-    shape.bezierCurveTo(
-        0.5, outerPointHeight - 0.2, 
-        outerPointWidth, archHeight + 0.5, 
-        outerPointWidth, archHeight 
-    );
+                const plane = new THREE.Mesh(new THREE.PlaneGeometry(planeWidth, planeHeight), artMat);
+                plane.position.z = 0.06;
+                plane.userData.idx = artIndex; // Global index for lightbox
+                plane.userData.clickable = true;
+                g.add(plane);
+                clickables.push(plane); 
 
-    shape.lineTo(outerPointWidth, 0); 
-    
-    // Inner Hole (the empty space for the door)
-    const holePath = new THREE.Path();
-    holePath.moveTo(-archWidth/2, 0);
-    holePath.lineTo(-archWidth/2, archHeight);
-    holePath.lineTo(archWidth/2, archHeight);
-    holePath.lineTo(archWidth/2, 0);
-    shape.holes.push(holePath);
+                // Frame
+                const frame = new THREE.Mesh(
+                    new THREE.BoxGeometry(planeWidth + 0.2, planeHeight + 0.2, 0.1),
+                    new THREE.MeshStandardMaterial({color: 0x000000})
+                );
+                g.add(frame);
+            },
+            undefined, 
+            (err) => {
+                console.error(`Error loading texture for art ${i}:`, art.file, err);
+                // Simple placeholder if image fails
+                const placeholder = new THREE.Mesh(
+                    new THREE.PlaneGeometry(3, 3),
+                    new THREE.MeshBasicMaterial({color: 0xff0000})
+                );
+                placeholder.position.z = 0.06;
+                g.add(placeholder);
+                
+            }
+        );
 
-    const extrudeSettings = { depth: archDepth, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.08, bevelThickness: 0.1 };
-    
-    const archGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-    const archMesh = new THREE.Mesh(archGeo, goldMat);
-    
-    archMesh.position.set(0, 0, zPos + wallDepth/2 - archDepth/2); 
-    archMesh.castShadow = true;
-    scene.add(archMesh);
-}
-
-function placeArtworksAndSconces() {
-    // Sconce Geometry (unchanged)
-    const sconceStick = new THREE.CylinderGeometry(0.1, 0.1, 0.5);
-    const sconceBulb = new THREE.SphereGeometry(0.2);
-    const stickMat = new THREE.MeshStandardMaterial({color: 0x333333});
-    const bulbMat = new THREE.MeshBasicMaterial({color: 0xffaa00});
-
-    let currentZ = 6; // Start position Z (9 - ART_SPACING/2)
-
-    artworkData.forEach((art, i) => {
-        // Determine side: Even = Left, Odd = Right
-        const isLeft = i % 2 === 0;
-        const xPos = isLeft ? -ROOM_WIDTH/2 + 0.2 : ROOM_WIDTH/2 - 0.2;
-        
-        const zPos = currentZ;
-
-        // 1. The Painting
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = art.file;
-        img.onerror = () => {
-             // Use fallback if main image fails
-             img.src = art.fallback; 
-        };
-        img.onload = () => {
-            const aspect = img.width / img.height;
-            const h = 2.5; 
-            const w = h * aspect;
-            
-            // Texture loading MUST be inside onload or use TextureLoader
-            const tex = new THREE.TextureLoader().load(img.src); 
-            tex.colorSpace = THREE.SRGBColorSpace;
-            
-            const artMat = new THREE.MeshStandardMaterial({
-                map: tex, roughness: 0.4, metalness: 0,
-                emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.2 
-            });
-
-            const plane = new THREE.Mesh(new THREE.PlaneGeometry(w, h), artMat);
-            plane.position.set(xPos, 2.5, zPos);
-            plane.rotation.y = isLeft ? Math.PI/2 : -Math.PI/2;
-            plane.userData = { idx: i, clickable: true };
-            scene.add(plane);
-            clickables.push(plane); // Add to raycast list
-
-            // Frame
-            const frame = new THREE.Mesh(
-                new THREE.BoxGeometry(w + 0.2, h + 0.2, 0.1),
-                new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.2})
-            );
-            frame.position.copy(plane.position);
-            frame.rotation.copy(plane.rotation);
-            frame.position.x += isLeft ? -0.06 : 0.06;
-            scene.add(frame);
-
-            // Spotlight specifically for this art
-            const spot = new THREE.SpotLight(0xffffff, 2);
-            spot.position.set(0, 5, zPos);
-            spot.target = plane;
-            spot.angle = 0.5;
-            spot.penumbra = 0.5;
-            scene.add(spot);
-            scene.add(spot.target);
-        };
-
-        // 2. The Sconce (Torch) nearby
-        const stick = new THREE.Mesh(sconceStick, stickMat);
-        const bulb = new THREE.Mesh(sconceBulb, bulbMat);
-        stick.rotation.z = isLeft ? -Math.PI/4 : Math.PI/4;
-        stick.position.set(isLeft ? xPos - 0.2 : xPos + 0.2, 3.5, zPos - 1.5); 
-        bulb.position.set(0, 0.5, 0); 
-        stick.add(bulb);
-        scene.add(stick);
-
-        // Torch Light
-        const light = new THREE.PointLight(0xffaa00, 1, 8);
-        light.position.set(0, 0.5, 0);
-        bulb.add(light);
-        
-        // Advance Z for next artwork placement
-        currentZ -= ART_SPACING; 
+        // Position artwork group relative to room center
+        g.position.set(center.x + x, center.y - 0.5, center.z + z);
+        g.lookAt(center.x, center.y - 0.5, center.z);
+        scene.add(g);
     });
 }
 
+function createPortal(position, material, targetRoom, rotationY) {
+    // Portal arch dimensions
+    const width = 4, height = 4.5;
+    
+    // Create arch shape
+    const shape = new THREE.Shape();
+    shape.moveTo(-width/2, 0);
+    shape.lineTo(-width/2, height);
+    shape.lineTo(width/2, height);
+    shape.lineTo(width/2, 0);
+
+    // Inner hole for the doorway
+    const holePath = new THREE.Path();
+    holePath.moveTo(-width/2 + 0.5, 0);
+    holePath.lineTo(-width/2 + 0.5, height - 0.5);
+    holePath.lineTo(width/2 - 0.5, height - 0.5);
+    holePath.lineTo(width/2 - 0.5, 0);
+    shape.holes.push(holePath);
+
+    const extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.1, bevelThickness: 0.1 };
+    
+    // Gold Archway Mesh
+    const archGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    const archMesh = new THREE.Mesh(archGeo, new THREE.MeshStandardMaterial({
+        color: 0xffd700, metalness: 0.8, roughness: 0.2
+    }));
+    
+    // Portal Trigger (Invisible Box)
+    const portalGeo = new THREE.BoxGeometry(width, height, 0.5); 
+    const portalMesh = new THREE.Mesh(portalGeo, new THREE.MeshBasicMaterial({
+        transparent: true, opacity: 0 // Invisible trigger box
+    }));
+    
+    portalMesh.position.set(position.x, position.y + height/2, position.z);
+    portalMesh.rotation.y = rotationY;
+    
+    portalMesh.userData.isPortal = true;
+    portalMesh.userData.targetRoom = targetRoom;
+    portals.push(portalMesh);
+    scene.add(portalMesh);
+
+    // Position Archway relative to the trigger
+    archMesh.position.copy(portalMesh.position);
+    archMesh.rotation.copy(portalMesh.rotation);
+    scene.add(archMesh);
+}
+
+
 function createTexture(type) {
     const cvs = document.createElement('canvas');
-    cvs.width = 256; cvs.height = 256;
+    cvs.width = 128; cvs.height = 128;
     const ctx = cvs.getContext('2d');
     
-    if (type === 'stone') {
-        ctx.fillStyle = '#333'; ctx.fillRect(0,0,256,256);
-        for(let i=0; i<4000; i++){
-            ctx.fillStyle = Math.random()>0.5 ? '#444' : '#222';
-            ctx.fillRect(Math.random()*256, Math.random()*256, 4, 2);
-        }
-    } else if (type === 'gold') {
-        ctx.fillStyle = '#daa520'; ctx.fillRect(0,0,256,256);
-        for(let i=0; i<5000; i++){
-            ctx.fillStyle = Math.random()>0.5 ? '#f4e4c1' : '#a07a16';
-            ctx.fillRect(Math.random()*256, Math.random()*256, 1, 1);
-        }
-    } else { // floor
-        ctx.fillStyle = '#111'; ctx.fillRect(0,0,256,256);
+    if (type === 'floor') {
+        ctx.fillStyle = '#111'; ctx.fillRect(0,0,128,128);
         ctx.strokeStyle = '#333'; ctx.lineWidth=2;
-        ctx.strokeRect(0,0,256,256); 
-    }
+        ctx.strokeRect(0,0,128,128); 
+    } 
+    // This is simple. You can enhance it with stone or gold effects later.
     
     const tex = new THREE.CanvasTexture(cvs);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    if(type === 'stone') tex.repeat.set(4, 20); // Longer texture repeat for the long corridor
-    if(type === 'floor') tex.repeat.set(4, 20); // Longer texture repeat for the long corridor
     return tex;
 }
 
 // --- Movement & Input Logic ---
 
 function setupControls() {
-    // Keyboard Movement
+    // Keyboard Movement (WASD/Arrows)
     document.addEventListener('keydown', (e) => {
         switch(e.code) {
             case 'ArrowUp': case 'KeyW': moveForward = true; break;
@@ -696,8 +657,9 @@ function setupControls() {
 
     // Mouse Look (PC - ONLY when left button is pressed)
     canvas.addEventListener('mousedown', (e) => {
-        if (e.button === 0) { // Left mouse button
+        if (e.button === 0) { 
             isMouseDown = true;
+            e.preventDefault(); 
         }
     });
     canvas.addEventListener('mouseup', (e) => {
@@ -714,38 +676,33 @@ function setupControls() {
         }
     });
 
-    // Art Click / Raycasting (Clicking works even if mouse is down)
+    // Art Click / Raycasting
     canvas.addEventListener('click', (e) => {
-        if (!isMouseDown) { // Only raycast if the mouse wasn't just used to look (to prevent accidental clicks)
-            const ray = new THREE.Raycaster();
-            // Use normalized device coordinates for the click position (center of screen for simple gallery)
-            ray.setFromCamera({x:0, y:0}, camera); 
-
-            const hits = ray.intersectObjects(clickables);
-            if(hits.length > 0 && hits[0].object.userData.clickable) {
-                const idx = hits[0].object.userData.idx;
-                vrGallery.classList.remove('active');
-                openLightbox(idx);
-            }
-        }
+        // Get mouse position for raycasting
+        mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+        
+        isPointerDown = true; // Signal the animate loop to perform raycasting
     });
     
     // Mobile Touch Look (Right side of screen)
     let touchStartX = 0, touchStartY = 0;
-    let isTouchLook = false;
-
+    
     canvas.addEventListener('touchstart', e => {
-        // If touch starts on the right half, it's for looking
         if(e.touches[0].clientX > window.innerWidth/2) {
            e.preventDefault();
            touchStartX = e.touches[0].clientX;
            touchStartY = e.touches[0].clientY;
-           isTouchLook = true;
+        } else {
+             // Handle tap for art click on left side (where joystick is not)
+             mouse.x = ( e.touches[0].clientX / window.innerWidth ) * 2 - 1;
+             mouse.y = - ( e.touches[0].clientY / window.innerHeight ) * 2 + 1;
+             isPointerDown = true;
         }
     }, {passive: false});
     
     canvas.addEventListener('touchmove', e => {
-        if(isTouchLook) {
+        if(e.touches[0].clientX > window.innerWidth/2 && touchStartX !== 0) { 
             e.preventDefault();
             const dx = e.touches[0].clientX - touchStartX;
             const dy = e.touches[0].clientY - touchStartY;
@@ -757,7 +714,8 @@ function setupControls() {
     }, {passive: false});
 
     canvas.addEventListener('touchend', e => {
-        isTouchLook = false;
+        touchStartX = 0; 
+        touchStartY = 0;
     });
 }
 
@@ -804,33 +762,63 @@ function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
 
+    // Friction
     velocity.x -= velocity.x * 10.0 * delta;
     velocity.z -= velocity.z * 10.0 * delta;
 
+    // Direction calculation
     direction.z = Number(moveForward) - Number(moveBackward) - joystickVector.y;
     direction.x = Number(moveRight) - Number(moveLeft) + joystickVector.x;
     direction.normalize();
 
+    // Move
     if (moveForward || moveBackward || moveLeft || moveRight || joystickVector.x !== 0 || joystickVector.y !== 0) {
-        velocity.z -= direction.z * 40.0 * delta; 
+        velocity.z -= direction.z * 40.0 * delta; // Speed
         velocity.x -= direction.x * 40.0 * delta;
     }
 
     camera.translateX(-velocity.x * delta);
     camera.translateZ(-velocity.z * delta);
-
-    // Collision (Bounding Box)
-    const maxZ = 9; 
-    const minZ = 9 - (ART_SPACING * artworkData.length) - 3; // Approx length
-    const maxR = ROOM_WIDTH/2 - 1; // 1m buffer from side walls
-
-    // Side Bounds
-    if(camera.position.x < -maxR) camera.position.x = -maxR;
-    if(camera.position.x > maxR) camera.position.x = maxR;
     
-    // Front/Back Bounds
-    if(camera.position.z > maxZ) camera.position.z = maxZ;
-    if(camera.position.z < minZ) camera.position.z = minZ;
+    // FIX: Re-enforcing fixed height
+    camera.position.y = 1.6; 
+    
+    // --- PORTAL DETECTION ---
+    portals.forEach(portal => {
+        const portalPos = portal.position;
+        const camPos = camera.position;
+        
+        // Simple distance check (ignoring Y)
+        const distance = Math.sqrt(
+            Math.pow(camPos.x - portalPos.x, 2) + 
+            Math.pow(camPos.z - portalPos.z, 2)
+        );
+
+        if (distance < 1.5) {
+            const targetRoom = portal.userData.targetRoom;
+            const targetPos = roomPositions[targetRoom];
+            
+            // Teleport the camera slightly away from the portal's position
+            const offset = (targetRoom === 'room1') ? 2 : -2;
+            camera.position.set(targetPos.x, targetPos.y, targetPos.z + offset);
+        }
+    });
+
+    // --- RAYCASTING (Clicking Art) ---
+    if (isPointerDown) {
+        raycaster.setFromCamera(mouse, camera);
+        
+        const artHits = raycaster.intersectObjects(clickables);
+        if (artHits.length && artHits[0].object.userData.clickable) {
+            const idx = artHits[0].object.userData.idx;
+            vrGallery.classList.remove('active');
+            openLightbox(idx);
+            document.body.style.overflow = '';
+        }
+        
+        isPointerDown = false; // Reset the click flag
+    }
+
 
     renderer.render(scene, camera);
 }
