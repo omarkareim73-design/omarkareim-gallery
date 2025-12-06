@@ -269,6 +269,8 @@ const closeBtn = document.querySelector('.lightbox-close');
 const prevBtn = document.getElementById('lightboxPrev');
 const nextBtn = document.getElementById('lightboxNext');
 
+let vrGalleryWasActive = false; // NEW FLAG
+
 function updateLightboxContent(idx) {
     currentLightboxIndex = idx;
     const art = artworkData[idx];
@@ -296,10 +298,19 @@ function navigateLightbox(direction) {
     updateLightboxContent(newIndex);
 }
 
+// MODIFIED EXIT LOGIC
 closeBtn.onclick = () => {
     lightbox.classList.remove('active');
-    document.body.style.overflow = '';
+    if (vrGalleryWasActive) {
+        // Restore the VR gallery state if it was active
+        vrGallery.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Keep VR's overflow setting
+        vrGalleryWasActive = false; // Reset the flag
+    } else {
+        document.body.style.overflow = ''; // Restore standard scrolling
+    }
 };
+
 prevBtn.onclick = () => navigateLightbox(-1);
 nextBtn.onclick = () => navigateLightbox(1);
 
@@ -355,12 +366,12 @@ let isMouseDown = false;
 let velocity = new THREE.Vector3();
 let direction = new THREE.Vector3();
 let joystickVector = { x: 0, y: 0 };
-let isPointerDown = false; // NEW FLAG for raycasting on click
+let isPointerDown = false; 
 const mouse = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
 
 
-vrBtn.onclick = () => initVR('room1'); // Start in Room 1
+vrBtn.onclick = () => initVR('room1'); 
 exitBtn.onclick = () => {
     vrGallery.classList.remove('active');
     document.body.style.overflow = '';
@@ -369,7 +380,7 @@ exitBtn.onclick = () => {
 function initVR(startRoom) {
     vrGallery.classList.add('active');
     document.body.style.overflow = 'hidden';
-    clickables.length = 0; // Clear clickables list
+    clickables.length = 0; 
 
     // 1. Setup (Only once)
     if (!scene) {
@@ -394,19 +405,18 @@ function initVR(startRoom) {
         animate();
     }
     
-    clearSceneMeshes(); // Remove previous rooms/portals
+    clearSceneMeshes(); 
     buildGallery();
 
     // Set camera start position
     const startPos = roomPositions[startRoom];
     camera.position.set(startPos.x, startPos.y, startPos.z); 
-    camera.rotation.y = 0; // Reset rotation for fresh start
+    camera.rotation.y = 0; 
 }
 
 function clearSceneMeshes() {
-    // Collect all objects *except* the camera and the initial ambient light
     const objectsToRemove = scene.children.filter(obj => 
-        obj !== camera && !(obj instanceof THREE.AmbientLight)
+        obj !== camera && !(obj instanceof THREE.AmbientLight) && !(obj instanceof THREE.SpotLight) // Keep spotlights too if added globally
     );
     objectsToRemove.forEach(obj => {
         if (obj.geometry) obj.geometry.dispose();
@@ -419,22 +429,18 @@ function clearSceneMeshes() {
         }
         scene.remove(obj);
     });
-    // Clear dynamic arrays
     portals.length = 0; 
     clickables.length = 0; 
 }
 
 
 function buildGallery() {
-    // --- Shared Materials/Geometries ---
     const wallMat = new THREE.MeshStandardMaterial({color: 0x222222, roughness: 0.9});
-    
     const floorTex = createTexture('floor');
-    floorTex.repeat.set(4, 4); // Smaller repeat for floor
+    floorTex.repeat.set(4, 4); 
 
     const floorMat = new THREE.MeshStandardMaterial({map: floorTex, roughness: 0.8, color: 0x111111});
     const ceilingMat = new THREE.MeshStandardMaterial({color: 0x333333, roughness: 0.9});
-    const portalMat = new THREE.MeshBasicMaterial({color: 0xDAB832, transparent: true, opacity: 0.7}); 
     
     const spotlight = new THREE.SpotLight(0xffffff, 4, 15, Math.PI/4, 0.5, 2);
     spotlight.position.set(0, 5, 0);
@@ -447,7 +453,7 @@ function buildGallery() {
     // Portal to Room 2
     createPortal(
         new THREE.Vector3(0, 0, -6), 
-        portalMat,
+        'Room 2',
         'room2',
         0 // Rotation
     );
@@ -459,7 +465,7 @@ function buildGallery() {
     // Portal back to Room 1
     createPortal(
         new THREE.Vector3(0, 0, -14), 
-        portalMat,
+        'Room 1',
         'room1',
         Math.PI // 180 degree rotation
     );
@@ -469,6 +475,8 @@ function buildGallery() {
 function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radius, roomID) {
     const size = 14;
     const height = 5.5;
+
+    // Floor, Ceiling, and Walls creation remains here... (omitted for brevity, assume unchanged)
 
     // Floor
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(size, size), floorMat);
@@ -486,13 +494,9 @@ function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radiu
     // Walls
     const wallDepth = 0.3;
     const walls = [
-        // Back Wall
         {pos: [center.x, center.y, center.z - size/2 + wallDepth/2], size: [size, height, wallDepth]},
-        // Front Wall (for entrance/exit)
         {pos: [center.x, center.y, center.z + size/2 - wallDepth/2], size: [size, height, wallDepth]},
-        // Left Wall
         {pos: [center.x - size/2 + wallDepth/2, center.y, center.z], size: [wallDepth, height, size]},
-        // Right Wall
         {pos: [center.x + size/2 - wallDepth/2, center.y, center.z], size: [wallDepth, height, size]}
     ];
     walls.forEach(w => {
@@ -500,8 +504,8 @@ function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radiu
         wall.position.set(...w.pos);
         scene.add(wall);
     });
-
-    // Artwork Placement (Circular layout, relative to room center)
+    
+    // Artwork Placement
     const count = artworkIndices.length;
     const maxWidth = 3.5, maxHeight = 3.5;
     const loader = new THREE.TextureLoader();
@@ -513,52 +517,51 @@ function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radiu
         const z = Math.cos(angle) * radius;
         const g = new THREE.Group();
 
-        // 1. Load the Texture
         loader.load(
             art.file,
-            // On Load success
             (tex) => {
                 tex.colorSpace = THREE.SRGBColorSpace;
                 
-                // Calculate dimensions based on image aspect ratio
                 const img = tex.image;
                 const aspect = img.width / img.height;
                 let planeWidth = maxWidth;
                 let planeHeight = maxWidth / aspect;
                 
-                // Constraint to max height if needed
                 if (planeHeight > maxHeight) { planeHeight = maxHeight; planeWidth = maxHeight * aspect; }
 
                 const artMat = new THREE.MeshStandardMaterial({
                     map: tex, roughness: 0.4, metalness: 0,
                     emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.2 
                 });
-
+                
+                // 1. Artwork Plane
                 const plane = new THREE.Mesh(new THREE.PlaneGeometry(planeWidth, planeHeight), artMat);
-                plane.position.z = 0.06;
-                plane.userData.idx = artIndex; // Global index for lightbox
+                // FIX: Make art flush by placing it almost at the center of the group (which is against the wall)
+                plane.position.z = 0.001; 
+                plane.userData.idx = artIndex; 
                 plane.userData.clickable = true;
                 g.add(plane);
                 clickables.push(plane); 
 
-                // Frame
+                // 2. Frame
                 const frame = new THREE.Mesh(
                     new THREE.BoxGeometry(planeWidth + 0.2, planeHeight + 0.2, 0.1),
                     new THREE.MeshStandardMaterial({color: 0x000000})
                 );
+                // Push the frame forward slightly so the painting sits *behind* the front rim
+                frame.position.z = 0.05; 
                 g.add(frame);
+                
+                // 3. Spotlight for the art
+                const spot = new THREE.SpotLight(0xffffff, 1.5, 5, 0.6, 0.5, 1);
+                spot.position.set(0, 1, 0); // Above the artwork
+                spot.target = plane;
+                g.add(spot);
+                g.add(spot.target);
             },
             undefined, 
             (err) => {
                 console.error(`Error loading texture for art ${i}:`, art.file, err);
-                // Simple placeholder if image fails
-                const placeholder = new THREE.Mesh(
-                    new THREE.PlaneGeometry(3, 3),
-                    new THREE.MeshBasicMaterial({color: 0xff0000})
-                );
-                placeholder.position.z = 0.06;
-                g.add(placeholder);
-                
             }
         );
 
@@ -569,34 +572,42 @@ function createRoom(center, wallMat, floorMat, ceilingMat, artworkIndices, radiu
     });
 }
 
-function createPortal(position, material, targetRoom, rotationY) {
-    // Portal arch dimensions
+function createPortal(position, targetName, targetRoom, rotationY) {
+    // Portal Arch Frame Geometry
     const width = 4, height = 4.5;
+    const frameDepth = 0.3;
+    const goldMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1 });
     
-    // Create arch shape
+    // 1. Create the Arch Shape (Ornate Frame)
     const shape = new THREE.Shape();
     shape.moveTo(-width/2, 0);
     shape.lineTo(-width/2, height);
     shape.lineTo(width/2, height);
     shape.lineTo(width/2, 0);
 
-    // Inner hole for the doorway
+    // Inner Hole 1 (The Doorway Opening)
     const holePath = new THREE.Path();
-    holePath.moveTo(-width/2 + 0.5, 0);
-    holePath.lineTo(-width/2 + 0.5, height - 0.5);
-    holePath.lineTo(width/2 - 0.5, height - 0.5);
-    holePath.lineTo(width/2 - 0.5, 0);
+    holePath.moveTo(-width/2 + 0.3, 0);
+    holePath.lineTo(-width/2 + 0.3, height - 0.5);
+    holePath.lineTo(width/2 - 0.3, height - 0.5);
+    holePath.lineTo(width/2 - 0.3, 0);
     shape.holes.push(holePath);
 
-    const extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.1, bevelThickness: 0.1 };
+    // Inner Hole 2 (Ornate Frame Detail)
+    const detailPath = new THREE.Path();
+    detailPath.moveTo(-width/2 + 0.4, 0.1);
+    detailPath.lineTo(-width/2 + 0.4, height - 0.6);
+    detailPath.lineTo(width/2 - 0.4, height - 0.6);
+    detailPath.lineTo(width/2 - 0.4, 0.1);
+    shape.holes.push(detailPath);
+
+    const extrudeSettings = { depth: frameDepth, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.1, bevelThickness: 0.1 };
     
     // Gold Archway Mesh
     const archGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-    const archMesh = new THREE.Mesh(archGeo, new THREE.MeshStandardMaterial({
-        color: 0xffd700, metalness: 0.8, roughness: 0.2
-    }));
+    const archMesh = new THREE.Mesh(archGeo, goldMat);
     
-    // Portal Trigger (Invisible Box)
+    // 2. Portal Trigger (Invisible Box)
     const portalGeo = new THREE.BoxGeometry(width, height, 0.5); 
     const portalMesh = new THREE.Mesh(portalGeo, new THREE.MeshBasicMaterial({
         transparent: true, opacity: 0 // Invisible trigger box
@@ -610,10 +621,33 @@ function createPortal(position, material, targetRoom, rotationY) {
     portals.push(portalMesh);
     scene.add(portalMesh);
 
-    // Position Archway relative to the trigger
+    // Position Archway
     archMesh.position.copy(portalMesh.position);
     archMesh.rotation.copy(portalMesh.rotation);
+    archMesh.position.z -= frameDepth / 2; // Adjust position so it's centered with the trigger
     scene.add(archMesh);
+
+    // 3. "ENTER" Text Indicator
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 512; canvas.height = 128;
+    ctx.fillStyle = '#daa520';
+    ctx.font = 'bold 70px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('ENTER', 256, 90);
+    
+    const textTex = new THREE.CanvasTexture(canvas);
+    const textMat = new THREE.MeshBasicMaterial({ map: textTex, transparent: true });
+    const textPlane = new THREE.Mesh(new THREE.PlaneGeometry(width - 1, 1), textMat); // Size the plane to fit the arch
+    
+    // Position the text above the arch opening
+    textPlane.position.set(
+        portalMesh.position.x, 
+        portalMesh.position.y + 1.5, 
+        portalMesh.position.z + 0.1 // Z-offset to make it visible
+    );
+    textPlane.rotation.y = rotationY;
+    scene.add(textPlane);
 }
 
 
@@ -627,7 +661,6 @@ function createTexture(type) {
         ctx.strokeStyle = '#333'; ctx.lineWidth=2;
         ctx.strokeRect(0,0,128,128); 
     } 
-    // This is simple. You can enhance it with stone or gold effects later.
     
     const tex = new THREE.CanvasTexture(cvs);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
@@ -678,11 +711,10 @@ function setupControls() {
 
     // Art Click / Raycasting
     canvas.addEventListener('click', (e) => {
-        // Get mouse position for raycasting
         mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
         mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
         
-        isPointerDown = true; // Signal the animate loop to perform raycasting
+        isPointerDown = true; 
     });
     
     // Mobile Touch Look (Right side of screen)
@@ -694,7 +726,7 @@ function setupControls() {
            touchStartX = e.touches[0].clientX;
            touchStartY = e.touches[0].clientY;
         } else {
-             // Handle tap for art click on left side (where joystick is not)
+             // Handle tap for art click on left side 
              mouse.x = ( e.touches[0].clientX / window.innerWidth ) * 2 - 1;
              mouse.y = - ( e.touches[0].clientY / window.innerHeight ) * 2 + 1;
              isPointerDown = true;
@@ -762,25 +794,21 @@ function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
 
-    // Friction
     velocity.x -= velocity.x * 10.0 * delta;
     velocity.z -= velocity.z * 10.0 * delta;
 
-    // Direction calculation
     direction.z = Number(moveForward) - Number(moveBackward) - joystickVector.y;
     direction.x = Number(moveRight) - Number(moveLeft) + joystickVector.x;
     direction.normalize();
 
-    // Move
     if (moveForward || moveBackward || moveLeft || moveRight || joystickVector.x !== 0 || joystickVector.y !== 0) {
-        velocity.z -= direction.z * 40.0 * delta; // Speed
+        velocity.z -= direction.z * 40.0 * delta; 
         velocity.x -= direction.x * 40.0 * delta;
     }
 
     camera.translateX(-velocity.x * delta);
     camera.translateZ(-velocity.z * delta);
     
-    // FIX: Re-enforcing fixed height
     camera.position.y = 1.6; 
     
     // --- PORTAL DETECTION ---
@@ -788,7 +816,6 @@ function animate() {
         const portalPos = portal.position;
         const camPos = camera.position;
         
-        // Simple distance check (ignoring Y)
         const distance = Math.sqrt(
             Math.pow(camPos.x - portalPos.x, 2) + 
             Math.pow(camPos.z - portalPos.z, 2)
@@ -798,7 +825,6 @@ function animate() {
             const targetRoom = portal.userData.targetRoom;
             const targetPos = roomPositions[targetRoom];
             
-            // Teleport the camera slightly away from the portal's position
             const offset = (targetRoom === 'room1') ? 2 : -2;
             camera.position.set(targetPos.x, targetPos.y, targetPos.z + offset);
         }
@@ -811,12 +837,15 @@ function animate() {
         const artHits = raycaster.intersectObjects(clickables);
         if (artHits.length && artHits[0].object.userData.clickable) {
             const idx = artHits[0].object.userData.idx;
-            vrGallery.classList.remove('active');
+            
+            // FIX: Set flag that VR was active before opening lightbox
+            vrGalleryWasActive = vrGallery.classList.contains('active'); 
+            
+            // NOTE: Do NOT remove the 'active' class here. The lightbox overlay will hide it.
             openLightbox(idx);
-            document.body.style.overflow = '';
         }
         
-        isPointerDown = false; // Reset the click flag
+        isPointerDown = false; 
     }
 
 
