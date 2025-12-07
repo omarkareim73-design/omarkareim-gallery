@@ -5,7 +5,7 @@
 <link rel="apple-touch-icon" href="images/ok_favicon.png">
 <meta name="theme-color" content="#000000">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>omar kareim | art gallery</title>
     <meta name="description" content="Explore the multidimensional artwork of Omar Kareim — a fusion of cultural symbolism and spirituality. View mixed-media works, abstraction, portraiture, and immersive visual narratives.">
@@ -27,7 +27,7 @@
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         html {scroll-behavior: smooth;}
-        body{font-family:'Georgia',serif;background:#0a0a0a;color:#f5f5f5;overflow-x:hidden;user-select:none; -webkit-tap-highlight-color: transparent;}
+        body{font-family:'Georgia',serif;background:#0a0a0a;color:#f5f5f5;overflow-x:hidden;user-select:none}
         .landing{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;background:linear-gradient(135deg,#1a1a1a 0%,#0a0a0a 100%);position:relative;overflow:hidden}
         .landing::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(218,165,32,0.1)0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:pulse 4s ease-in-out infinite}
         @keyframes pulse{0%,100%{transform:translate(-50%,-50%)scale(1);opacity:.3}50%{transform:translate(-50%,-50%)scale(1.2);opacity:.5}}
@@ -264,60 +264,44 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
 <script>
 const artworkData = [
-    // 1. Axis Mundi (main)
+    // ACTIVE ARTWORKS (10)
     { file: 'images/artwork1.webp', fallback: 'images/artwork1.png', title: 'Axis Mundi', medium: 'Acrylic on Canvas', date: '2025', description: 'A sweeping exploration of human interconnectedness, belief, and belonging, this monumental work unifies diverse spiritual and cultural iconographies within a cosmological framework. Elements of earth, wind, fire, and water serve as anchoring forces, binding the narrative across traditions. At its center stands the Shroud of Turin, framed by symbols that span Abrahamic faiths, ancient mythologies, and contemporary metaphysics. The figure on the far right - “Goddess of the Information Age” - introduces a tension between the ancient and the digital, suggesting a future in which wisdom, technology, and spirituality converge. The result is a visual codex: a map of humanity’s shared search for meaning.' },
-
-    // 2. Axis Mundi (supporting)
     { file: 'images/artwork2.webp', fallback: 'images/artwork2.png', title: 'Axis Mundi', medium: 'Acrylic on Canvas', date: '2025', description: '' },
-
-    // 3. El Dorado (supporting)
     { file: 'images/artwork3.webp', fallback: 'images/artwork3.png', title: 'El Dorado', medium: 'Acrylic on Canvas', date: '2025', description: '' },
-
-    // 4. El Dorado (main)
     { file: 'images/artwork4.webp', fallback: 'images/artwork4.png', title: 'El Dorado', medium: 'Acrylic on Canvas', date: '2025', description: 'A dynamic fusion of classical form and contemporary iconography, this portrait reimagines Lionel Messi through a Greco-Roman lens - elevating an athlete into the realm of myth. Sculptural gold leaf accentuates his profile, evoking both heroic statuary and regal ornamentation, while roses intertwine as symbols of honor, admiration, and legacy. Set against an expressive modern background, the piece functions as a visual homage to the idea of “giving them their flowers” - celebrating greatness not as spectacle, but as a timeless human pursuit.' },
-
-    // 5. Mjolnir
     { file: 'images/artwork5.webp', fallback: 'images/artwork5.png', title: 'Mjolnir: Forge of Resilience', medium: 'Acrylic and Ink on Canvas', date: '2023', description: 'Echoing the mythical hammer of Thor, this intricate work embodies resilience, sovereignty, and the raw force of creation. The form of Mjolnir emerges through a labyrinth of linework - part sigil, part circuitry, suggesting the convergence of ancient power and modern symbolic languages. Its unexpected uterine silhouette introduces a compelling duality: destruction and creation, war and fertility, chaos and regeneration. This tension reframes the hammer not merely as a weapon of the gods, but as a vessel for rebirth through struggle.' },
-
-    // 6. Stargate (main 2012)
-    { file: 'images/artwork6.webp', fallback: 'images/artwork6.png', title: 'Stargate', medium: 'Acrylic on Canvas', date: '2012', description: 'An evocative abstract meditation on transition and possibility, Stargate captures the moment just before emergence - when the familiar dissolves and the unknown begins to take shape. The central circular form, both portal and boundary, anchors the composition as sweeping lines and fragmented geometric marks swirl around it like remnants of past structures. Gold fields meet deep shadow, suggesting the meeting point between illumination and obscurity, intention and uncertainty. This work embodies the quiet power of liminality: the space where identity, direction, and meaning are actively formed.' },
-
-    // 7. Stargate (supporting 2012)
-    { file: 'images/artwork7.webp', fallback: 'images/artwork7.png', title: 'Stargate', medium: 'Acrylic on Canvas', date: '2012', description: '' },
-
-    // 8. φ
     { file: 'images/artwork8.webp', fallback: 'images/artwork8.png', title: 'φ', medium: 'Acrylic on Canvas', date: '2025', description: 'φ explores the meeting point between human motion and mathematical harmony. At the center of the composition, a silhouetted figure rises through a field of textured red, suspended in a moment that suggests both physical leap and spiritual ascent. Surrounding the figure are equations drawn from physics and mathematics, including the golden ratio, whose symbol gives the work its title.\n\nThese inscriptions serve as quiet anchors, grounding the composition in the structures that underlie the natural world. Against this ordered framework, the figure’s upward movement introduces an element of intuition and possibility. The tension between precision and transcendence becomes the focus of the piece, inviting viewers to consider how rational knowledge and inner experience can coexist.\n\nThe result is a meditation on form, growth, and the search for balance - an ascent shaped equally by the measurable and the immeasurable.' },
-
-    // 9. Invocation to Rise (main 2025)
     { file: 'images/artwork9.webp', fallback: 'images/artwork9.png', title: 'Invocation to Rise', medium: 'Acrylic on Canvas', date: '2025', description: 'In Invocation to Rise, the concentric bands and runic text encircle a gold plane where a faint horizon glimmers, like a doorway waiting in the light. The painting becomes an illuminated invocation - part prayer, part portal - quietly guiding the viewer toward elevation. Its language is subtle, encoded, and ancient, inviting those who linger to sense the threshold woven into its heart.' },
-
-    // 10. Faded (main 2025)
+    { file: 'images/artwork6.webp', fallback: 'images/artwork6.png', title: 'Stargate', medium: 'Acrylic on Canvas', date: '2012', description: 'An evocative abstract meditation on transition and possibility, Stargate captures the moment just before emergence - when the familiar dissolves and the unknown begins to take shape. The central circular form, both portal and boundary, anchors the composition as sweeping lines and fragmented geometric marks swirl around it like remnants of past structures. Gold fields meet deep shadow, suggesting the meeting point between illumination and obscurity, intention and uncertainty. This work embodies the quiet power of liminality: the space where identity, direction, and meaning are actively formed.' },
+    { file: 'images/artwork7.webp', fallback: 'images/artwork7.png', title: 'Stargate', medium: 'Acrylic on Canvas', date: '2012', description: '' },
     { file: 'images/artwork10.webp', fallback: 'images/artwork10.png', title: 'Faded', medium: 'Acrylic on Canvas', date: '2025', description: 'Beneath the surface of Faded lies the ghost of a biomechanical figure - an abandoned beginning. The painting began as an attempt to recreate a work that was lost, but the past resisted. The original piece, rooted in cycles and calm symbolism, belonged to a different painter living a different life. As the process unfolded, anger, memory, and reluctant acceptance surfaced instead, dissolving the initial concept and transforming the canvas into a dystopian landscape. The clustered skulls evoke fragments of past identity; the stark city on the horizon suggests a life that endures despite its scars. A quiet band of gray and violet restrains the turbulent red sky above - a thin line of stillness between intensity and collapse. Beneath it all, the biomechanical woman remains: the first idea, faded but not forgotten, bridging the distance between past and present.' },
 
-    // --- NEW PLACEHOLDERS ADDED (11 through 30) ---
-    { file: 'images/artwork11.webp', fallback: 'images/artwork11.png', title: 'Placeholder: Enigma', medium: 'Digital Mixed Media', date: '2026', description: 'Future artwork slot.' },
-    { file: 'images/artwork12.webp', fallback: 'images/artwork12.png', title: 'Placeholder: Echoes', medium: 'Oil on Board', date: '2026', description: 'Future artwork slot.' },
-    { file: 'images/artwork13.webp', fallback: 'images/artwork13.png', title: 'Placeholder: Ascent', medium: 'Acrylic and Gold Leaf', date: '2026', description: 'Future artwork slot.' },
-    { file: 'images/artwork14.webp', fallback: 'images/artwork14.png', title: 'Placeholder: The Architect', medium: 'Ink on Paper', date: '2026', description: 'Future artwork slot.' },
-    { file: 'images/artwork15.webp', fallback: 'images/artwork15.png', title: 'Placeholder: Vessel', medium: 'Sculptural Installation', date: '2027', description: 'Future artwork slot.' },
-    { file: 'images/artwork16.webp', fallback: 'images/artwork16.png', title: 'Placeholder: Still Point', medium: 'Acrylic on Canvas', date: '2027', description: 'Future artwork slot.' },
-    { file: 'images/artwork17.webp', fallback: 'images/artwork17.png', title: 'Placeholder: Convergence', medium: 'Digital Painting', date: '2027', description: 'Future artwork slot.' },
-    { file: 'images/artwork18.webp', fallback: 'images/artwork18.png', title: 'Placeholder: Archive', medium: 'Mixed Media', date: '2027', description: 'Future artwork slot.' },
-    { file: 'images/artwork19.webp', fallback: 'images/artwork19.png', title: 'Placeholder: Horizon', medium: 'Oil on Canvas', date: '2028', description: 'Future artwork slot.' },
-    { file: 'images/artwork20.webp', fallback: 'images/artwork20.png', title: 'Placeholder: Code', medium: 'Digital Print', date: '2028', description: 'Future artwork slot.' },
-    { file: 'images/artwork21.webp', fallback: 'images/artwork21.png', title: 'Placeholder: Relic', medium: 'Acrylic and Resin', date: '2028', description: 'Future artwork slot.' },
-    { file: 'images/artwork22.webp', fallback: 'images/artwork22.png', title: 'Placeholder: Flow', medium: 'Ink on Canvas', date: '2028', description: 'Future artwork slot.' },
-    { file: 'images/artwork23.webp', fallback: 'images/artwork23.png', title: 'Placeholder: Symmetry', medium: 'Acrylic on Canvas', date: '2029', description: 'Future artwork slot.' },
-    { file: 'images/artwork24.webp', fallback: 'images/artwork24.png', title: 'Placeholder: The Void', medium: 'Oil on Canvas', date: '2029', description: 'Future artwork slot.' },
-    { file: 'images/artwork25.webp', fallback: 'images/artwork25.png', title: 'Placeholder: Gateway', medium: 'Digital Painting', date: '2029', description: 'Future artwork slot.' },
-    { file: 'images/artwork26.webp', fallback: 'images/artwork26.png', title: 'Placeholder: Root', medium: 'Mixed Media', date: '2029', description: 'Future artwork slot.' },
-    { file: 'images/artwork27.webp', fallback: 'images/artwork27.png', title: 'Placeholder: Nexus', medium: 'Acrylic on Canvas', date: '2030', description: 'Future artwork slot.' },
-    { file: 'images/artwork28.webp', fallback: 'images/artwork28.png', title: 'Placeholder: Signal', medium: 'Digital Print', date: '2030', description: 'Future artwork slot.' },
-    { file: 'images/artwork29.webp', fallback: 'images/artwork29.png', title: 'Placeholder: Lineage', medium: 'Oil on Canvas', date: '2030', description: 'Future artwork slot.' },
-    { file: 'images/artwork30.webp', fallback: 'images/artwork30.png', title: 'Placeholder: Source', medium: 'Acrylic on Canvas', date: '2030', description: 'Future artwork slot.' }
+    // COMMENTED-OUT PLACEHOLDERS (11 through 30) - Inactive but structural
+    /*
+    { file: 'images/artwork11.webp', fallback: 'images/artwork11.png', title: 'Placeholder 11', medium: 'Digital Mixed Media', date: '2026', description: 'Future artwork slot.' },
+    { file: 'images/artwork12.webp', fallback: 'images/artwork12.png', title: 'Placeholder 12', medium: 'Oil on Board', date: '2026', description: 'Future artwork slot.' },
+    { file: 'images/artwork13.webp', fallback: 'images/artwork13.png', title: 'Placeholder 13', medium: 'Acrylic and Gold Leaf', date: '2026', description: 'Future artwork slot.' },
+    { file: 'images/artwork14.webp', fallback: 'images/artwork14.png', title: 'Placeholder 14', medium: 'Ink on Paper', date: '2026', description: 'Future artwork slot.' },
+    { file: 'images/artwork15.webp', fallback: 'images/artwork15.png', title: 'Placeholder 15', medium: 'Sculptural Installation', date: '2027', description: 'Future artwork slot.' },
+    { file: 'images/artwork16.webp', fallback: 'images/artwork16.png', title: 'Placeholder 16', medium: 'Acrylic on Canvas', date: '2027', description: 'Future artwork slot.' },
+    { file: 'images/artwork17.webp', fallback: 'images/artwork17.png', title: 'Placeholder 17', medium: 'Digital Painting', date: '2027', description: 'Future artwork slot.' },
+    { file: 'images/artwork18.webp', fallback: 'images/artwork18.png', title: 'Placeholder 18', medium: 'Mixed Media', date: '2027', description: 'Future artwork slot.' },
+    { file: 'images/artwork19.webp', fallback: 'images/artwork19.png', title: 'Placeholder 19', medium: 'Oil on Canvas', date: '2028', description: 'Future artwork slot.' },
+    { file: 'images/artwork20.webp', fallback: 'images/artwork20.png', title: 'Placeholder 20', medium: 'Digital Print', date: '2028', description: 'Future artwork slot.' },
+    { file: 'images/artwork21.webp', fallback: 'images/artwork21.png', title: 'Placeholder 21', medium: 'Acrylic and Resin', date: '2028', description: 'Future artwork slot.' },
+    { file: 'images/artwork22.webp', fallback: 'images/artwork22.png', title: 'Placeholder 22', medium: 'Ink on Canvas', date: '2028', description: 'Future artwork slot.' },
+    { file: 'images/artwork23.webp', fallback: 'images/artwork23.png', title: 'Placeholder 23', medium: 'Acrylic on Canvas', date: '2029', description: 'Future artwork slot.' },
+    { file: 'images/artwork24.webp', fallback: 'images/artwork24.png', title: 'Placeholder 24', medium: 'Oil on Canvas', date: '2029', description: 'Future artwork slot.' },
+    { file: 'images/artwork25.webp', fallback: 'images/artwork25.png', title: 'Placeholder 25', medium: 'Digital Painting', date: '2029', description: 'Future artwork slot.' },
+    { file: 'images/artwork26.webp', fallback: 'images/artwork26.png', title: 'Placeholder 26', medium: 'Mixed Media', date: '2029', description: 'Future artwork slot.' },
+    { file: 'images/artwork27.webp', fallback: 'images/artwork27.png', title: 'Placeholder 27', medium: 'Acrylic on Canvas', date: '2030', description: 'Future artwork slot.' },
+    { file: 'images/artwork28.webp', fallback: 'images/artwork28.png', title: 'Placeholder 28', medium: 'Digital Print', date: '2030', description: 'Future artwork slot.' },
+    { file: 'images/artwork29.webp', fallback: 'images/artwork29.png', title: 'Placeholder 29', medium: 'Oil on Canvas', date: '2030', description: 'Future artwork slot.' },
+    { file: 'images/artwork30.webp', fallback: 'images/artwork30.png', title: 'Placeholder 30', medium: 'Acrylic on Canvas', date: '2030', description: 'Future artwork slot.' }
+    */
 ];
 
-/* ===== GALLERY BUILDER ===== */
+/* ===== GALLERY BUILDER (UNCHANGED, only uses active artworkData entries) ===== */
 const grid = document.getElementById('galleryGrid');
 artworkData.forEach((art, i) => {
     const item = document.createElement('div');
@@ -339,7 +323,7 @@ artworkData.forEach((art, i) => {
     grid.appendChild(item);
 });
 
-/* ===== LIGHTBOX, SCROLL, ETC. (unchanged) ===== */
+/* ===== LIGHTBOX AND SCROLL LOGIC (UNCHANGED) ===== */
 
 const lightbox = document.getElementById('lightbox');
 const lbImg = document.getElementById('lightboxImg');
@@ -427,44 +411,28 @@ exitBtn.onclick = () => { vrGallery.classList.remove('active'); document.body.st
 function initVR() {
     vrGallery.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
-    // --- VR GALLERY SIZE EXPANSION ---
-    const roomSize = 30; // New room width/length (increased from 14)
-    const wallHeight = 5.5; 
-    const radius = 12; // New radius for circular art placement (increased from 6)
-    const maxBoundary = (roomSize / 2) - 0.5; 
-    
-    // 1. Setup (Only once)
-    if (!scene) {
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 100);
-        
-        renderer = new THREE.WebGLRenderer({canvas, antialias: true});
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.shadowMap.enabled = true;
-        
-        clock = new THREE.Clock();
-        animate();
-    }
-    
-    // Reset room size for current run (in case we want to dynamically change it later)
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.position.set(0, 1.6, 5); // Reset camera position
-    clickables.length = 0; // Clear clickables
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.6, 5);
 
-    // 2. Lighting (Same)
+    renderer = new THREE.WebGLRenderer({canvas, antialias: true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+
     const ambient = new THREE.AmbientLight(0xffffff, 1.2);
     scene.add(ambient);
     const directional = new THREE.DirectionalLight(0xffffff, 0.8);
     directional.position.set(0, 10, 0);
     scene.add(directional);
 
-    // 3. Floor/Ceiling/Walls (UPDATED TO NEW SIZE)
+    // Floor and Ceiling (14x14 room dimensions preserved)
+    const roomSize = 14;
+    const wallHeight = 5.5;
     
-    // Floor
     const floorTex = new THREE.CanvasTexture(createCheckerboard());
     floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
-    floorTex.repeat.set(roomSize / 2, roomSize / 2); // Repeat texture based on new size
+    floorTex.repeat.set(roomSize / 2, roomSize / 2);
     const floor = new THREE.Mesh(
         new THREE.PlaneGeometry(roomSize, roomSize),
         new THREE.MeshStandardMaterial({map: floorTex, roughness: 0.8, metalness: 0.1})
@@ -473,7 +441,6 @@ function initVR() {
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // Ceiling
     const ceiling = new THREE.Mesh(
         new THREE.PlaneGeometry(roomSize, roomSize),
         new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.9})
@@ -482,18 +449,17 @@ function initVR() {
     ceiling.position.y = wallHeight;
     scene.add(ceiling);
 
-    // Walls
     const wallMat = new THREE.MeshStandardMaterial({color: 0x000000, roughness: 0.9});
     const halfSize = roomSize / 2;
     const walls = [
-        // Back Wall (Z)
+        // Back Wall (Z) - At Z=-7
         {pos: [0, wallHeight/2, -halfSize], size: [roomSize, wallHeight, 0.3]},
-        // Front Wall (Z)
+        // Right Wall (X) - At X=7
+        {pos: [halfSize, wallHeight/2, 0], size: [0.3, wallHeight, roomSize]},
+        // Front Wall (Z) - At Z=7 (omitted in code, added below for 4 walls)
         {pos: [0, wallHeight/2, halfSize], size: [roomSize, wallHeight, 0.3]},
-        // Left Wall (X)
-        {pos: [-halfSize, wallHeight/2, 0], size: [0.3, wallHeight, roomSize]},
-        // Right Wall (X)
-        {pos: [halfSize, wallHeight/2, 0], size: [0.3, wallHeight, roomSize]}
+        // Left Wall (X) - At X=-7
+        {pos: [-halfSize, wallHeight/2, 0], size: [0.3, wallHeight, roomSize]}
     ];
     walls.forEach(w => {
         const wall = new THREE.Mesh(new THREE.BoxGeometry(...w.size), wallMat);
@@ -501,24 +467,44 @@ function initVR() {
         scene.add(wall);
     });
 
-    // 4. Artwork Placement (Now for 30 pieces)
+    // FIX: Artwork Placement - New Four-Wall Distribution Logic (3, 2, 3, 2)
     const maxWidth = 3.5, maxHeight = 3.5;
+    const artworkHeight = 2.2;
+    const wallDepth = 7 - 0.15; // Position just inside the wall (7 - half wall thickness)
+    const wallPositions = {
+        // Wall 1: Back (Z = -6.85, Facing +Z) - 3 pieces (Indices 0, 1, 2)
+        0: { pos: { x: -4, z: -wallDepth }, rot: 0 },
+        1: { pos: { x: 0, z: -wallDepth }, rot: 0 },
+        2: { pos: { x: 4, z: -wallDepth }, rot: 0 },
+        
+        // Wall 2: Right (X = 6.85, Facing -X) - 2 pieces (Indices 3, 4)
+        3: { pos: { x: wallDepth, z: -3 }, rot: -Math.PI / 2 },
+        4: { pos: { x: wallDepth, z: 3 }, rot: -Math.PI / 2 },
+        
+        // Wall 3: Front (Z = 6.85, Facing -Z) - 3 pieces (Indices 5, 6, 7)
+        5: { pos: { x: -4, z: wallDepth }, rot: Math.PI },
+        6: { pos: { x: 0, z: wallDepth }, rot: Math.PI },
+        7: { pos: { x: 4, z: wallDepth }, rot: Math.PI },
+        
+        // Wall 4: Left (X = -6.85, Facing +X) - 2 pieces (Indices 8, 9)
+        8: { pos: { x: -wallDepth, z: -3 }, rot: Math.PI / 2 },
+        9: { pos: { x: -wallDepth, z: 3 }, rot: Math.PI / 2 },
+    };
+
     artworkData.forEach((art, i) => {
-        const angle = (i / artworkData.length) * Math.PI * 2;
-        const x = Math.sin(angle) * radius;
-        const z = Math.cos(angle) * radius;
+        if (i >= 10 || !wallPositions[i]) return; // Only process first 10 active pieces
+
+        const wallPlacement = wallPositions[i];
         const g = new THREE.Group();
 
         const img = new Image();
-        img.crossOrigin = 'anonymous'; // Important for texture loading security
+        img.crossOrigin = 'anonymous';
         img.src = art.file;
         img.onload = () => {
             const aspect = img.width / img.height;
             let planeWidth = maxWidth;
             let planeHeight = maxWidth / aspect;
             if (planeHeight > maxHeight) { planeHeight = maxHeight; planeWidth = maxHeight * aspect; }
-            
-            // Texture loading occurs here
             const tex = new THREE.TextureLoader().load(art.file);
             tex.colorSpace = THREE.SRGBColorSpace;
             const plane = new THREE.Mesh(
@@ -537,19 +523,19 @@ function initVR() {
             g.add(frame);
         };
 
-        g.position.set(x, 2.2, z);
-        g.lookAt(0, 2.2, 0); // Face the center
+        g.position.set(wallPlacement.pos.x, artworkHeight, wallPlacement.pos.z);
+        g.rotation.y = wallPlacement.rot;
         scene.add(g);
     });
-    
+
+    clock = new THREE.Clock();
+    animate();
     setupVREvents();
 }
 
 function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
-    const maxBoundary = 14.5; // Ensure camera stays inside the 30x30 room
-    
     vel.multiplyScalar(0.9);
     dir.z = Number(moveF) - Number(moveB);
     dir.x = Number(moveR) - Number(moveL);
@@ -558,10 +544,10 @@ function animate() {
     if (moveL || moveR) vel.x -= dir.x * 12 * delta;
     camera.translateX(vel.x * delta);
     camera.translateZ(vel.z * delta);
-    
-    // Boundary check using the new max value
-    camera.position.x = Math.max(-maxBoundary, Math.min(maxBoundary, camera.position.x));
-    camera.position.z = Math.max(-maxBoundary, Math.min(maxBoundary, camera.position.z));
+    // Boundary max is set to 6.5 to keep the camera inside the 14x14 room (center at 7)
+    const max = 6.5; 
+    camera.position.x = Math.max(-max, Math.min(max, camera.position.x));
+    camera.position.z = Math.max(-max, Math.min(max, camera.position.z));
     camera.position.y = 1.6; // Keep user at eye level
 
     if (isPointerDown) {
@@ -712,7 +698,7 @@ function createCheckerboard() {
     const canvas = document.createElement('canvas');
     canvas.width = 128; canvas.height = 128;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#111111'; ctx.fillRect(0,0,128,128); // Darker floor
+    ctx.fillStyle = '#111111'; ctx.fillRect(0,0,128,128); 
     ctx.fillStyle = '#222222'; ctx.fillRect(0,0,64,64); ctx.fillRect(64,64,64,64);
     return canvas;
 }
